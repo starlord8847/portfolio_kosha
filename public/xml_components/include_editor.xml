@@ -1,0 +1,8 @@
+<krpano>
+	<plugin name='c2c'
+		url='%CURRENTXML%/plugins/copy2clipboard.js'
+		if='editor'
+		keep="true"
+        devices="html5"
+	/>
+</krpano>

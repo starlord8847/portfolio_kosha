@@ -1,0 +1,420 @@
+<krpano>
+    <!-- 개발용 셋팅 -->
+    <skin_settings maps="false"
+        maps_type="google"
+        maps_bing_api_key=""
+        maps_google_api_key=""
+        maps_zoombuttons="false"
+        maps_loadonfirstuse="true"
+        gyro="true"
+        gyro_keeplookingdirection="false"
+        webvr="false"
+        webvr_keeplookingdirection="true"
+        webvr_prev_next_hotspots="true"
+        autotour="false"
+        littleplanetintro="false"
+        followmousecontrol="false"
+        title="true"
+        thumbs="true"
+        thumbs_width="120" thumbs_height="80" thumbs_padding="10" thumbs_crop="0|40|240|160"
+        thumbs_opened="false"
+        thumbs_text="false"
+        thumbs_dragging="true"
+        thumbs_onhoverscrolling="false"
+        thumbs_scrollbuttons="false"
+        thumbs_scrollindicator="false"
+        thumbs_loop="false"
+        tooltips_buttons="false"
+        tooltips_thumbs="false"
+        tooltips_hotspots="false"
+        tooltips_mapspots="false"
+        deeplinking="false"
+        loadscene_flags="MERGE"
+        loadscene_blend="OPENBLEND(0.5, 0.0, 0.75, 0.05, linear)"
+        loadscene_blend_prev="SLIDEBLEND(0.5, 180, 0.75, linear)"
+        loadscene_blend_next="SLIDEBLEND(0.5,   0, 0.75, linear)"
+        loadingtext="loading..."
+        layout_width="100%"
+        layout_maxwidth="814"
+        controlbar_width="-24"
+        controlbar_height="40"
+        controlbar_offset="20"
+        controlbar_offset_closed="-40"
+        controlbar_overlap.no-fractionalscaling="10"
+        controlbar_overlap.fractionalscaling="0"
+        design_skin_images="vtourskin.png"
+        design_bgcolor="0x2D3E50"
+        design_bgalpha="0.8"
+        design_bgborder="0"
+        design_bgroundedge="1"
+        design_bgshadow="0 4 10 0x000000 0.3"
+        design_thumbborder_bgborder="3 0xFFFFFF 1.0"
+        design_thumbborder_padding="2"
+        design_thumbborder_bgroundedge="0"
+        design_text_css="color:#FFFFFF; font-family:'NanumGothic', 'serif', Arial;"
+        design_text_shadow="1"
+        init_fov='120'
+        />
+
+	<events name='tour_addon' 
+		keep='true'
+		picked_hotspot=''
+		picked_layer=''
+		onkeydown='onKeyDown()'
+		onkeyup='set(keycode, null);'
+		poly_points=''
+		onclick='onClickTourAddon()'
+	/>
+		<!-- onsingleclick='onSingleClick()'
+		ondoubleclick='onDoubleClick()' -->
+
+
+	<style name='style_polyhs_making'
+		polyline='true'
+	/>
+	<style name='style_polyhs_making_points'
+		enabled='true'
+		capture='true'
+		point_idx=''
+		parent=''
+		ondown="draghotspot_polypoint();"
+	/>
+	<action name="draghotspot_polypoint">
+		<![CDATA[
+			if(%1 != dragging,
+				spheretoscreen(ath, atv, hotspotcenterx, hotspotcentery);
+				sub(drag_adjustx, mouse.stagex, hotspotcenterx); 
+				sub(drag_adjusty, mouse.stagey, hotspotcentery); 
+				copy(mouse.prevstagex, mouse.stagex);
+				copy(mouse.prevstagey, mouse.stagey);
+				draghotspot_polypoint(dragging);
+			  ,
+				if(pressed,
+					sub(dx, mouse.stagex, drag_adjustx);
+					sub(dy, mouse.stagey, drag_adjusty);
+	
+					screentosphere(dx, dy, ath, atv);
+
+					if(parent AND point_idx != null,
+						copy(hotspot[get(parent)].point[get(point_idx)].ath, ath);
+						copy(hotspot[get(parent)].point[get(point_idx)].ath, atv);
+					);
+
+					delayedcall(0, draghotspot_polypoint(dragging) );
+				  );
+			  );
+		]]>
+	</action>
+
+	<action name='onClickTourAddon'>
+		screentosphere(mouse.stagex,mouse.stagey, mouseh, mousev);
+		copy(l_poly_points, poly_points);
+		if(!l_poly_points,
+			set(l_poly_points, '');
+		);
+		txtadd(l_poly_points, get(l_poly_points), '<point ath="', get(mouseh), '" atv="', get(mousev), '" />');
+		copy(poly_points, l_poly_points);
+
+            js(console.info('onClickTourAddon called, poly_point ADDED!'));
+	</action>
+
+	
+	<plugin name="hotspot_poly_copy" keep="true"
+		url="%SWFPATH%/plugins/textfield.swf"
+		html="Poly Points Copy"
+		css="font-family:'NanumGothic', 'serif', Courier;"
+		borderwidth="0"
+		align="left" y="100"
+		width="200"
+		vcenter='true'
+		onclick='onClickCopyPolyPoints()'
+	/>
+	
+	<action name='onClickCopyPolyPoints'>
+		plugin[c2c].copy2clipboard(get(poly_points));
+	</action>
+
+	<!-- <action name='onSingleClick' scope='local'>
+		if(global.polyhsswitch=='on',
+			screentosphere(mouse.stagex,mouse.stagey, mouseh, mousev);
+			
+			if(hotspot[polyhs_temp],
+			
+				copy(hotspot[polyhs_temp].point[get(hotspot[polyhs_temp].point.length)].ath, mouseh);
+				copy(hotspot[polyhs_temp].point[get(hotspot[polyhs_temp].point.length)].atv, mousev);
+
+				addhotspot(polyhs_temp)
+				style_polyhs_making_points
+			,
+				addhotspot(polyhs_temp);
+				hotspot[polyhs_temp].loadstyle(style_polyhs_making);
+
+				copy(hotspot[polyhs_temp].point[0].ath, mouseh);
+				copy(hotspot[polyhs_temp].point[0].atv, mousev);
+			);
+		,
+		);
+	</action>
+	<action name='onDoubleClick' scope='local'>
+		if(global.polyhsswitch=='on',
+		,
+		);
+	</action> -->
+	<action name='onKeyDown' scope='local'>
+		if(global.polyhsswitch=='on',
+		,
+    
+                js(console.info( get(global.keycode), get(events[tour_addon].picked_layer) ));
+			
+			if(global.keycode == 27,
+				set(global.poly_points, '');
+				break();
+			);
+
+			copy(global.prev_keycode, global.keycode);
+			
+			if(events[tour_addon].picked_hotspot,
+				copy(picked_element, hotspot[get(events[tour_addon].picked_hotspot)]);
+			);
+			if(events[tour_addon].picked_layer,
+				copy(picked_element, layer[get(events[tour_addon].picked_layer)]);
+			);
+
+
+			
+			if(global.keycode == 90,
+				add(newScale, picked_element.scale, 0.005);
+				copy(picked_element.scale, newScale);
+                
+                    js(console.info('newScale', get(newScale)));
+			);
+			if(global.keycode == 88,
+				add(newScale, picked_element.scale, -0.005);
+				copy(picked_element.scale, newScale);
+                    js(console.info('newScale', get(newScale)));
+			);
+			if(global.keycode == 68,
+				if(picked_element.distorted,
+					set(picked_element.distorted, false);
+				,
+					set(picked_element.distorted, true);
+				);
+			);
+		);
+	</action>
+
+
+	<style name='zoom_icon_style'
+		url='../skin/icons/magnify-scan.png'
+		capture='false'
+		autoalpha='false'
+        org_oy='0'
+        bounceygap='-20'
+		alpha='0.7'
+		zoom='true'
+		onclick='js( App.$children[0].$children[0].showModal( get(modal_key) , get(filename) ) );'
+		larger_scale='1.3'
+		init_scale='1'
+		onover='tween(scale, get(larger_scale));'
+		onout='tween(scale, get(init_scale));'
+		zorder='1000'
+		visible='true'
+		onloaded='zoom_icon_setup(); bounceUp(get(name));'
+	/>
+	<style name='zoom_icon_style_white'
+		style='zoom_icon_style'
+		url='../skin/icons/magnify-scan-white.png'
+	/>
+
+	<action name='zoom_icon_setup' scope='local'>
+		if(caller.scale,
+			mul(caller.scale, caller.larger_scale);
+			copy(caller.init_scale, caller.scale);
+			mul(caller.larger_scale, caller.init_scale, caller.larger_scale);
+		);
+	</action>
+
+	<action name='convert_language'>
+		if(%1 == null,
+			<!-- js(console.error('The action named "convert_language" did NOT get any pramras.', %1));
+			js(console.info('The action named "convert_language" SET default language Korean, "kr"')); -->
+			break();
+		);
+
+		for(set(i,0), i LT layer.count, inc(i),
+			if(layer[get(i)].type == 'text',
+				set(newHtml, '');
+				if(%1 == 'kr' AND layer[get(i)].html_kr,
+					copy(newHtml, layer[get(i)].html_kr);
+				);
+				if(%1 == 'en' AND layer[get(i)].html_en,
+					copy(newHtml, layer[get(i)].html_en);
+					<!-- js(console.info(get(layer[get(i)].html_en))); -->
+				);
+				if(newHtml,
+					copy(layer[get(i)].html, newHtml);
+				);
+			);
+		);
+
+		for(set(i,0), i LT hotspot.count, inc(i),
+			if(hotspot[get(i)].style == 'skin_hotspotstyle_tooltip',
+				set(newTooltip, '');
+				if(%1 == 'kr' AND hotspot[get(hotspot[get(i)].parent)].tooltip_kr,
+					copy(newTooltip, hotspot[get(hotspot[get(i)].parent)].tooltip_kr);
+				);
+				if(%1 == 'en' AND hotspot[get(hotspot[get(i)].parent)].tooltip_en,
+					copy(newTooltip, hotspot[get(hotspot[get(i)].parent)].tooltip_en);
+					<!-- js(console.info(get(hotspot[get(hotspot[get(i)].parent)].tooltip_en))); -->
+				);
+				if(newTooltip,
+					copy(hotspot[get(i)].html, newTooltip);
+				);
+			);
+		);
+	</action>
+
+	
+	<style name='people'
+		enabled='true'
+		capture='false'
+		distorted='true'
+		edge='bottom'
+		onloaded='
+				txtadd(people_txt, "txt_people_", get(name));
+				txtadd(people_position, "ath: ", get(ath), ", atv: ", get(atv), ", name: ", get(name));
+				addhotspot(get(people_txt));
+				set(hotspot[get(people_txt)].type, "text");
+				set(hotspot[get(people_txt)].oy, -100);
+				set(hotspot[get(people_txt)].html, get(people_position) );
+				set(hotspot[get(people_txt)].ath, get(ath) );
+				set(hotspot[get(people_txt)].atv, get(atv) );
+		'
+		ondown="draghotspot();"
+		onclick='saySome()'
+	/>
+	<style name='people'
+		capture='true'
+		onclick=''
+	/>
+	<hotspot name='people_say' type='text' padding='5' bg='true' bgcolor='0x000000' bgalpha='0.8' bgborder="1 0xeeeeee 0.8" bgroundedge='5'
+		keep='1'
+		html=''
+		alpha='0'
+		enabled='false'
+		capture='false'
+		autoalpha='1'
+		align='top'
+		edge='leftbottom'
+		css='color: #fff; text-align: center;'
+		zorder='1'
+		distorted='true'
+	/>
+	<action name='saySome' scope='local'>
+		if(!caller.say,
+			break();
+		);
+		set(hotspot[people_say].alpha, 0);
+		stopdelayedcall(disappearSayingDelayedCall);
+		
+		delayedcall(0,
+			tween(hotspot[people_say].alpha, 1);
+			
+			mul(newOy, caller.pixelheight, -1);
+			add(newOy, -10);
+			set(hotspot[people_say],
+				ath=get(caller.ath),
+				atv=get(caller.atv),
+				oy=get(newOy),
+				html=get(caller.say)
+			);
+
+			delayedcall(disappearSayingDelayedCall, 2.5,
+				tween(hotspot[people_say].alpha, 0);
+			);
+		);
+
+
+	</action>
+
+	<plugin name="hotspotinfo" keep="true"
+		url="%SWFPATH%/plugins/textfield.swf"
+		html="drag the hotspots..."
+		css="font-family:'NanumGothic', 'serif', Courier;"
+		borderwidth="0"
+		align="left" y="-100"
+		width="200"
+		vcenter='true'
+		onclick='onClickCopy()'
+	/>
+
+	<action name='onClickCopy'>
+		txtadd(c2ctext, 'ath="', get(plugin[get(name)].print_ath), '" atv="', get(plugin[get(name)].print_atv), '" scale="', get(plugin[get(name)].print_scale), '"');
+		if(plugin[get(name)].print_distorted,
+			txtadd(c2ctext, get(c2ctext), ' rx="', get(plugin[get(name)].print_rx), '" ry="', get(plugin[get(name)].print_ry), '" rz="', get(plugin[get(name)].print_rz), '"');
+		);
+		plugin[c2c].copy2clipboard(get(c2ctext));
+		copy(preservedHtml, plugin[get(name)].html);
+		txtadd(newHtml, get(c2ctext), '[br/]복사 되었습니다!!');
+		copy(plugin[get(name)].html, newHtml);
+		delayedcall(2.5,
+			copy(plugin[get(name)].html, preservedHtml);
+		);
+	</action>
+
+	<!-- the action for dragging the hotspot - call it once in the ondown event -->
+	<action name="draghotspot">
+	<![CDATA[
+		if(%1 != dragging,
+			spheretoscreen(ath, atv, hotspotcenterx, hotspotcentery);
+			sub(drag_adjustx, mouse.stagex, hotspotcenterx); 
+			sub(drag_adjusty, mouse.stagey, hotspotcentery); 
+			copy(mouse.prevstagex, mouse.stagex);
+			copy(mouse.prevstagey, mouse.stagey);
+			draghotspot(dragging);
+		  ,
+			if(pressed,
+				sub(dx, mouse.stagex, drag_adjustx);
+				sub(dy, mouse.stagey, drag_adjusty);
+
+				if(global.keycode == 32,
+					sub(dx, mouse.stagex, mouse.prevstagex);
+					sub(dy, mouse.stagey, mouse.prevstagey);
+
+					div(dx, -100);
+					div(dy, 100);
+					add(ry, dx);
+					add(rx, dy);
+				,
+					if(global.keycode == 82,
+						sub(dx, mouse.stagex, mouse.prevstagex);
+						sub(dy, mouse.stagey, mouse.prevstagey);
+
+						div(dx, 100);
+						div(dy, 100);
+						add(rz, dx);
+					,
+						screentosphere(dx, dy, ath, atv);
+						copy(print_ath, ath);
+						copy(print_atv, atv);
+						roundval(print_ath, 10);
+						roundval(print_atv, 10);
+						txtadd(plugin[hotspotinfo].html, 'name: ', get(name), '[br/]ath: ', get(print_ath), '[br/]atv= ', get(print_atv), '[br/]scale: ', get(scale) );
+						if(distorted,
+							txtadd(plugin[hotspotinfo].html, get(plugin[hotspotinfo].html), '[br/]rx: ', get(rx), '[br/]ry: ', get(ry), '[br/]rz: ', get(rz) );
+						);
+						copy(plugin[hotspotinfo].print_ath, print_ath);
+						copy(plugin[hotspotinfo].print_atv, print_atv);
+						copy(plugin[hotspotinfo].print_scale, scale);
+						copy(plugin[hotspotinfo].print_distorted, distorted);
+						copy(plugin[hotspotinfo].print_rx, rx);
+						copy(plugin[hotspotinfo].print_ry, ry);
+						copy(plugin[hotspotinfo].print_rz, rz);
+					);
+				);
+				delayedcall(0, draghotspot(dragging) );
+			  );
+		  );
+	]]>
+	</action>
+</krpano>

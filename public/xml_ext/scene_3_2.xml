@@ -1,0 +1,147 @@
+<krpano>
+    <include url='%ROOT%/xml_ext/scene_layer_btn.xml' />
+    <events name='scene_3_2_event'
+        onnewpano='
+            delayedcall(scene_3_1_delay, 5,
+                insert_script(script_last_chapter);
+                last_narration_start();
+                play_script();
+                tween(hotspot[next_chapter_btn].alpha, 1);
+            );
+            copy(layer[icon_count_text].html, calc("0 / 0"); );
+            check_all_scene();
+        '
+        onremovepano='stopdelayedcall(delayed_ani_1); stopdelayedcall(scene_3_1_delay); pausesound(bgm); action_stoptween(); stop_script();'
+    />
+    <include url="%ROOT%/xml_ext/custom_skin.xml" />
+    
+    <array name='script_last_chapter'>
+        <line name='line_0' text='모두 확인하였으면, 다음 챕터로 이동 버튼을 눌러주세요.' />
+    </array>
+
+    <sound_setting nosound='true' />
+
+    <action name='last_narration_start'>
+        if(!sound[narration] OR (sound[narration] AND sound[narration].paused) ,
+            if(!layer_btn_settings.bgmpaused,
+                playsound(narration, get(sound_source[narration_last_chapter].url), false, 1,
+                    bgm_volume_control();
+                    if(layer_btn_settings.autoplay,
+                        autoplay_indicator_start();
+                    );
+                );
+            ,
+                if(layer_btn_settings.autoplay,
+                    autoplay_indicator_start();
+                );
+            );
+        );
+    </action>
+    <action name='narration_start'>
+    </action>
+
+    <!-- <step_settings step='1' />
+
+    <hotspot name='interactive_area_1' url='%ROOT%/assets/chapter_3/scene_3_2/interactive/interactive_img_1.jpg'
+        width='1911.8482569100831' height='prop' ath='0' atv='0' rotate='0'
+        style='st_interactive_img'
+        onloaded='anime_interactive();'
+    />
+    <hotspot name='interactive_area_2' url='%ROOT%/assets/chapter_3/scene_3_2/interactive/interactive_img_2.jpg'
+        width='1911.8482569100831' height='prop' ath='0' atv='0' rotate='0'
+        style='st_interactive_img'
+    />
+    <hotspot name='interactive_area_3' url='%ROOT%/assets/chapter_3/scene_3_2/interactive/interactive_img_3.jpg'
+        width='1911.8482569100831' height='prop' ath='0' atv='0' rotate='0'
+        style='st_interactive_img'
+    />
+    <hotspot name='interactive_area_4' url='%ROOT%/assets/chapter_3/scene_3_2/interactive/interactive_img_4.jpg'
+        width='1911.8482569100831' height='prop' ath='0' atv='0' rotate='0'
+        style='st_interactive_img'
+    />
+    <hotspot name='interactive_area_5' url='%ROOT%/assets/chapter_3/scene_3_2/interactive/interactive_img_5.jpg'
+        width='1911.8482569100831' height='prop' ath='0' atv='0' rotate='0'
+        style='st_interactive_img'
+    />
+    <hotspot name='interactive_area_6' url='%ROOT%/assets/chapter_3/scene_3_2/interactive/interactive_img_6.jpg'
+        width='1911.8482569100831' height='prop' ath='0' atv='0' rotate='0'
+        style='st_interactive_img'
+    />
+    <hotspot name='interactive_area_7' url='%ROOT%/assets/chapter_3/scene_3_2/interactive/interactive_img_7.jpg'
+        width='1911.8482569100831' height='prop' ath='0' atv='0' rotate='0'
+        style='st_interactive_img'
+    />
+    <hotspot name='interactive_area_8' url='%ROOT%/assets/chapter_3/scene_3_2/interactive/interactive_img_8.jpg'
+        width='1911.8482569100831' height='prop' ath='0' atv='0' rotate='0'
+        style='st_interactive_img'
+    />
+    <hotspot name='interactive_area_9' url='%ROOT%/assets/chapter_3/scene_3_2/interactive/interactive_img_9.jpg'
+        width='1911.8482569100831' height='prop' ath='0' atv='0' rotate='0'
+        style='st_interactive_img'
+    />
+    <hotspot name='interactive_area_10' url='%ROOT%/assets/chapter_3/scene_3_2/interactive/interactive_img_10.jpg'
+        width='1911.8482569100831' height='prop' ath='0' atv='0' rotate='0'
+        style='st_interactive_img'
+    />
+    <hotspot name='interactive_area_11' url='%ROOT%/assets/chapter_3/scene_3_2/interactive/interactive_img_11.jpg'
+        width='1911.8482569100831' height='prop' ath='0' atv='0' rotate='0'
+        style='st_interactive_img'
+    />
+    <hotspot name='interactive_area_12' url='%ROOT%/assets/chapter_3/scene_3_2/interactive/interactive_img_12.jpg'
+        width='1911.8482569100831' height='prop' ath='0' atv='0' rotate='0'
+        style='st_interactive_img'
+    />
+    <hotspot name='interactive_area_13' url='%ROOT%/assets/chapter_3/scene_3_2/interactive/interactive_img_13.jpg'
+        width='1911.8482569100831' height='prop' ath='0' atv='0' rotate='0'
+        style='st_interactive_img'
+    />
+    <hotspot name='interactive_area_14' url='%ROOT%/assets/chapter_3/scene_3_2/interactive/interactive_img_14.jpg'
+        width='1911.8482569100831' height='prop' ath='0' atv='0' rotate='0'
+        style='st_interactive_img'
+    />
+    <hotspot name='interactive_area_15' url='%ROOT%/assets/chapter_3/scene_3_2/interactive/interactive_img_15.jpg'
+        width='1911.8482569100831' height='prop' ath='0' atv='0' rotate='0'
+        style='st_interactive_img'
+    />
+    <hotspot name='interactive_area_16' url='%ROOT%/assets/chapter_3/scene_3_2/interactive/interactive_img_16.jpg'
+        width='1911.8482569100831' height='prop' ath='0' atv='0' rotate='0'
+        style='st_interactive_img'
+    />
+    <hotspot name='interactive_area_17' url='%ROOT%/assets/chapter_3/scene_3_2/interactive/interactive_img_17.jpg'
+        width='1911.8482569100831' height='prop' ath='0' atv='0' rotate='0'
+        style='st_interactive_img'
+    />
+    <hotspot name='interactive_area_18' url='%ROOT%/assets/chapter_3/scene_3_2/interactive/interactive_img_18.jpg'
+        width='1911.8482569100831' height='prop' ath='0' atv='0' rotate='0'
+        style='st_interactive_img'
+    />
+    <hotspot name='interactive_area_19' url='%ROOT%/assets/chapter_3/scene_3_2/interactive/interactive_img_19.jpg'
+        width='1911.8482569100831' height='prop' ath='0' atv='0' rotate='0'
+        style='st_interactive_img'
+    /> -->
+
+    <hotspot name='icon_ext_5' 
+        style='st_icon_ext'
+        ath="25.9159615336" atv="6.6833346841"
+        idx='5'
+    />
+
+    <hotspot name='icon_ext_6' 
+        style='st_icon_ext'
+        ath="35.6529920292" atv="-9.0205817988"
+        idx='6'
+    />
+
+    <hotspot name='moving_hotspot_1' url='%ROOT%/assets/common/preview_btn.png'
+        style='st_moving_hotspot_2'
+        ath="0" atv="0"
+        linkedscene='scene_3_1'
+        linkedlookat_h='0'
+        linkedlookat_v='0'
+    />
+
+    <hotspot name='next_chapter_btn' url='%ROOT%/assets/common/next_chapter_btn.png'
+        style='st_next_chapter_btn|style_drag_hotspot_distortion'
+        ath="48.3427952949" atv="19.5195966800"
+    />
+</krpano>

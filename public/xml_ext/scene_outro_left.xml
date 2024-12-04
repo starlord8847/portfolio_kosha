@@ -1,0 +1,59 @@
+<krpano>
+    <events name='scene_outro_left_event'
+        onnewpano=''
+        onremovepano='stopdelayedcall(delay_jump); action_stoptween();'
+    />
+
+    <hotspot name='chapter_table' url='%ROOT%/assets/intro/table.png'
+        scale='0.3'
+        ath='-90' atv='0'
+        distorted='true'
+        enabled='false' capture='false'
+    />
+
+    <style name='style_chapter'
+        scale='0.3'
+        ath='-90' atv='0'
+        distorted='true'
+        enabled='true' capture='false'
+        onover.addevent="tween(scale, 0.32, 0.2);" 
+        onout.addevent="tween(scale, 0.30, 0.2);" 
+        onclick='loadscene(get(linkedscene), , ,COLORBLEND(0.5, 0x000000, linear));'
+    />
+
+    <hotspot name='chapter_1' url='%ROOT%/assets/intro/chapter_1.png'
+        style='st_click_sound|style_chapter'
+        oy='-105' ox='-200'
+        linkedscene='scene_1_1'
+    />
+    <hotspot name='chapter_2' url='%ROOT%/assets/intro/chapter_2.png'
+        style='st_click_sound|style_chapter'
+        oy='-105' ox='0'
+        linkedscene='scene_2_1'
+    />
+    <hotspot name='chapter_3' url='%ROOT%/assets/intro/chapter_3.png'
+        style='st_click_sound|style_chapter'
+        oy='-105' ox='200'
+        linkedscene='scene_3_1'
+    />
+    <hotspot name='chapter_4' url='%ROOT%/assets/intro/chapter_4.png'
+        style='st_click_sound|style_chapter'
+        oy='5' ox='-200'
+        linkedscene='scene_4_1'
+    />
+    <hotspot name='chapter_5' url='%ROOT%/assets/intro/chapter_5.png'
+        style='st_click_sound|style_chapter'
+        oy='5' ox='0'
+        linkedscene='scene_5_1'
+    />
+    <hotspot name='chapter_6' url='%ROOT%/assets/intro/chapter_6.png'
+        style='st_click_sound|style_chapter'
+        oy='5' ox='200'
+        linkedscene='scene_6_1'
+    />
+    <hotspot name='chapter_7' url='%ROOT%/assets/intro/chapter_7.png'
+        style='st_click_sound|style_chapter'
+        oy='120' ox='0'
+        linkedscene='scene_7_1'
+    />
+</krpano>

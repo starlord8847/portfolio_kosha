@@ -1,0 +1,44 @@
+<krpano>
+    <include url='%ROOT%/xml_ext/scene_layer_btn.xml' />
+    <events name='scene_2_4_event'
+        onnewpano='
+            delayedcall(1,
+                if(layer_btn_settings.autoplay,
+                    autoplay_indicator_start();
+                );
+            );
+            copy(layer[icon_count_text].html, calc("0 / 0"); );
+            check_all_scene();
+        '
+        onremovepano='stopdelayedcall(delayed_interactive);'
+    />
+    <include url="%ROOT%/xml_ext/custom_skin.xml" />
+    
+    <action name='narration_start'>
+    </action>
+    
+    <hotspot name='icon_ext_0' 
+        style='st_icon_ext'
+        ath="3.8421819278" atv="22.2157424900"
+        idx='0'
+    />
+
+    <hotspot name='moving_hotspot_1' 
+        style='st_moving_hotspot'
+        ath="2.0179162891" atv="10.8936780720"
+        linkedscene='scene_2_5'
+        linkedlookat_h='0'
+        linkedlookat_v='0'
+        onbig='stoptween(oy); tween(oy, -10, , ,onsmall(););'
+        onsmall='stoptween(oy); tween(oy, 0, , ,onbig(););'
+        onloaded='onbig();'
+    />
+
+    <hotspot name='moving_hotspot_2' 
+        style='st_moving_hotspot'
+        ath="-171.4189555910" atv="16.9629035170"
+        linkedscene='scene_2_3'
+        linkedlookat_h='0'
+        linkedlookat_v='0'
+    />
+</krpano>

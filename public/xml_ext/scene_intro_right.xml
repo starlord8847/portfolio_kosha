@@ -1,0 +1,56 @@
+<krpano>
+    <events name='scene_intro_right_event'
+        onnewpano=''
+        onremovepano='stopdelayedcall(delay_jump); action_stoptween();'
+    />
+
+    <hotspot name="ico_1"
+        url="%ROOT%/assets/intro/ico_1.png"
+        distorted='true'
+        enabled='true'
+        capture='false'
+        ath="90" atv="0"
+        scale="0.35"
+        ry="0"
+        rx="0"
+        rz="0"
+        oy="0"
+        ox="-240"
+        onover.addevent="tween(scale, 0.37, 0.2);"
+		onout.addevent="tween(scale, 0.35, 0.2);"
+		onclick="openurl(https://www.kosha.or.kr/kosha/data/mediaBankMain.do);"
+    />
+
+    <hotspot name="ico_2"
+        url="%ROOT%/assets/intro/ico_2.png"
+        distorted='true'
+        enabled='true'
+        capture='false'
+        ath="90" atv="0"
+        scale="0.35"
+        ry="0"
+        rx="0"
+        rz="0"
+        oy="0"
+        onover.addevent="tween(scale, 0.37, 0.2);"
+		onout.addevent="tween(scale, 0.35, 0.2);"
+		onclick="openurl(https://www.kosha.or.kr/kosha/ebook/practice.do);"
+    />
+
+    <hotspot name="ico_3"
+        url="%ROOT%/assets/intro/ico_3.png"
+        distorted='true'
+        enabled='true'
+        capture='false'
+        ath="90" atv="0"
+        scale="0.35"
+        ry="0"
+        rx="0"
+        rz="0"
+        oy="0"
+        ox="240"
+        onover.addevent="tween(scale, 0.37, 0.2);"
+		onout.addevent="tween(scale, 0.35, 0.2);"
+		onclick="openurl(https://media.kosha.or.kr/main);"
+    />
+</krpano>

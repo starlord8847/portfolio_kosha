@@ -1,0 +1,1430 @@
+<krpano>
+
+    <events name='events_common' 
+        keep='true' 
+        onnewpano='add_moving_hotspot_text();'
+        onviewchange='delayedcall(0, copy(hotspot[hs_top_pano_name].ath, view.hlookat) );' 
+        onloaded='inc_page_text(); updateHs();' 
+        onremovepano='action_stoptween(); js(App.setIsRightSideHide); hide_next_chapter_question(); reset_check_all_scene();' 
+        onresize='set(hotspot[question_backdrop].width, get:stagewidth); set(hotspot[question_backdrop].height, get:stageheight);'
+    />
+
+    <action name='action_stoptween'>
+        for(set(i,0), i LT hotspot.count, inc(i),
+            if(hotspot[get(i)].style == 'st_icon_ext',
+                stoptween(hotspot[get(i)].scale);
+            );
+        );
+        stoptween(hotspot[click_icon].oy);
+        stoptween(hotspot[st_icon_click_check].scale);
+        stoptween(hotspot[st_icon_click_check].rotate);
+        stoptween(hotspot[next_chapter_btn].scale);
+    </action>
+    
+    <action name='bgm_volume_control' autorun="onstart">
+        if(!sound[bgm] OR (sound[bgm] AND sound[bgm].paused),
+            tween(sound[bgm].volume, 0.1, 2);
+        ,
+            tween(sound[bgm].volume, 0.5, 2);
+        );
+    </action>
+
+    <style name='style_hotspot_over_out_effect'
+        style='style_copy_scale_to_org_scale'
+        newscale=''
+        orgscale=''
+        onover.addevent='mul(newscale, orgscale, 1.1); stoptween(scale); tween(scale, get(newscale));'
+        onout.addevent='stoptween(scale); tween(scale, get(orgscale));'
+    />
+    <style name='style_copy_scale_to_org_scale'
+        onloaded.addevent='copyScaleToOrgScale()'
+    />
+    <action name='copyScaleToOrgScale' scope='local'>
+        copy(caller.orgscale, caller.scale);
+    </action>
+
+    <textstyle name="text_st"
+        css='font-family:NEXON Lv2 Gothic; font-size: 20px; text-align:center; color:#000; '
+        backgroundcolor="0xffffff"
+        backgroundalpha="1"
+        border="false"
+        roundedge="3"
+        edge='bottom'
+        padding='4'
+    />
+
+
+    <style name='style_hotspot_info'
+        scale='0.5'
+        alpha='0'
+        autoalpha='true'
+        capture='false'
+        distorted='true'
+        arrowposition='right'
+        positionObjectKey='righturl'
+        url='%ROOT%/assets/6_opl/OPL_button_r.png'
+        righturl='%ROOT%/assets/6_opl/OPL_button_r.png'
+        righturl_confirm='%ROOT%/assets/6_opl/OPL_button_G_r.png'
+        lefturl='%ROOT%/assets/6_opl/OPL_button_l.png'
+        lefturl_confirm='%ROOT%/assets/6_opl/OPL_button_G_l.png'
+        upurl='%ROOT%/assets/6_opl/OPL_button_u.png'
+        upurl_confirm='%ROOT%/assets/6_opl/OPL_button_G_u.png'
+        downurl='%ROOT%/assets/6_opl/OPL_button_d.png'
+        downurl_confirm='%ROOT%/assets/6_opl/OPL_button_G_d.png'
+        isconfirmed='false'
+        onclick='onclickInfoHs(); set(hotspot[get(hotspot[get(linkedhotspot)].linkedhotspot_close)].alpha, 1);'
+        onloaded='getProperInfoHs();'
+    />
+    <style name='style_manager_hotspot_info'
+        style='style_hotspot_info'
+        arrowposition='left'
+        enabled='true'
+        capture='false'
+        url='%ROOT%/assets/6_opl/safety_manager_opl.png'
+        lefturl='%ROOT%/assets/6_opl/safety_manager_opl.png'
+        lefturl_confirm='%ROOT%/assets/6_opl/safety_manager_opl_click.png'
+    />
+
+    <style name='style_layer_top_pano_name'
+        enabled='false'
+        capture='false'
+        edge='topright'
+        align='topright'
+        x='20'
+        y='20'
+        scale='0.5'
+    />
+    <style name='style_hs_top_pano_name'
+        enabled='false'
+        capture='false'
+        scale='0.3'
+        onloaded='
+            set(oy, 50);
+            tween(oy, 0);
+            tween(alpha, 1,,,
+                delayedcall(4, 
+                    tween(alpha, 0);
+                    tween(oy, -50,,,
+                        removehotspot(get(name));
+                    );
+                );
+            );
+
+        '
+    />
+
+
+    <style name='hs_danger_icon'
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            );
+            stoptween(alpha); tween(alpha, 0); tween(hotspot[get(linkedhotspot)].alpha, 1); txtadd(hsName, "hs_close_", get(linkedhotspot)); set(hotspot[get(hsName)].alpha, 1);'
+    />
+
+    <style name='style_hs_danger_popup'
+        onloaded='addCloseBtn()'
+    />
+    
+    <action name='addCloseBtn' scope='local'>
+        mul(actWidth, caller.width, caller.scale);
+        mul(actHeight, caller.height, caller.scale);
+
+        txtadd(hsName, 'hs_close_', get(caller.name));
+        addhotspot(get(hsName));
+        set(hotspot[get(hsName)],
+            html='X',
+            type='text',
+            padding='8 10',
+            bg=true,
+            alpha=0,
+            autoalpha=true,
+            bgcolor='0x333333',
+            bgalpha=0.9,
+            css='color:#ffffff; font-size:2rem;',
+            ath=get(caller.ath),
+            atv=get(caller.atv),
+            ox=calc(actWidth/2-25+caller.ox),
+            oy=calc(actHeight/-2-1+caller.oy),
+            edge='bottom',
+            scale=0.5,
+            linkedhotspot=get(caller.name),
+            distorted=true,
+            onclick='
+                if(!layer_btn_settings.bgmpaused,
+                    playsound(click, get(sound_source[click].url), false, 1,);
+                );
+                set(alpha, 0);set(hotspot[get(linkedhotspot)].alpha, 0);set(hotspot[get(hotspot[get(linkedhotspot)].linkedhotspot)].alpha, 1);',
+        );
+    </action>
+
+    <action name='closeAllPopups' scope='local' args='clickedHsName'>
+        for(set(j,0), j LT hotspot.count, inc(j),
+			if(hotspot[get(j)].style == 'style_hotspot_info_popup',
+                if(hotspot[get(j)].alpha GT 0 AND hotspot[get(j)].name != clickedHsName,
+                    set(hotspot[get(j)].alpha, 0);
+                    stoptween(hotspot[poster_1_banner_talk].alpha);
+                );
+			);
+		);
+        for(set(i,0), i LT hotspot.count, inc(i),
+            if(hotspot[get(i)].tag == 'close',
+                set(hotspot[get(i)].alpha, 0);
+            );
+        );
+    </action>
+    
+    <action name='onclickInfoHs' scope='local'>
+        closeAllPopups(get(caller.linkedhotspot));
+        <!-- x눌러서만 끌 수 있게 변경 -->
+        closeAllPopups(get(caller.get(linkedhotspot_close)));
+        if(!layer_btn_settings.bgmpaused,
+            playsound(click, get(sound_source[click].url), false, 1,);
+        );
+
+        switch(hotspot[get(caller.linkedhotspot)].alpha, 0, 1); 
+        set(caller.isconfirmed, true);
+        indexoftxt(positionObjectKeyconfirmidx, get(caller.positionObjectKey), 'confirm');
+        if(positionObjectKeyconfirmidx == '-1',
+            txtadd(caller.positionObjectKey, get(caller.positionObjectKey), '_confirm');
+            tween(caller.ry, 90, 0.2,,
+                copy(caller.url, calc('hotspot[get(caller.name)].' + caller.positionObjectKey) );
+                tween(caller.ry, 0, 0.2);
+            );
+        );
+
+        callwith(caller,checkPolygonalBlankStatus);
+    </action>
+
+    <action name='checkPolygonalBlankStatus' scope='local'>
+        for(set(i,0), i LT hotspot.count, inc(i),
+			if(hotspot[get(i)].style == 'style_default_poly',
+                set(hotspot[get(i)].stopblink, true);
+                stoptween(hotspot[get(hotspot[get(i)].name)].alpha);
+                set(hotspot[get(i)].alpha, 0);
+			);
+		);
+        
+        set(hasOpenedPopup, false);
+        for(set(j,0), j LT hotspot.count, inc(j),
+			if(hotspot[get(j)].style == 'style_hotspot_info_popup',
+                if(hotspot[get(j)].alpha GT 0,
+                    set(hasOpenedPopup, true);
+                );
+			);
+		);
+
+        if(hasOpenedPopup,
+            set(hotspot[get(caller.polyarea)].stopblink, false);
+            blink(get(caller.polyarea));
+
+        ,
+            stoptween(hotspot[get(caller.polyarea)].alpha);
+            set(hotspot[get(caller.polyarea)].alpha, 0);
+        );
+    </action>
+
+    <action name='getProperInfoHs' scope='local'>
+    <!--
+        화살표 방향에 따라 아이콘 위치 변경
+        기본 edge= center 인데, 화살표 방향 방향으로 50% 이동 시키는 목적
+    -->
+    mul(actualWidth, caller.width, caller.scale);
+    mul(actualHeight, caller.height, caller.scale);
+    set(ammendHValue, 0);
+    set(ammendVValue, 0);
+
+    if(caller.popupOffH,
+        copy(ammendHValue, caller.popupOffH);
+    ,
+        if(
+            caller.positionObjectKey == 'lefturl' OR caller.positionObjectKey == 'lefturl_confirm',
+                set(ammendHValue,35);
+            ,
+            caller.positionObjectKey == 'righturl' OR caller.positionObjectKey == 'righturl_confirm',
+                set(ammendHValue,-35);
+            ,
+            caller.positionObjectKey == 'upurl' OR caller.positionObjectKey == 'upurl_confirm',
+                set(ammendHValue,35);
+            ,
+            caller.positionObjectKey == 'downurl' OR caller.positionObjectKey == 'downurl_confirm',
+                set(ammendHValue,-35);
+            ,
+        );
+    );
+
+    if(
+        caller.positionObjectKey == 'lefturl' OR caller.positionObjectKey == 'lefturl_confirm',
+            set(caller.ox, calc(actualWidth/2));
+        ,
+        caller.positionObjectKey == 'righturl' OR caller.positionObjectKey == 'righturl_confirm',
+            set(caller.ox, calc(actualWidth/-2));
+        ,
+        caller.positionObjectKey == 'upurl' OR caller.positionObjectKey == 'upurl_confirm',
+            set(caller.oy, calc(actualHeight/2));
+            copy(caller.ox, 0);
+        ,
+        caller.positionObjectKey == 'downurl' OR caller.positionObjectKey == 'downurl_confirm',
+            set(caller.oy, calc(actualHeight/-2));
+        ,
+    );
+        if(caller.popupOffV,
+            copy(ammendVValue, caller.popupOffV);
+        ,
+            <!-- if(
+                caller.positionObjectKey == 'lefturl' OR caller.positionObjectKey == 'lefturl_confirm',
+                    set(ammendVValue,45);
+                ,
+                caller.positionObjectKey == 'righturl' OR caller.positionObjectKey == 'righturl_confirm',
+                    set(ammendVValue,-45);
+                ,
+                caller.positionObjectKey == 'upurl' OR caller.positionObjectKey == 'upurl_confirm',
+                    set(ammendVValue,45);
+                ,
+                caller.positionObjectKey == 'downurl' OR caller.positionObjectKey == 'downurl_confirm',
+                    set(ammendVValue,-45);
+                ,
+            ); -->
+        );
+        
+        
+        <!-- linkedhotspot ath, atv 복사 -->
+        set(hotspot[get(caller.linkedhotspot)].ath, calc(caller.ath + ammendHValue));
+        set(hotspot[get(caller.linkedhotspot)].atv, calc(caller.atv + ammendVValue));
+
+        
+        <!-- 화살표 방향에 따라 url 변경 -->
+        txtadd(caller.positionObjectKey, get(caller.arrowposition), 'url');
+        if(caller.isconfirmed,
+            txtadd(caller.positionObjectKey, get(caller.positionObjectKey), '_confirm');
+        );
+        copy(caller.url, calc('hotspot[get(caller.name)].' + caller.positionObjectKey) );
+
+
+        <!-- 설정 완료 후, 보여주기 -->
+        set(caller.alpha, 1)
+    </action>
+
+
+    <style name='style_hotspot_info_popup'
+        capture='false'
+        enabled='false'
+        distorted='true'
+        autoalpha="true"
+        alpha='0'
+        scale='0.5'
+    />
+
+    <style name="image_hotspot"
+		type="image"
+		keep="false"
+        renderer="webgl"
+        visible="true"
+        enabled="true"
+        capture="false"
+        handcursor="true"
+        cursor="pointer"
+        maskchildren="false"
+        style=""
+        ath="0.0" atv="0.0"
+        edge="center"
+        zoom="false"
+        distorted="true"
+        rx="0.0" ry="0.0" rz="0.0"
+        width="" height=""
+        scale="0.4"
+        rotate="0.0"
+        alpha="1.0"
+        onhover.addevent=""
+        ondown.addevent=""
+        onup.addevent=""
+        onclick.addevent="
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            );"
+        onloaded.addevent=""
+    />
+
+
+    <style name='style_hs_close'
+        tag='close'
+        type='text'
+        html='X'
+        padding='3 8'
+        vcenter='true'
+        bg='true'
+        bgcolor='0x000000'
+        bgalpha='0.8'
+        css='font-size: 1.2rem;color:#fff'
+        capture='false'
+        roundedge='4'
+        alpha='0'
+        edge='rightbottom'
+        autoalpha='1'
+        distorted='true'
+        zorder='100'
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            );
+            set(alpha, 0);
+            set(hotspot[get(linkedhotspot)].alpha, 0);
+            set(hotspot[get(linkedhotspot1)].alpha, 0);
+            stoptween(hotspot[get(linkedhotspot_banner_talk)].alpha);
+            set(hotspot[get(linkedhotspot_banner_talk)].alpha, 0);
+            set(hotspot[get(linkedhotspot_banner_icon)].alpha, 0);
+            hotspot[get(linkedhotspot)].pause();
+            checkPolygonalBlankStatus();
+            callwith(hotspot[backdrop], onclick);
+        '
+    />
+
+    <action name='setProperVideoCloseBtn' scope='local' args='closeHsName'>
+        <!-- width에 고정값을 넣고 그 비율에 맞는 height 값을 구하는 코드 -->
+        <!-- div(ratio, w,h);
+        mul(destwidth, caller.width, ratio);
+        trace(destwidth);
+        copy(destheight, caller.width);
+
+        if(destwidth GT caller.width,
+            div(dwnscale, caller.width, destwidth);
+        ,
+            set(dwnscale, 1.0);
+        );
+
+        mul(destwidth, dwnscale);
+        mul(destheight, dwnscale); -->
+
+        set(w, 16);
+        set(h, 9);
+        mul(mul_prop, caller.width, h);
+        div(div_prop, mul_prop, w);
+
+        copy(calcProportion, div_prop);
+
+        if(!caller.imagewidth OR !caller.imageheight,
+            delayedcall(0.5,
+                callwith(caller, setProperVideoCloseBtn(get(closeHsName)));
+            );
+        );
+
+        mul(actualWidth, caller.width, caller.scale);
+        mul(actualWidth, 0.5);
+        mul(actualHeight, calcProportion, caller.scale);
+        mul(actualHeight, -0.5);
+
+        copy(hotspot[get(closeHsName)].ath, caller.ath);
+        copy(hotspot[get(closeHsName)].atv, caller.atv);
+        copy(hotspot[get(closeHsName)].ox, actualWidth);
+        copy(hotspot[get(closeHsName)].oy, actualHeight);
+    </action>
+
+
+    <action name='setProperCloseBtn' scope='local' args='closeHsName, bannerTalkHs, bannerIconHs'>
+        if(!caller.imagewidth OR !caller.imageheight,
+            delayedcall(0.5,
+                callwith(caller, setProperCloseBtn(get(closeHsName)));
+            );
+        );
+
+        mul(actualWidth, caller.imagewidth, caller.scale);
+        mul(actualWidth, 0.5);
+        mul(actualHeight, caller.imageheight, caller.scale);
+        mul(actualHeight, -0.5);
+
+        copy(hotspot[get(closeHsName)].ath, caller.ath);
+        copy(hotspot[get(closeHsName)].atv, caller.atv);
+        copy(hotspot[get(closeHsName)].ox, actualWidth);
+        copy(hotspot[get(closeHsName)].oy, actualHeight);
+        
+        delayedcall(0.5,
+            copy(hotspot[get(bannerTalkHs)].ath, caller.ath);
+            copy(hotspot[get(bannerTalkHs)].atv, caller.atv);
+            set(hotspot[get(bannerTalkHs)].ox, calc((actualWidth*-1 )+ (hotspot[get(bannerIconHs)].width*hotspot[get(bannerIconHs)].scale) + 10));
+            set(hotspot[get(bannerTalkHs)].oy, calc(actualHeight-7));
+
+            
+            copy(hotspot[get(bannerIconHs)].ath, caller.ath);
+            copy(hotspot[get(bannerIconHs)].atv, caller.atv);
+            set(hotspot[get(bannerIconHs)].ox, calc(actualWidth*-1));
+            set(hotspot[get(bannerIconHs)].oy, calc(actualHeight-5));
+        );
+        
+    </action>
+
+
+    <action name='getReadyPopup' scope='local'>
+
+        set(ammendHValue, 0);
+        set(ammendVValue, 0);
+
+        if(caller.popupposition,
+            if(caller.oh,
+                copy(ammendVValue, caller.ov);
+            ,
+                set(ammendVValue, 40);
+            );
+            
+            if(caller.popupposition == 'down',
+                set(ammendHValue, 0);
+            );
+        ,
+            if(caller.oh,
+                copy(ammendHValue, caller.oh);
+            ,
+                set(ammendHValue, 40);
+            );
+
+            if(
+                caller.positionObjectKey == 'lefturl' OR caller.positionObjectKey == 'lefturl_confirm',
+                ,
+                caller.positionObjectKey == 'righturl' OR caller.positionObjectKey == 'righturl_confirm',
+                    mul(ammendHValue,-1);
+                ,
+                caller.positionObjectKey == 'upurl' OR caller.positionObjectKey == 'upurl_confirm',
+                ,
+                caller.positionObjectKey == 'downurl' OR caller.positionObjectKey == 'downurl_confirm',
+                    mul(ammendHValue,-1);
+                ,
+                set(ammendHValue, 0);
+            );
+        );
+        <!-- linkedhotspot ath, atv 복사 -->
+        set(hotspot[get(caller.linkedhotspot)].ath, calc(caller.ath + ammendHValue));
+        set(hotspot[get(caller.linkedhotspot)].atv, calc(caller.atv + ammendVValue));
+    </action>
+
+    <action name='getReadyPopupForPc' scope='local' if='pcmode'>
+
+        <!-- linkedhotspot ath, atv 복사 -->
+        copy(hotspot[get(caller.linkedhotspot)].ath, caller.ath);
+        copy(hotspot[get(caller.linkedhotspot)].atv, caller.atv);
+
+        set(hotspot[get(caller.linkedhotspot)],
+            flying=1,
+            enabled=true,
+            capture=true,
+            scale=1,
+            onover='set(global.onoverhs, get(name));',
+            onout='set(global.onoverhs, "");',
+        );
+            <!-- renderer='css3d',
+            html5controls=true, -->
+
+        if(!hotspot[get(caller.linkedhotspot)].onclick,
+            set(hotspot[get(caller.linkedhotspot)],
+                onclick="tween(alpha, 0);",
+            );
+        );
+
+    </action>
+
+
+<!-- ================================================== 여기서부터 로드뷰컨텐츠에서 만든 코드 목록 ================================================== -->
+<!-- ================================================== 여기서부터 로드뷰컨텐츠에서 만든 코드 목록 ================================================== -->
+<!-- ================================================== 여기서부터 로드뷰컨텐츠에서 만든 코드 목록 ================================================== -->
+<!-- ================================================== 여기서부터 로드뷰컨텐츠에서 만든 코드 목록 ================================================== -->
+
+    <style name='st_next_chapter_btn'
+        style='style_drag_hotspot_distortion'
+        enabled='true' capture='false' distorted='true'
+        scale='0.5' alpha='0' autoalpha='true'
+        linkedhotspot='next_chapter_question'
+        linkedhotspot2='answer_yes_btn'
+        linkedhotspot3='answer_no_btn'
+        zorder="99"
+        onover='tween(scale, 0.52,0.2);'
+        onout='tween(scale, 0.5,0.2);'
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+            removehotspot(icon_click_check);
+            js(App.setIsRightSideShow(false));
+            js_next_chapter_question();
+        '
+    />
+
+    <!-- 기본적인 이동핫스팟, 누르면 정면을 바라봄 -->
+    <style name='st_moving_hotspot' 
+        url='%ROOT%/assets/common/moving_hotspot.png'
+        style='style_drag_hotspot_distortion'
+        alpha='1'
+        scale='0.22'
+        distorted='true'
+        enabled='true'
+        capture='false'
+        zorder="99"
+        onover='stoptween(scale); tween(scale, 0.24, 0.2);'
+        onout='stoptween(scale); tween(scale, 0.22, 0.2);'
+        onloaded=''
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+            copy(newath, ath);
+            lookto(get(newath), 0, 90);
+            
+            if(!caller.linkedlookat_h AND !caller.linkedlookat_v,
+                copy(global.linkedlookat_h, linkedlookat_h);
+                copy(global.linkedlookat_v, linkedlookat_v);
+            );
+            loadscene(get(linkedscene), , , colorblend(0.5, 0x000000));
+            lookat(get(global.linkedlookat_h), get(global.linkedlookat_v), get(global.linkedlookat_fov));
+            js(App.setIsRightSideShow(false));
+        '
+    />
+
+    <action name='add_moving_hotspot_text' >
+        for(set(i,0), i LT hotspot.count, inc(i),
+            if(hotspot[get(i)].style == 'st_moving_hotspot' OR hotspot[get(i)].style == 'st_moving_hotspot_3',
+                txtadd(add_moving_hotspot, 'moving_hotspot_text', '_', get(i));
+
+                addhotspot(get(add_moving_hotspot));
+                hotspot[get(add_moving_hotspot)].loadstyle(st_moving_hotspot_text);
+
+                copy(hotspot[get(add_moving_hotspot)].ath, hotspot[get(i)].ath);
+                copy(hotspot[get(add_moving_hotspot)].atv, hotspot[get(i)].atv );
+                <!-- copy(hotspot[get(add_moving_hotspot)].rotate, hotspot[get(i)].rotate ); -->
+                copy(hotspot[get(add_moving_hotspot)].html, scene[get(hotspot[get(i)].linkedscene)].title);
+            );
+        );
+    </action>
+
+    <style name='st_moving_hotspot_text'
+        type='text'
+        distorted='true'
+        enabled='false'
+        oy='55' ox=''
+        html='' rotate=''
+        css='font-family:NEXON Lv2 Gothic; font-size: 18px; text-align:center; color:#000;'
+        backgroundcolor="0xffffff"
+        backgroundalpha="0.7"
+        border="false"
+        roundedge="3"
+        edge='bottom'
+        padding='3'
+        zorder="99"
+    />
+    
+    <!-- 정면보기, 후면보기등, 이동 핫스팟 대체 버튼 -->
+    <style name='st_moving_hotspot_2' 
+        style='style_drag_hotspot_distortion'
+        alpha='1'
+        scale='0.4'
+        distorted='true'
+        enabled='true'
+        capture='false'
+        zorder="99"
+        onover='tween(scale, 0.42, 0.2);'
+        onout='tween(scale, 0.4, 0.2);'
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+            if(!caller.linkedlookat_h AND !caller.linkedlookat_v,
+                copy(global.linkedlookat_h, linkedlookat_h);
+                copy(global.linkedlookat_v, linkedlookat_v);
+            );
+            loadscene(get(linkedscene), , , blend(0.5));
+            lookat(get(global.linkedlookat_h), get(global.linkedlookat_v), get(global.linkedlookat_fov));
+            js(App.setIsRightSideShow(false));
+        '
+    />
+
+    <!-- 이동핫스팟을 누르면 핫스팟을 바라봄  -->
+    <style name='st_moving_hotspot_3' 
+        url='%ROOT%/assets/common/moving_hotspot.png'
+        style='style_drag_hotspot_distortion'
+        alpha='1' autoalpha='1'
+        scale='0.22'
+        distorted='true'
+        enabled='true'
+        capture='false'
+        zorder="99"
+        onover='stoptween(scale); tween(scale, 0.24, 0.2);'
+        onout='stoptween(scale); tween(scale, 0.22, 0.2);'
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+            looktohotspot(get(name), 90);
+            if(!caller.linkedlookat_h AND !caller.linkedlookat_v,
+                copy(global.linkedlookat_h, linkedlookat_h);
+                copy(global.linkedlookat_v, linkedlookat_v);
+            );
+            loadscene(get(linkedscene), , , colorblend(0.5, 0x000000));
+            lookat(get(global.linkedlookat_h), get(global.linkedlookat_v), get(global.linkedlookat_fov));
+            js(App.setIsRightSideShow(false));
+        '
+    />
+
+    <layer name='icon_count_bg' 
+        url='%ROOT%/assets/common/icon_count_bg.png'
+        ourl='%ROOT%/assets/common/icon_count_bg.png'
+        curl='%ROOT%/assets/common/icon_count_bg_2.png'
+        keep='true'
+        alpha='0'
+        align='top'
+        scale='0.5'
+        oy='80'
+        enabled='false'
+    />
+
+    <layer name='icon_count_text'
+        parent='icon_count_bg'
+        keep='true'
+        alpha='0'
+        edge='center'
+        align='top'
+        zorder="1"
+        enabled='false'
+        capture='false'
+        width='200'
+        oy='67' ox='30'
+        type='text'
+        css='font-family:Arial; font-size: 35px; text-align: center; color: #000;'
+        background="false"
+        backgroundalpha='1'
+        backgroundcolor='0xffffff'
+        html=''
+        o_html='0 / 0'
+    />
+
+    <chapter_2_settings
+        keep='true'
+        full_icon_ext_count='3'
+        checked_icon_ext='0'
+    />
+
+    <action name='updateHs' scope='local' type='Javascript'>
+        <![CDATA[ 
+            if(THREATLIST[caller.idx].grade){
+                App.onClickGrade(THREATLIST[caller.idx], THREATLIST[caller.idx].grade);
+                console.log("위험요인 인덱스 번호 : "+caller.idx);
+            };
+        ]]>
+    </action>
+
+    <action name='question_properBlackBackStage'>
+        mul(doubleStageW, stagewidth, 2);
+        mul(doubleStageH, stageheight, 2);
+
+        set(hotspot[question_backdrop], width=get(doubleStageW), height=get(doubleStageH));
+    </action>
+
+    <style name='st_question_backdrop' url='%ROOT%/assets/etc/black_80_percent.png'
+        tag='question'
+        keep='true'
+        width='get:stagewidth'
+        height='get:stageheight'
+        flying='1'
+        capture='false'
+        enabled='true'
+        handcursor='false'
+        alpha='0' autoalpha='true'
+        zorder="100"
+        onloaded='question_properBlackBackStage();'
+    />
+
+    <style name='st_next_chapter_question'
+        tag='question'
+        keep='true'
+        scale='0.5'
+        alpha='0' autoalpha='true'
+        distorted='true'
+        enabled='true'
+        capture='false'
+        zorder="101"
+        ath='' atv=''
+    />
+
+    <hotspot name='next_chapter_question' url='%ROOT%/assets/common/question.png'
+        style='st_next_chapter_question'
+        enabled='false'
+        oy='-100'
+    />
+    <hotspot name='answer_yes_btn' url='%ROOT%/assets/common/answer_yes.png'
+        style='st_next_chapter_question'
+        oy='100' ox='-125'
+        onover='tween(scale, 0.52, 0.2);'
+        onout='tween(scale, 0.50, 0.2);'
+        onclick='skin_nextscene_loop(+1);'
+    />
+    <hotspot name='answer_no_btn' url='%ROOT%/assets/common/answer_no.png'
+        style='st_next_chapter_question'
+        oy='100' ox='125'
+        onover='tween(scale, 0.52, 0.2);'
+        onout='tween(scale, 0.50, 0.2);'
+        onclick='
+            tween(hotspot[question_backdrop].alpha, 0);
+            tween(hotspot[next_chapter_question].alpha, 0);
+            tween(hotspot[answer_yes_btn].alpha, 0);
+            tween(hotspot[answer_no_btn].alpha, 0);
+        '
+    />
+
+    <action name='js_next_chapter_question' type='Javascript'>
+        <![CDATA[
+            // 현재 scene의 이름을 가져옵니다.
+            let currentSceneName = krpano.get("scene[get(xml.scene)].name");
+
+            // 현재 scene의 이름에서 챕터 번호를 추출합니다.
+            let currentChapter = currentSceneName.split('_')[1]; 
+
+            // 모든 요소가 클릭되었는지 확인하기 위한 변수를 초기화합니다.
+            let foundAll = true;
+
+            // THREATLIST 배열을 반복하여 요소들을 확인합니다.
+            for (let i = 0; i < THREATLIST.length; i++) {
+                // THREATLIST의 각 요소(scene)의 이름을 가져옵니다.
+                let sceneName = THREATLIST[i].scene;
+
+                // 현재 챕터에 해당하는 요소들을 확인하기 위한 조건입니다.
+                if (sceneName.includes('scene_' + currentChapter + '_')) {
+                    // 현재 챕터에 속하는 요소의 클릭 여부를 확인합니다.
+                    let isChapterHotspot = THREATLIST[i].hotspot;
+                    let isChapterGrade = THREATLIST[i].grade;
+
+                    // 만약 클릭할 수 있는 핫스팟이 있으면서 그것이 클릭되지 않았다면
+                    if (isChapterHotspot) {
+                        if (!isChapterGrade) {
+                            // 모든 요소가 클릭되지 않았음을 표시합니다.
+                            foundAll = false;
+                            // 반복문을 종료합니다.
+                            break;
+                        }
+                    } else {
+                        // 클릭할 수 있는 핫스팟이 없다면 모든 요소가 클릭되지 않았음을 표시합니다.
+                        foundAll = false;
+                        // 반복문을 종료합니다.
+                        break;
+                    }
+                }
+            }
+            // 모든 요소가 클릭되었다면 다음 scene으로 이동하는 함수를 호출합니다.
+            if (foundAll) {
+                krpano.call(`skin_nextscene_loop(+1); hide_next_chapter_question();`);
+            } else {
+                // 클릭되지 않은 요소가 있을 경우, 다른 처리를 수행하는 함수를 호출합니다.
+                
+                krpano.call(`add_question_backdrop(); show_next_chapter_question(get(view.hlookat), get(view.vlookat));`);
+            }
+        ]]>
+    </action>
+
+    <action name='add_question_backdrop'>
+        if(hotspot[question_backdrop],
+            stoptween(hotspot[question_backdrop].alpha);
+            removehotspot(question_backdrop);
+        );
+        
+        addhotspot(question_backdrop);
+        hotspot[question_backdrop].loadstyle(st_question_backdrop);
+        tween(hotspot[question_backdrop].alpha, 0.6);
+    </action>
+
+    <action name='show_next_chapter_question' scope='local' args='h, v'>
+            set(hs_h, get(h));
+            set(hs_v, get(v));
+
+            set(hotspot[next_chapter_question],
+                ath=get(hs_h),
+                atv=get(hs_v),
+            );
+            set(hotspot[answer_yes_btn],
+                ath=get(hs_h),
+                atv=get(hs_v),
+            );
+            set(hotspot[answer_no_btn],
+                ath=get(hs_h),
+                atv=get(hs_v),
+            );
+            tween(hotspot[next_chapter_question].alpha, 1);
+            tween(hotspot[answer_yes_btn].alpha, 1);
+            tween(hotspot[answer_no_btn].alpha, 1);
+    </action>
+
+    <action name='hide_next_chapter_question'>
+        tween(hotspot[next_chapter_question].alpha, 0);
+        tween(hotspot[answer_yes_btn].alpha, 0);
+        tween(hotspot[answer_no_btn].alpha, 0);
+        tween(hotspot[question_backdrop].alpha, 0);
+
+        
+
+        removehotspot(question_backdrop);
+    </action>
+
+    <action name='check_all_scene'>
+        set(full_count, 0);
+        set(check_count, 0);
+        for(set(i,0), i LT hotspot.count, inc(i),
+            if(hotspot[get(i)].style == 'st_icon_ext' OR hotspot[get(i)].style == 'st_risk_icon_ext_btn_2',
+                inc(full_count);
+                trace("full_count :: ", full_count);
+                if(hotspot[get(i)].checked,
+                    inc(check_count);
+                    trace("check_count :: ", check_count);
+                );
+                copy(layer[icon_count_text].html, calc(check_count + " / " + full_count); );
+                
+            );
+        );
+        if(check_count === full_count,
+            copy(layer[icon_count_bg].url, layer[icon_count_bg].curl);
+        );
+    </action>
+
+    <action name='reset_check_all_scene'>
+        if(layer[icon_count_bg].url,
+            copy(layer[icon_count_bg].url, layer[icon_count_bg].ourl);
+        );
+    </action>
+
+    <action name='animation' >
+        inc(frame, 1, get(frames), 0);
+        mul(xpos, frame, framewidth);
+        txtadd(
+            crop, get(xpos), '|', '0|', get(framewidth), '|', get(frameheight)
+        );
+        delayedcall(0.1,
+            animation();
+        );
+    </action>
+    <action name='animation_1'>
+        inc(frame, 1, get(frames), 0);
+        mul(ypos, frame, frameheight);
+        txtadd(
+            crop, '0|', get(ypos), '|', get(framewidth), '|', get(frameheight)
+        );
+        delayedcall(ani_delay_1,0.8,
+            animation_1();
+        );
+    </action>
+    <action name='animation_2'>
+        inc(frame, 1, get(frames), 0);
+        mul(ypos, frame, frameheight);
+        txtadd(
+            crop, '0|', get(ypos), '|', get(framewidth), '|', get(frameheight)
+        );
+        delayedcall(ani_delay_2,0.8,
+            animation_2();
+        );
+    </action>
+
+    <action name='setTooltip_vr' scope='local'>
+        txtadd(newTooltipHsName, 'tooltip_', get(caller.name));
+        
+        addhotspot(get(newTooltipHsName));
+        set(hotspot[get(newTooltipHsName)],
+            type='text',
+            html=get(caller.tooltip),
+            css=get(calc(caller.tooltip_css?caller.tooltip_css:"font-size: 1.4rem; text-align:left; width:240px; color:#000;")),
+            scale=0.5,
+            ox=get(calc(caller.tooltip_ox?caller.tooltip_ox:caller.ox + 20)),
+            oy=get(calc(caller.tooltip_oy?caller.tooltip_oy:caller.oy + -1)),
+            ath=get(caller.ath),
+            atv=get(caller.atv),
+            bg=false,
+            distorted=true,
+            capture=false,
+            enabled=false,
+            alpha=get(calc(caller.tooltip_alpha?caller.tooltip_alpha:caller.alpha));,
+        );        
+    </action>
+
+    <style name='st_risk_icon_ext_btn'
+        style='style_drag_hotspot_distortion'
+        surl='%ROOT%/assets/common/green_safe.png'
+        lurl='%ROOT%/assets/common/yellow_low.png'
+        murl='%ROOT%/assets/common/yellow_mid.png'
+        hurl='%ROOT%/assets/common/yellow_high.png'
+        scale='0.5'
+        alpha='0' autoalpha="1"
+        distorted='true'
+        enabled='true'
+        capture='false'
+        checked='false'
+        checked_none='true'
+        checked_high='true'
+        checked_mid='true'
+        checked_low='true'
+        onover='stoptween(scale);tween(scale, 0.52, 0.2);'
+        onout='stoptween(scale);tween(scale, 0.5, 0.2);'
+        onclicksound='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+        '
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+            looktohotspot(get(name), get(view.fov));  
+            js(App.krpanoOnClickThreatIcon(get(idx))); 
+            js(App.setIsRightSideShow(true));
+        '
+        onloaded='setTooltip_vr(); updateHs();'
+    />
+    
+    <style name='st_risk_icon_ext_btn_2'
+        style='style_drag_hotspot_distortion'
+        url='%ROOT%/assets/common/ahngel/blue.png'
+        surl='%ROOT%/assets/common/ahngel/green_safe.png'
+        lurl='%ROOT%/assets/common/ahngel/yellow_low.png'
+        murl='%ROOT%/assets/common/ahngel/yellow_mid.png'
+        hurl='%ROOT%/assets/common/ahngel/yellow_high.png'
+        scale='0.5'
+        flag='true'
+        alpha='0' autoalpha="1"
+        oy='30'
+        edge='bottom'
+        distorted='true'
+        enabled='true'
+        capture='false'
+        checked='false'
+        checked_none='true'
+        checked_high='true'
+        checked_mid='true'
+        checked_low='true'
+        zorder="99"
+        onover='stoptween(scale);tween(scale, 0.52, 0.2);'
+        onout='stoptween(scale);tween(scale, 0.5, 0.2);'
+        linkedhotspot_click='icon_click_check_2'
+        onclicksound='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+        '
+        onaction='add_icon_click_check_2();'
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+            add_icon_click_check_2();
+            looktohotspot(get(name), get(view.fov));  
+            js(App.krpanoOnClickThreatIcon(get(idx))); 
+            js(App.setIsRightSideShow(true));
+            set(hotspot[icon_click_check].alpha, 0);
+        '
+        onloaded='setTooltip_vr(); updateHs();'
+    />
+
+    
+
+    <style name='st_icon_ext' 
+        url='%ROOT%/assets/common/blue.png'
+        surl='%ROOT%/assets/common/green_safe.png'
+        lurl='%ROOT%/assets/common/yellow_low.png'
+        murl='%ROOT%/assets/common/yellow_mid.png'
+        hurl='%ROOT%/assets/common/yellow_high.png'
+        style='style_drag_hotspot_distortion'
+        enabled='true'
+        flag='true'
+        flag2='true'
+        flag3='true'
+        capture='true'
+        checked='false'
+        checked_none='true'
+        checked_high='true'
+        checked_mid='true'
+        checked_low='true'
+        alpha='1'
+        scale='0.25' 
+        zoom='true'
+        zorder="10"
+        onbig='stoptween(scale); tween(scale, 0.27,,,onsmall());'
+        onsmall='stoptween(scale); tween(scale, 0.25,,,onbig());'
+        onloaded='onbig(); updateHs(); '
+        linkedhotspot='icon_click_check'
+        onclicksound='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+        '
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+            looktohotspot(get(name), get(view.fov));  
+            add_icon_click_check();
+            js(App.krpanoOnClickThreatIcon(get(idx))); 
+            js(App.setIsRightSideShow(true)); 
+            onshow();
+            set(hotspot[icon_click_check_2].alpha, 0);
+        '
+        onshow='
+            stoptween(hotspot[get(linkedhotspot)].scale);
+            stoptween(hotspot[get(linkedhotspot)].rotate);
+            tween(hotspot[get(linkedhotspot)].scale, 0.62, 0.25, ,
+                tween(hotspot[get(linkedhotspot)].scale, 0.59, 0.25 , ,
+                    tween(hotspot[get(linkedhotspot)].scale, 0.62, 0.25, ,
+                        tween(hotspot[get(linkedhotspot)].scale, 0.59, 0.25 , ,
+                            tween(hotspot[get(linkedhotspot)].rotate, -540, 0.9, linear,
+                                tween(hotspot[get(linkedhotspot)].scale, 0.62, 0.25, ,
+                                    tween(hotspot[get(linkedhotspot)].scale, 0.59, 0.25 , ,
+                                        tween(hotspot[get(linkedhotspot)].scale, 0.62, 0.25, ,
+                                            tween(hotspot[get(linkedhotspot)].scale, 0.59, 0.25 , ,
+                                                tween(hotspot[get(linkedhotspot)].rotate, 0, 0.9, linear , 
+                                                    onshow();
+                                                );
+                                            );
+                                        );
+                                    );
+                                );
+                            );
+                        );
+                    );
+                );
+            );
+        '
+    />
+
+    <action name='add_icon_click_check' scope='local' >
+        if(hotspot[icon_click_check],
+            stoptween(hotspot[icon_click_check].scale);
+            stoptween(hotspot[icon_click_check].rotate);
+            removehotspot(icon_click_check);
+        );
+        addhotspot(icon_click_check);
+        hotspot[icon_click_check].loadstyle(st_icon_click_check);
+        copy(hotspot[icon_click_check].ath, caller.ath);
+        copy(hotspot[icon_click_check].atv, caller.atv );
+    </action>
+
+
+    <action name='add_icon_click_check_2' scope='local' >
+        trace("add_icon_click_check_2 실행");
+        if(hotspot[icon_click_check_2],
+            stoptween(hotspot[icon_click_check_2].oy);
+            removehotspot(icon_click_check_2);
+        );
+        addhotspot(icon_click_check_2);
+        set(gapBetweenImages, -20);        
+        copy(change_oy, calc(caller.imageheight / -4 + (get(gapBetweenImages))););
+        hotspot[icon_click_check_2].loadstyle(st_icon_click_check_2);
+
+        copy(hotspot[icon_click_check_2].ath, caller.ath);
+        copy(hotspot[icon_click_check_2].atv, caller.atv);
+        copy(hotspot[icon_click_check_2].ox, caller.ox);
+        set(hotspot[icon_click_check_2].oy, calc(caller.imageheight / -4 + ParseInt(get(gapBetweenImages))) );
+        set(hotspot[icon_click_check_2].oy_from, calc(caller.imageheight / -4 + ParseInt(get(gapBetweenImages))) );
+        copy(hotspot[icon_click_check_2].oy_to, calc(caller.imageheight / -4 + (get(gapBetweenImages) + 50 )););
+        callwith(hotspot[icon_click_check_2], oy_moving);
+
+        <!-- oy_moving(get(change_oy)); -->
+    </action>
+
+    <action name='oy_moving'>
+        trace("oy_moving 실행");
+        tween(hotspot[icon_click_check_2].oy, calc(hotspot[icon_click_check_2].oy_from + 5), , ,
+            tween(hotspot[icon_click_check_2].oy, calc(hotspot[icon_click_check_2].oy_from - 5), , ,
+                callwith(hotspot[icon_click_check_2], oy_moving);
+            );
+        );
+    </action>
+
+    <style name='st_icon_click_check' url='%ROOT%/assets/common/current_click_btn.png'
+        style='style_drag_hotspot_distortion'
+        keep='true'
+        alpha='1'
+        enabled='false' capture='false'
+        scale='0.6'
+        zoom='true'
+        linkedhotspot=''
+        zorder='9'
+        ath='' atv=''
+    />
+    <style name='st_icon_click_check_2' url='%ROOT%/assets/common/ahngel/current_click_btn.png'
+        style='style_drag_hotspot_distortion'
+        keep='true'
+        alpha='1'
+        enabled='false' capture='false'
+        edge='bottom'
+        scale='0.6'
+        zoom='true'
+        distorted='true'
+        linkedhotspot=''
+        ath='' atv=''
+    />
+
+    <layer name='evaluation_btn' url='%ROOT%/assets/common/evaluation_btn.png'
+        keep='true'
+        enabled='true'
+        capture='false'
+        alpha='1' autoalpha='1'
+        scale='0.4' 
+        edge='lefttop'
+        align='lefttop'
+        oy='25'
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+            js(App.setIsLeftSideShow(true));
+        '
+    />
+
+    <layer name='settings_bg' url='%ROOT%/assets/common/bg_2.png'
+        keep='true'
+        enabled='true'
+        capture='false'
+        handcursor='false'
+        alpha='0' autoalpha='1'
+        scale='0.4' 
+        edge='righttop'
+        align='righttop'
+        oy='75'
+    />
+
+    <layer name='setting_btn' url='%ROOT%/assets/common/setting_btn.png'
+        keep='true'
+        enabled='true'
+        capture='false'
+        alpha='1' autoalpha='1'
+        scale='0.4' 
+        edge='righttop'
+        align='righttop'
+        oy='25'
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+            if(!layer[settings_bg].alpha,
+                tween(layer[settings_bg].alpha, 1);
+            ,
+                tween(layer[settings_bg].alpha, 0);
+            );
+        '
+    />
+
+    <style name='st_setting_btn'
+        keep='true'
+        parent='settings_bg'
+        enabled='true'
+        alpha='1' autoalpha='1'
+        bgalpha='1' bgcapture='true'
+    />
+
+    <style name='st_pano_name'
+        keep='true'
+        enabled='false'
+        capture='false'
+        alpha='1'
+        scale='0.4' 
+        edge='top'
+        align='top'
+    />
+
+    <layer name='pano_name' url=''
+        style='st_pano_name'
+    />
+
+    <style name='style_with_backdrop'
+        onclick.addevent='
+            copy(hotspot[backdrop].opened_hotspot, linkedhotspot);
+            callwith(hotspot[backdrop], open);
+        '
+    />
+
+    <style name='style_hotspot_info_video'
+        capture='false'
+        enabled='true'
+        distorted='true'
+        autoalpha="true"
+        alpha='0'
+        scale='0.5'
+    />
+
+    <style name='style_video_play_btn' url='%ROOT%/assets/common/btn_play.png'
+        ath='0' atv='0'
+        distorted='true'
+        alpha='0.7'
+        org_alpha='0.7'
+        enabled='false'
+        capture='false'
+        zorder="98"
+    />
+
+    <style name='style_outro_video'
+        style='style_hotspot_info_video'
+        url.html5="%ROOT%/plugins/videoplayer.js"
+        url.flash="%ROOT%/plugins/videoplayer.swf"
+        distorted="true"
+        scale="0.32" 
+        rx="0.0" 
+        ry="0.0" 
+        rz="0.0" 
+        capture="false"
+        pausedonstart="true"
+        loop="false"
+        volume="0.3"
+        directionalsound="true"
+        range="90.0"
+        rangefalloff="1.0"
+        outofrangevolume="0.0"
+        linkedplaybtn='big_video_play_btn'
+        onvideoready=""
+        onvideoplay="set(hotspot[get(linkedplaybtn)].alpha, 0);pausesound(bgm); pausesound(narration); stop_script();"
+        onvideopaused="if(alpha, set(hotspot[get(linkedplaybtn)].alpha, 0.8); );"
+        onvideocomplete=""
+        onerror=""
+        alpha='0'
+        autoalpha='true'
+        visible="true"
+        onclick="
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+            togglepause();
+        "
+        onhover.addevent='
+            if(pcmode,
+                onDraggingOnOverHs();
+            );
+        '
+        zorder='99'
+    />
+
+    <style name='st_click_sound'
+        onclick.addevent='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+        '
+    />
+
+    <!-- 인터랙티브 이미지 스타일 -->
+    <style name='st_interactive_img'
+        alpha='0'
+        distorted='true'
+        enabled='false'
+        capture='false'
+    />
+    <!-- 인터랙티브 이미지 돌아가게 하는 액션 -->
+    <action name='anime_interactive' >
+        set(limited_step, 0);
+        for(set(i,0), i LT hotspot.count, inc(i),
+            if(hotspot[get(i)].style == 'st_interactive_img',
+                inc(limited_step);
+            );
+        );
+        txtadd(interactive_img, 'interactive_area_', get(step_settings.step));
+        set(hotspot[get(interactive_img)].alpha, 0);    
+        inc(step_settings.step);
+        if(step_settings.step GT limited_step, 
+            set(step_settings.step, 1)
+        );
+        txtadd(interactive_img, 'interactive_area_', get(step_settings.step));
+        set(hotspot[get(interactive_img)].alpha, 1);
+        interval_interactive();
+    </action>
+
+    <action name='interval_interactive' >
+        delayedcall(delayed_interactive, 0.3,   anime_interactive(); );
+    </action>
+
+    <!-- 챕터별로 이미지도 바꾸고 글씨도 바꾸고 난리나는 공장 -->
+    <action name='show_chapter_page_text'>
+        txtsplit("scene_1_1", "|", arr_chapter_1); 
+        txtsplit("scene_2_1|scene_2_2|scene_2_3|scene_2_4|scene_2_5", "|", arr_chapter_2); 
+        txtsplit("scene_3_1|scene_3_2", "|", arr_chapter_3); 
+        txtsplit("scene_4_1|scene_4_2", "|", arr_chapter_4); 
+        txtsplit("scene_5_1|scene_5_2|scene_5_3|scene_5_4|scene_5_5", "|", arr_chapter_5); 
+        txtsplit("scene_6_1", "|", arr_chapter_6); 
+        txtsplit("scene_7_1", "|", arr_chapter_7); 
+        
+        for(set(i,0), i LT arr_chapter_1.count, inc(i),
+            if(get(xml.scene) == arr_chapter_1[get(i)].value,
+                set(front, calc(get(i) + 1));
+                set(back, calc(arr_chapter_1.count));
+                set(layer[page_text].html, calc("[[ "+front+" / "+back+" ]]"));
+                set(layer[st_chapter_move_left].linkedscene, scene_intro);
+                set(layer[st_chapter_move_right].linkedscene, scene_2_1);
+                set(layer[st_pano_move_left].maginot_number, 2);
+                set(layer[st_pano_move_right].maginot_number, 2);
+                set(layer[pano_name].url, "%ROOT%/assets/etc/pano_name_1.png");
+                set(layer[hit_box].ox, -201.5);
+            );
+        );
+        for(set(i,0), i LT arr_chapter_2.count, inc(i), 
+            if(get(xml.scene) == arr_chapter_2[get(i)].value,
+                set(front, calc(get(i) + 1));
+                set(back, calc(arr_chapter_2.count));
+                set(layer[page_text].html, calc("[[ "+front+" / "+back+" ]]"));
+                set(layer[st_chapter_move_left].linkedscene, scene_1_1);
+                set(layer[st_chapter_move_right].linkedscene, scene_3_1);
+                set(layer[st_pano_move_left].maginot_number, 3);
+                set(layer[st_pano_move_right].maginot_number, 7);
+                set(layer[pano_name].url, "%ROOT%/assets/etc/pano_name_2.png");
+                set(layer[hit_box].ox, -134.3);
+            );
+        );
+        for(set(i,0), i LT arr_chapter_3.count, inc(i), 
+            if(get(xml.scene) == arr_chapter_3[get(i)].value,
+                set(front, calc(get(i) + 1));
+                set(back, calc(arr_chapter_3.count));
+                set(layer[page_text].html, calc("[[ "+front+" / "+back+" ]]"));
+                set(layer[st_chapter_move_left].linkedscene, scene_2_1);
+                set(layer[st_chapter_move_right].linkedscene, scene_4_1);
+                set(layer[st_pano_move_left].maginot_number, 8);
+                set(layer[st_pano_move_right].maginot_number, 9);
+                set(layer[pano_name].url, "%ROOT%/assets/etc/pano_name_3.png");
+                set(layer[hit_box].ox, -67);
+            );
+        );
+        for(set(i,0), i LT arr_chapter_4.count, inc(i), 
+            if(get(xml.scene) == arr_chapter_4[get(i)].value,
+                set(front, calc(get(i) + 1));
+                set(back, calc(arr_chapter_4.count));
+                set(layer[page_text].html, calc("[[ "+front+" / "+back+" ]]"));
+                set(layer[st_chapter_move_left].linkedscene, scene_3_1);
+                set(layer[st_chapter_move_right].linkedscene, scene_5_1);
+                set(layer[st_pano_move_left].maginot_number, 10);
+                set(layer[st_pano_move_right].maginot_number, 11);
+                set(layer[pano_name].url, "%ROOT%/assets/etc/pano_name_4.png");
+                set(layer[hit_box].ox, 0.5);
+            );
+        );
+        for(set(i,0), i LT arr_chapter_5.count, inc(i), 
+            if(get(xml.scene) == arr_chapter_5[get(i)].value,
+                set(front, calc(get(i) + 1));
+                set(back, calc(arr_chapter_5.count));
+                set(layer[page_text].html, calc("[[ "+front+" / "+back+" ]]"));
+                set(layer[st_chapter_move_left].linkedscene, scene_4_1);
+                set(layer[st_chapter_move_right].linkedscene, scene_6_1);
+                set(layer[st_pano_move_left].maginot_number, 12);
+                set(layer[st_pano_move_right].maginot_number, 16);
+                set(layer[pano_name].url, "%ROOT%/assets/etc/pano_name_5.png");
+                set(layer[hit_box].ox, 67.9);
+            );
+        );
+        for(set(i,0), i LT arr_chapter_6.count, inc(i), 
+            if(get(xml.scene) == arr_chapter_6[get(i)].value,
+                set(front, calc(get(i) + 1));
+                set(back, calc(arr_chapter_6.count));
+                set(layer[page_text].html, calc("[[ "+front+" / "+back+" ]]"));
+                set(layer[st_chapter_move_left].linkedscene, scene_5_1);
+                set(layer[st_chapter_move_right].linkedscene, scene_7_1);
+                set(layer[st_pano_move_left].maginot_number, 13);
+                set(layer[st_pano_move_right].maginot_number, 13);
+                set(layer[pano_name].url, "%ROOT%/assets/etc/pano_name_6.png");
+                set(layer[hit_box].ox, 135);
+            );
+        );
+        for(set(i,0), i LT arr_chapter_7.count, inc(i), 
+            if(get(xml.scene) == arr_chapter_7[get(i)].value,
+                set(front, calc(get(i) + 1));
+                set(back, calc(arr_chapter_7.count));
+                set(layer[page_text].html, calc("[[ "+front+" / "+back+" ]]"));
+                set(layer[st_chapter_move_left].linkedscene, scene_6_1);
+                set(layer[st_chapter_move_right].linkedscene, scene_outro);
+                set(layer[st_pano_move_left].maginot_number, 14);
+                set(layer[st_pano_move_right].maginot_number, 14);
+                set(layer[pano_name].url, "%ROOT%/assets/etc/pano_name_7.png");
+                set(layer[hit_box].ox, 202.5);
+            );
+        );
+	</action>
+</krpano>

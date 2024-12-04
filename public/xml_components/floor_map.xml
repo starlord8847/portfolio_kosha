@@ -1,0 +1,346 @@
+<krpano logkey='true'>
+	<include url='include_editor.xml' />
+
+	<map name='map_main'
+		url='%SWFPATH%/floor/top_view.jpg'
+		align='leftbottom'
+		scale='0.1'
+		zorder='1'
+		width='prop'
+		height='300'
+		alpha='1'
+	/>
+
+	<layer name='spot_active'
+		style='skin_floor_spot'
+		parent='floor_map'
+		url='%SWFPATH%/skin/move_hotspot.png'
+		autoalpha='true'
+		alpha='0'
+		zorder='100'
+		linkedscene=''
+		onclick=''
+		/>
+	<style name='skin_floor_spot'
+		keep='true'
+		url='%SWFPATH%/skin/move_hotspot_grayscale.png'
+		scale='0.25'
+		org_scale='0.25'
+		align='lefttop'
+		edge='center'
+		capture='true'
+		enabled='true'
+		zorder='99'
+		ondown='if(editor, set(dragging_layer, true); draglayer(););'
+		onup='if(editor, set(dragging_layer, false););'
+		onover='mul(newScale, org_scale, 1.2); tween(scale, get(newScale));'
+		onout='tween(scale, get(org_scale))'
+		onclick='loadscene(get(linkedscene), null, MERGE);'
+	/>
+	<layer name='spot_scene_1'
+		style='skin_floor_spot'
+		parent='floor_map'
+		x="50" y="178"
+		zorder='99'
+		linkedscene='scene_1'
+	/>
+	<layer name='spot_scene_7'
+		style='skin_floor_spot'
+		parent='floor_map'
+		x="50" y="129"
+		zorder='99'
+		linkedscene='scene_7'
+	/>
+	<layer name='spot_scene_2'
+		style='skin_floor_spot'
+		parent='floor_map'
+		x="50" y="99"
+		zorder='99'
+		linkedscene='scene_2'
+	/>
+	<layer name='spot_scene_8'
+		style='skin_floor_spot'
+		parent='floor_map'
+		x="50" y="56"
+		zorder='99'
+		linkedscene='scene_8'
+	/>
+	<layer name='spot_scene_3'
+		style='skin_floor_spot'
+		parent='floor_map'
+		x="101" y="41"
+		zorder='99'
+		linkedscene='scene_3'
+	/>
+	<layer name='spot_scene_4'
+		style='skin_floor_spot'
+		parent='floor_map'
+		x="130" y="102"
+		zorder='99'
+		linkedscene='scene_4'
+	/>
+	<layer name='spot_scene_5'
+		style='skin_floor_spot'
+		parent='floor_map'
+		x="130" y="180"
+		zorder='99'
+		linkedscene='scene_5'
+	/>
+	<layer name='spot_scene_9'
+		style='skin_floor_spot'
+		parent='floor_map'
+		x="130" y="220"
+		zorder='99'
+		linkedscene='scene_9'
+	/>
+	<layer name='spot_scene_6'
+		style='skin_floor_spot'
+		parent='floor_map'
+		x="88" y="260"
+		zorder='99'
+		linkedscene='scene_6'
+	/>
+
+
+	<layer name='floor_map_tooltip'
+		keep='true'
+		edge='center'
+		align='center'
+		type='text'
+		bg='true'
+		bgalpha='0.8'
+		bgcolor='0x000000'
+		bgborder='1 0x555555 1'
+		css='font-weight: bold; font-size: 1em; color: #fff; padding: 0.5em; text-align: center;'
+		bgroundedge='5'
+		autoalpha='true'
+		alpha='0'
+		onclick='callwith(layer[get(parent)], onclick)'
+	/>
+
+	<action name="draglayer">
+		<![CDATA[
+			if(dragging_layer,
+				copy(tempx, mouse.stagex);
+				copy(tempy, mouse.stagey);
+				if(parent,
+					if(layer[get(parent)].align == 'leftbottom',
+						sub(tempy, stageheight);
+						add(tempy, layer[get(parent)].pixelheight);
+					);
+					if(layer[get(parent)].align == 'rightbottom',
+						sub(tempx, stagewidth);
+						sub(tempy, stageheight);
+						sub(tempx, layer[get(parent)].pixelwidth);
+						sub(tempy, layer[get(parent)].pixelheight);
+					);
+					if(layer[get(parent)].x,
+						sub(tempx, layer[get(parent)].x);
+					);
+					if(layer[get(parent)].y,
+						add(tempy, layer[get(parent)].y);
+					);
+
+					updateSpotXY(get(name));
+				);
+				copy(x, tempx);
+				copy(y, tempy);
+				delayedcall(0,draglayer());
+			);
+		]]>
+	</action>
+
+	<action name='updateSpotXY'>
+		if(editor,
+			set(layer[spotXY].currentspot, %1);
+			
+			txtadd(spotXyHtml, get(layer[%1].x), ', ', get(layer[%1].y));
+			copy(layer[spotXY].html, spotXyHtml);
+		);
+	</action>
+
+	<layer name='floor_map_wrap'
+		keep='true'
+		type='container'
+		align='leftbottom'
+		zorder='1'
+		width='300'
+		height='prop'
+		alpha='1'
+        y='70'
+		bgcolor='0x000000'
+		bgalpha='0.8'
+		linkedlayer='map_toggle_button'
+		onloaded='if(skin_settings.default_indoor_map_open,
+			tween(x, 0);
+			set(layer[get(linkedlayer)].current_indoor_map_open, true);
+		,
+			tween(x, -300);
+			set(layer[get(linkedlayer)].current_indoor_map_open, false);
+		);'
+	>
+		<layer name='map_toggle_button_wrap'
+			type='container'
+			align='righttop'
+			edge='lefttop'
+			zorder='1'
+			width='35'
+			height='35'
+			alpha='0.8'
+			bgcolor='0x000000'
+			bgalpha='0.8'
+		>
+			<layer name='map_toggle_button'
+				linkedlayer='floor_map_wrap'
+				url='%SWFPATH%/floor/map_icon.png'
+				align='center'
+				edge='center'
+				zorder='1'
+				width='80%'
+				height='prop'
+				capture='true'
+				alpha='0.8'
+				enabled='true'
+				onclick='if(current_indoor_map_open, 
+					tween(layer[get(linkedlayer)].x, -300);
+					set(current_indoor_map_open, false);
+				,
+					tween(layer[get(linkedlayer)].x, 0);
+					set(current_indoor_map_open, true);
+				);'
+				onover='tween(alpha, 1);'
+				onout='tween(alpha, 0.8);'
+			/>
+		</layer>
+
+		<layer name='floorMapName'
+			type='text'
+			html='Mini Map'
+			padding='5'
+			css='font-size: 16px; color: #fff;'
+			align='lefttop'
+			edge='leftop'
+			bgalpha='0'
+			txtshadow='2 2 2 0xffffff 0.4'
+			enabled='false'
+			capture='false'
+		/>
+		<layer name='floor_map'
+			keep='true'
+			url=''
+			align='leftbottom'
+			zorder='1'
+			width='prop'
+			height='300'
+			alpha='1'
+			bgcolor='0x999999'
+			bgalpha='1'
+			y='15'
+			x='50'
+			onloaded='add(newheight, pixelheight, 60); copy(layer[floor_map_wrap].height, newheight);'
+		>
+			<layer name="radar"
+				keep='true'
+				url.html5="%SWFPATH%/plugins/radar.js"
+				align='lefttop'
+				edge='center'
+				x="0" y="0"
+				scale="0.5"
+				heading="0.0"
+				headingoffset="0.0"
+				fillcolor="0xFFFFFF"
+				fillalpha="0.8"
+				linewidth="0.0"
+				linecolor="0xFFFFFF"
+				linealpha="0.3"
+				invert="false"
+				zorder='1'
+			/>
+
+			<layer if='editor' name='spotXY' keep='true' y='-50' x='10' type='text' html='0, 0' onclick='onClickLayerCopy()' />
+			<layer if='editor' name='copymsg' keep='true' y='-70' x='10' visible='false' type='text' html='복사되었습니다.'/>	
+		</layer>
+	</layer>
+
+	
+
+	<action name='dont_use_floor_map' scope='local'>
+		set(layer[floor_map_wrap].visible, false);
+	</action>
+	<action name='use_floor_map' scope='local'>
+		set(layer[floor_map_wrap].visible, true);
+		copy(caller, scene[get(xml.scene)]);
+		
+		if(caller.mapname,
+			copy(layer[floor_map].url, map[get(caller.mapname)].url);
+			copy(layer[floor_map].current, caller.mapname);
+		);
+		if(caller.spotname,
+			copy(layer[radar].x, layer[get(caller.spotname)].x);
+			copy(layer[radar].y, layer[get(caller.spotname)].y);
+			
+
+			set(radaroheadingoffset, 0);			
+			if(caller.headingoffset,
+				copy(radaroheadingoffset, caller.headingoffset);			
+			);
+			copy(layer[radar].headingoffset, radaroheadingoffset);
+
+			<!-- showOnlyCurrentSpot( get(caller.spotname) ); -->
+			callwith(layer[get(caller.spotname)], activeCurrentSpot);
+		);
+	</action>
+
+	<action name='activeCurrentSpot' scope='local'>
+		if(!caller, break(););
+		set(layer[spot_active], x=get(caller.x), y=get(caller.y), alpha=1);
+	</action>
+	<action name='showOnlyCurrentSpot' scope='local'>
+		for(set(i,0), i LT layer.count, inc(i),
+			if(layer[get(i)].style == 'skin_floor_spot',
+				<!-- js(console.info(%1, get(layer[get(i)].name)) ); -->
+
+				if(layer[get(i)].name != %1,
+					set(layer[get(i)].visible, false);
+				,
+					set(layer[get(i)].visible, true);
+					if(layer[get(i)].no_radar,
+						set(layer[radar].visible, false);
+					,
+						set(layer[radar].visible, true);
+					);
+				);
+			);
+			if(layer[get(i)].style == 'skin_floor_clickable_spot',
+				if(layer[get(i)].parentmap != layer[floor_map].current OR layer[get(i)].parentspot == %1,
+					set(layer[get(i)].visible, false);
+				,
+					set(layer[get(i)].visible, true);
+				);
+			);
+		);
+	</action>
+
+	<action name='onnewpano_checkmap'>
+		if(!scene[get(xml.scene)].mapname,
+			dont_use_floor_map();
+		,
+			use_floor_map();
+		);
+	</action>
+
+
+	<action if='editor' name='onClickLayerCopy'>
+		if(!currentspot,
+			break();
+		);
+		set(layer[copymsg].visible, true);
+		tween(layer[copymsg].alpha, 1);
+		txtadd(c2ctext, 'x="', get(layer[get(currentspot)].x), '" y="', get(layer[get(currentspot)].y), '"');
+		plugin[c2c].copy2clipboard(get(c2ctext));
+		tween(layer[copymsg].alpha, 0,,,
+			set(layer[copymsg].visible, false);
+		);
+	</action>
+
+</krpano>

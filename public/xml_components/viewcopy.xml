@@ -1,0 +1,92 @@
+<krpano>
+	<plugin name="c2c" 
+		url="copy2clipboard.js" 
+		keep="true"
+		devices="html5"
+	/>
+
+	<events name='viewcopy_events' 
+		keep='true'
+		onviewchange='update_current_hv();'
+        onloadcomplete='set(autorotate.enabled, false)'
+	/>
+	<layer name='hrz_line' keep='true' type='container' bgcolor='0xffff00' bgalpha='0.8' height='4' width='100%' y='50%' />
+	<layer name='vtc_line' keep='true' type='container' bgcolor='0xffff00' bgalpha='0.8' height='100%' width='4' x='50%' />
+	<layer name='look_lines' keep='true' type='text' enabled='true' capture='false' bgcolor='0x00ffff' alpha='1' padding='10' css='font-size:16px;' edge='rightbottom' align='rightbottom' x='5' y='90' html='뒤돌기' 
+		onclick='onClickLookBack()'
+	/>
+    <layer name='look_back' keep='true' type='text' enabled='true' capture='false' bgcolor='0x00ffff' alpha='1' padding='10' css='font-size:16px;' edge='rightbottom' align='rightbottom' x='70' y='90' html='선 숨기기' 
+		onclick='switch(layer[hrz_line].alpha, 1,0); switch(layer[vtc_line].alpha, 1,0);'
+	/>
+    <layer name='look_atv_to_zero' keep='true' type='text' enabled='true' capture='false' bgcolor='0x00ffff' alpha='1' padding='10' css='font-size:16px;' edge='rightbottom' align='rightbottom' x='160' y='90' html='atv=0' 
+		onclick='set(view.vlookat, 0)'
+	/>
+    <layer name='look_ath_to_zero' keep='true' type='text' enabled='true' capture='false' bgcolor='0x00ffff' alpha='1' padding='10' css='font-size:16px;' edge='rightbottom' align='rightbottom' x='225' y='90' html='ath=0' 
+    	onclick='set(view.hlookat, 0)'
+	/>
+	<layer name='current_hv_linkedscene' keep='true' type='text' edge='rightbottom' align='rightbottom'
+		bgcolor='0xffff00' bgalpha='0.8'
+		padding='10' css='font-size:16px;'
+		x='5' y='5' html='h, v, fov'
+		onclick='onClickCurrentHvLinkedscene()'
+	/>
+	<layer name='current_hv_athv' keep='true' type='text' edge='rightbottom' align='rightbottom'
+		bgcolor='0xffff00' bgalpha='0.8'
+		padding='10' css='font-size:16px;'
+		x='5' y='45' html='h, v, fov'
+		onclick='onClickCurrentHvAthv()'
+	/>
+	<layer name='copy_comfirm_msg' keep='true' type='text' enabled='false' capture='false' bgcolor='0x00ffff' alpha='0' padding='10' css='font-size:16px;' edge='rightbottom' align='rightbottom' x='5' y='5' html='복사되었습니다.' />
+
+	<action name='update_current_hv'>
+		update_current_hv_linkedscene();
+		update_current_hv_athv();
+	</action>
+
+	
+	<action name='update_current_hv_linkedscene'>
+		copy(newh, view.hlookat);
+		add(newh, 360180);
+		mod(newh, 360);
+		sub(newh, 180);
+		txtadd(currenthvhtml, 'linkedscene_lookat = ', get(newh), ',', get(view.vlookat), ',', get(view.fov) );
+		txtadd(currenthvhtml_org, get(newh), ',', get(view.vlookat), ',', get(view.fov) );
+		copy(layer[current_hv_linkedscene].html, currenthvhtml );
+		copy(layer[current_hv_linkedscene].org_html, currenthvhtml_org );
+	</action>
+	<action name='update_current_hv_athv'>
+		copy(newh, view.hlookat);
+		add(newh, 360180);
+		mod(newh, 360);
+		sub(newh, 180);
+		txtadd(currenthvhtml, 'ath, atv = ', get(newh), ',', get(view.vlookat), ',', get(view.fov) );
+		txtadd(currenthvhtml_org, 'ath="', get(view.hlookat), '" atv="', get(view.vlookat), '"' );
+		set(layer[current_hv_athv].html, get(currenthvhtml) );
+	</action>
+
+	<action name='onClickCurrentHvLinkedscene'>
+		txtadd(copytext, 'linkedscene_lookat="', get(org_html), '"' );
+		plugin[c2c].copy2clipboard( get(copytext) );
+		
+		set(layer[copy_comfirm_msg].alpha, 1);
+		delayedcall( 1,
+			tween(layer[copy_comfirm_msg].alpha, 0);
+		);
+	</action>
+	<action name='onClickCurrentHvAthv'>
+		plugin[c2c].copy2clipboard( get(currenthvhtml_org) );
+		
+		set(layer[copy_comfirm_msg].alpha, 1);
+		delayedcall( 1,
+			tween(layer[copy_comfirm_msg].alpha, 0);
+		);
+	</action>
+	<action name='onClickLookBack'>
+		add(newh, get(view.hlookat), 180);
+		add(newh, 360180);
+		mod(newh, 360);
+		sub(newh, 180);
+        lookinterrupt();
+		lookto(get(newh), 0); 
+	</action>
+</krpano>

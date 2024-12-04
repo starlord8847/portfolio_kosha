@@ -1,0 +1,1177 @@
+<krpano>
+
+    <!-- distorted 작업을 위해서 임시로 설정해서 사용 -->
+    <style name='style_drag_hotspot_distortion'
+        ondown='
+            if(editor, 
+                set(events[tour_addon].picked_hotspot, get(name));
+                draghotspot();
+            )
+        '
+    />
+	<style name='style_hotspot_hover_tooltip'
+		type='text'
+		html=''
+		zoom='true'
+		padding='5'
+		autoalpha='true'
+		alpha='0'
+		css='color: #fff; font-size: 1em; text-align: center;'
+		bg='true'
+		bgcolor='0x000000'
+		bgalpha='0.8'
+		bgroundedge='10'
+		bgborder='1 0xdddddd 0.8'
+		enabled='false'
+		capture='false'
+		zorder='999'
+	/>
+	<hotspot name='hotspot_hover_tooltip'
+		keep='true'
+		style='style_hotspot_hover_tooltip'
+		oy='-30'
+	/>
+	<layer name='layer_hover_tooltip'
+		keep='true'
+		style='style_hotspot_hover_tooltip'
+		align='lefttop'
+		edge='bottom'
+		oy='-30'
+		zorder='999'
+	/>
+	<action name='showLayerHoverTooltip'>
+		set(layer[layer_hover_tooltip].html, %1);
+		tween(layer[layer_hover_tooltip].alpha, 1);
+
+		copy(layer[layer_hover_tooltip].x, mouse.stagex);
+		copy(layer[layer_hover_tooltip].y, mouse.stagey);
+	</action>
+	<action name='hideLayerHoverTooltip'>
+		tween(layer[layer_hover_tooltip].alpha, 0);
+	</action>
+
+	<action name='showHsHoverTooltip'>
+		set(hotspot[hotspot_hover_tooltip].html, %1);
+		tween(hotspot[hotspot_hover_tooltip].alpha, 1);
+
+		screentosphere(mouse.stagex, mouse.stagey, mouseh, mousev);
+		copy(hotspot[hotspot_hover_tooltip].ath, mouseh);
+		copy(hotspot[hotspot_hover_tooltip].atv, mousev);
+	</action>
+	<action name='hideHsHoverTooltip'>
+		tween(hotspot[hotspot_hover_tooltip].alpha, 0);
+	</action>
+	<style name='style_info_icon'
+		url='%CURRENTXML%/skin/info_hotspot_drop_shadow.png'
+		capture='false'
+		org_scale='0.3'
+        org_oy='0'
+        bounceygap='-20'
+		scale='0.3'
+		onover='
+			mul(newScale, org_scale, 1.2);
+			tween(scale, get(newScale));
+		'
+		onout='
+			tween(scale, get(org_scale));
+			hideHsHoverTooltip();
+		'
+		onhover='showHsHoverTooltip("Click For More Detailed Information");'
+		bouncetime='1.5'
+		zoom='true'
+		onloaded='bounceUp(get(name))'
+		onclick='js( App.$children[0].$children[0].showModalPdf( get(name) ));'
+	/>
+	<style name='style_youtube_hotspot'
+		width='480'
+		height='270'
+		distorted='true'
+		renderer='css3d' css='width:100%; height:100%;' type='text'
+		ondown="
+			if(editor,
+				set(capture, true);
+				draghotspot();
+				copy(events[tour_addon].picked_hotspot, name);
+			);
+		"
+		onup='
+			if(editor,
+				copy(events[tour_addon].picked_hotspot, null);
+			);
+		'
+		onloaded='onLoadedYoutubeVideo()'
+	/>
+	<action name='onLoadedYoutubeVideo' scope='local'>
+		if(false AND global.editor OR !caller.youtube_uid,
+			set(caller.type, "image");
+			set(caller.url, %CURRENTXML%/video/5.jpg);
+		,
+			txtadd(newHtml, '[iframe class="youtubeiframe" id="youtubeiframe_', get(caller.name),'" youtube_uid="', get(caller.youtube_uid), '" hs_name="', get(caller.name), '" width="100%" height="100%" src="https://www.youtube.com/embed/', get(caller.youtube_uid), '?autoplay=1&amp;mute=1&amp;loop=1&amp;enablejsapi=1&amp;playlist=', get(caller.youtube_uid), '" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen][/iframe]');
+			copy(caller.html, newHtml);
+
+			<!-- txtadd(iframeId, 'youtubeiframe_', get(caller.name)); -->
+			<!-- js( App.$children[0].$children[0].onLoadedYoutube( get(iframeId) )); -->
+		);
+	</action>
+
+	<style name='style_video_hotspot'
+		url.html5="%CURRENTXML%/plugins/videoplayer.js"
+		url.flash="%CURRENTXML%/plugins/videoplayer.swf"
+		edge='center'
+		align='center'
+		distorted="true"
+		scale="1.0" 
+		rx="0.0" 
+		ry="0.0" 
+		rz="0.0" 
+		width='480'
+		height='270'
+		muted='true'
+		pausedonstart="false"
+		loop="true"
+		autoresume='true'
+		volume="0.5"
+		directionalsound="true"
+		range="30.0"
+		rangefalloff="1.0"
+		outofrangevolume="0.0"
+		onvideoready="
+			if(editor, 
+				set(pausedonstart, true);
+			);
+		"
+		onvideoplay="tween(hotspot[video_info_text].alpha, 0)"
+		onvideopaused=""
+		onvideocomplete="tween(hotspot[video_info_text].alpha, 1)"
+		onerror=""
+		onloaded=""
+		ondown="
+			if(editor,
+				set(capture, true);
+				draghotspot();
+				copy(events[tour_addon].picked_hotspot, name);
+			);
+		"
+		onup='
+			if(editor,
+				copy(events[tour_addon].picked_hotspot, null);
+			);
+		'
+		onhover='if(hovertooltip_enabled, showHsHoverTooltip("Click To Watch This Video"); );'
+		onout='hideHsHoverTooltip();'
+        onclick='
+            if(hovertooltip_enabled,
+                if(ispaused,
+                    play();
+                ,
+                    pause();
+                );
+            );
+        '
+	/>
+    <!-- js( App.$children[0].$children[0].showModalIframe( get(session_id), get(speaker_id) )); -->
+	<style name='style_video_hotspot2'
+        style='style_video_hotspot'
+        onclick='
+            if(hovertooltip_enabled,
+                if(ispaused,
+                    play();
+                ,
+                    pause();
+                    js( App.$children[0].$children[0].showModalIframe2( get(name) ));
+                );
+            );
+        '
+    />
+
+    <style name='style_video_area'
+        css='text-align: center; color: #fff;'
+        vcenter='true'
+        padding='10'
+        bg='true' bgalpha='0.8' bgcolor='0x333333'
+        capture='false'
+        enabled='false'
+        distorted='true'
+        type='text' width='403.2' height='226.8'
+        style='style_drag_hotspot_distortion'
+        onloaded='if(editor, set(enabled, true); set(capture, true); );'
+    />
+
+	<style name='style_polygonal_homepage'
+		fillcolor="0x000000" fillalpha="" borderwidth="1" bordercolor="0x00ffff" borderalpha="0" 
+		capture='false'
+		polyline="false"
+		scaleflying="true"
+		tx="0"
+		ty="0"
+		tz="0"
+		onclick='if(!editor, openurl(get(site_url)); )'
+		onhover='
+			polyline_stop_glow_tween(get(name));
+			set(borderalpha, 1);
+		'
+		onout='polyline_glow_down(get(name));'
+		onloaded='polyline_glow_up(get(name)); makeHoverTooltip();'
+	/>
+	<action name='makeHoverTooltip' scope='local'>
+		<!-- 툴팁 생성 -->
+		txtadd(polyHomepageTooltip, 'polygonal_homepage_tooltip_', get(caller.name));
+		addhotspot(get(polyHomepageTooltip));
+		hotspot[get(polyHomepageTooltip)].loadstyle('style_hotspot_hover_tooltip');
+		
+		<!-- 툴팁 바운스 효과 -->
+		set(hotspot[get(polyHomepageTooltip)].bouncetime, 1.5);
+		set(hotspot[get(polyHomepageTooltip)].bouncegap, -20);
+		set(hotspot[get(polyHomepageTooltip)].org_oy, 0);
+		set(hotspot[get(polyHomepageTooltip)].onloaded, 'bounceUp(get(name))');
+		tween(hotspot[get(polyHomepageTooltip)].alpha, 1);
+
+		<!-- 툴팁 위치 설정 -->
+		if(caller.tooltip_athv,
+			txtsplit(caller.tooltip_athv, ',', tooltip_h, tooltip_v);
+			copy(hotspot[get(polyHomepageTooltip)].ath, tooltip_h);
+			copy(hotspot[get(polyHomepageTooltip)].atv, tooltip_v);
+		);
+		
+		<!-- 툴팁 위치 조정 -->
+		set(tooltip_oy, -20);
+		if(caller.tooltip_oy,
+			copy(tooltip_oy, caller.tooltip_oy);
+		);
+		copy(hotspot[get(polyHomepageTooltip)].org_oy, tooltip_oy);
+
+		<!-- 툴팁 내용 입력 -->
+		set(tooltip_html, 'Visit Website');
+		if(caller.tooltip_html,
+			copy(tooltip_html, caller.tooltip_html);
+		);
+		copy(hotspot[get(polyHomepageTooltip)].html, tooltip_html);
+	</action>
+	
+    <style name='zoom_icon_style'
+		url='../skin/icons/magnify-scan.png'
+		capture='false'
+		autoalpha='false'
+		alpha='0.7'
+		zoom='true'
+		onclick='
+            playsound(click, get(nuskin_sound[click].url), false, 1,
+            );
+            js( App.$children[0].$children[0].showModal( get(modal_key) , get(filename) ) );
+        '
+		scale='0.3'
+		org_scale='0.3'
+		onover="mul(newScale, org_scale, 1.2); tween(scale, get(newScale));"
+		onout="tween(scale, get(org_scale));"
+		zorder='1000'
+		visible='true'
+        bounceygap='5'
+        bouncetime='0.75'
+		onloaded='bounceUp(get(name));'
+	/>
+    <style name='zoom_icon_style_white'
+		style='zoom_icon_style'
+		url='../skin/icons/magnify-scan-white.png'
+	/>
+
+    <!-- 0x00ffff -->
+    <style name='style_polygonal_area'
+		fillcolor="0x651fbb" fillalpha="0.1" borderwidth="3" bordercolor="0x651fbb" borderalpha="1" 
+		capture='false'
+		polyline="false"
+		scaleflying="true"
+		tx="0"
+		ty="0"
+		tz="0"
+		onhover=''
+		onout=''
+		onclick='skin_hotspotstyle_click();'
+		onloaded='style_polygonal_area_tooltip_setup();'
+	/>
+    <style name='style_polygonal_line'
+		fillcolor="0x651fbb" fillalpha="0" borderwidth="3" bordercolor="0x651fbb" borderalpha="1" 
+		enabled='false'
+        capture='false'
+		polyline="false"
+		scaleflying="true"
+		tx="0"
+		ty="0"
+		tz="0"
+	/>
+    
+    <!-- 
+        polyline_stop_glow_tween(get(name));
+        set(borderalpha, 1);
+        tween(fillalpha, 0.1);
+        tween(hotspot[get(tooltip_hotspot)].alpha, 1);
+
+        polyline_glow_up(get(name));
+        tween(fillalpha, 0);
+        tween(hotspot[get(tooltip_hotspot)].alpha, 0);
+        
+        polyline_glow_down(get(name)); 
+    -->
+    
+    <style name='style_polygonal_area_tooltip'
+        type='text'
+        capture='false'
+        enabled='false'
+        bg='true'
+        bgcolor='0xffffff'
+        bgalpha='0.8'
+        bgroundedge='15'
+        css='color: #333; font-size: 1.2em; text-align: center;'
+        padding='10'
+        vcenter='true'
+        alpha='0'
+        zoom='true'
+    />
+	<action name='polyline_stop_glow_tween'>
+		stoptween(hotspot[%1].borderalpha);
+		set(hotspot[%1].borderalpha, 0);
+	</action>
+	<action name='polyline_glow_up'>
+		set(glow_time, 1);
+		if(hotspot[%1].glow_time,
+			copy(glow_time, hotspot[%1].glow_time);
+		);
+		tween(hotspot[%1].borderalpha, 1, get(glow_time),,
+			polyline_glow_down(%1)
+		);
+	</action>
+	<action name='polyline_glow_down'>
+		set(glow_time, 1);
+		if(hotspot[%1].glow_time,
+			copy(glow_time, hotspot[%1].glow_time);
+		);
+		tween(hotspot[%1].borderalpha, 0, get(glow_time),,
+			polyline_glow_up(%1);
+		);
+	</action>
+    <action name='style_polygonal_area_tooltip_setup' scope='local'>
+        if(caller.tooltip,
+            txtadd(newTooltipHostpot, get(caller.name), '_tooltip');
+            addhotspot(get(newTooltipHostpot));
+            hotspot[get(newTooltipHostpot)].loadstyle(style_polygonal_area_tooltip);
+            if(!caller.tooltip_edge,
+                set(caller.tooltip_edge, 'center');
+            );
+
+            set(caller.tooltip_hotspot, get(newTooltipHostpot));
+            set(hotspot[get(newTooltipHostpot)],
+                ath=get(caller.tooltip_ath), atv=get(caller.tooltip_atv), html=get(caller.tooltip), zoom=true, alpha=1, edge=get(caller.tooltip_edge)
+            );
+        );
+    </action>
+
+    <!-- blinking effect -->
+    <action name="blink">
+		if(hotspot[%1].blank_on !== null,
+			set(higher, get(hotspot[%1].blank_on));
+		,
+			set(higher, 0.5);
+		);
+		
+		if(hotspot[%1].blank_off !== null,
+			set(lower, get(hotspot[%1].blank_off));
+		,
+			set(lower, 0.2);
+		);
+		
+
+		if(hotspot[%1].tween_time !== null,
+			set(tweenTime, get(hotspot[%1].tween_time));
+		,
+			set(tweenTime, 0.5);
+		);
+        if(hotspot[%1].stopblink != true,
+            tween( hotspot[%1].alpha, get(lower), get(tweenTime), easeOutQuad, blink_off(%1, get(lower), get(higher)) );
+        );
+	</action>
+    <action name="blink_off">
+		if(hotspot[%1].blank_on !== null,
+			set(higher, get(hotspot[%1].blank_on));
+		,
+			set(higher, 0.5);
+		);
+		
+		if(hotspot[%1].blank_off !== null,
+			set(lower, get(hotspot[%1].blank_off));
+		,
+			set(lower, 0.2);
+		);
+
+		if(hotspot[%1].tween_time !== null,
+			set(tweenTime, get(hotspot[%1].tween_time));
+		,
+			set(tweenTime, 0.5);
+		);
+        if(hotspot[%1].stopblink != true,
+            tween(hotspot[%1].alpha, get(higher), get(tweenTime), easeOutQuad, blink(%1, get(lower), get(higher)) );
+        );
+	</action>
+
+
+    <style name='style_default_poly'
+        polyline="false"
+        fillcolor="0xAAAAAA"
+        fillalpha="0.5"
+        borderwidth="0.0"
+        bordercolor="0xAAAAAA"
+        borderalpha="1.0"
+        borderzoom="0.0"
+        borderhittest="false"
+        blank_on='1'
+        blank_off='0.4'
+        capture='false'
+        enabled='false'
+        onloaded='blink(get(name))'
+        zorder="0"
+    />
+    <style name='style_women_poly'
+        style='style_default_poly'
+        fillcolor="0xff2d8b"
+    />
+    <style name='style_disabled_poly'
+        style='style_default_poly'
+        fillcolor="0x037bfe"
+    />
+    <style name='style_honored_poly'
+        style='style_default_poly'
+        fillcolor="0x002e60"
+    />
+
+
+    <!-- 위험요소 아이콘 관련 스타일 -->
+
+    
+
+    <!-- <style name='style_icon_exp'
+        url='%ROOT%/assets/3_progress_1/icon_exp.png'
+        change_url='%ROOT%/assets/3_progress_1/icon_exp_checked.png'
+        tag='icon_exp'
+        clicked='false'
+        capture='false'
+        zoom='true'
+        scale='0.3'
+        zorder="3"
+        alpha='0.5'
+        onbig='stoptween(scale);tween(scale, 0.3,,,onsmall());'
+        onsmall='stoptween(scale);tween(scale, 0.28,,,onbig());'
+        onclick='
+            if(hotspot[get(linkedhotspot)].alpha GT 0,
+                callwith(hotspot[get(linkedhotspot)], onhide);
+                set(hotspot[get(linkedhotspot)].clicked, false);
+            ,
+                callwith(hotspot[get(linkedhotspot)], onshow);
+                set(hotspot[get(linkedhotspot)].clicked, true);
+            );
+            icon_exp_click_checked();
+            
+            if(clicked ==  true,
+                stoptween(scale);
+            );
+            trace(hotspot[get(linkedhotspot)].clicked);
+            getThreatDataFromJs(get(textindex));
+            if(!layer_btn_settings.bgmpaused, playsound(click, get(sound_source[click].url), false, 1,); );
+        '
+        onclick2='
+            if(hotspot[get(linkedhotspot)].alpha GT 0,
+                callwith(hotspot[get(linkedhotspot)], onhide);
+                set(hotspot[get(linkedhotspot)].clicked, false);
+            ,
+                callwith(hotspot[get(linkedhotspot)], onshow);
+                set(hotspot[get(linkedhotspot)].clicked, true);
+            );
+        '
+        onloaded='
+            copy(hotspot[get(linkedhotspot)].ath, ath);copy(hotspot[get(linkedhotspot)].atv, atv);
+            delayedcall(5,
+                onbig();
+            );
+        '
+    /> -->
+    
+    <style name='style_threat_text' 
+        scale='0.5'
+        distorted='false'
+        zoom='true'
+        edge='left'
+        ry='15'
+        wordwrap='false'
+        ox='10'
+        oy='0'
+        capture='false'
+        clicked='false'
+        alpha='0'
+        autoalpha='true'
+        enabled='false'
+        onloaded=''
+        zorder="2"
+        onshow='stoptween(alpha); tween(alpha, 1); set(clicked, true); '
+        onhide='stoptween(alpha); tween(alpha, 0); set(clicked, false);'
+    /> 
+    
+
+    <action name='icon_exp_click_checked' type='Javascript' scope='local'>
+        <![CDATA[ 
+            let elementData = caller.textindex;
+
+            if(data.includes(elementData) == true){
+                data.splice(data.indexOf(elementData), 1);
+            }
+            else{
+                data.push(caller.textindex);
+            }
+            console.log("test log :: ", data);
+        ]]>
+    </action>
+
+    <style name='style_backTo'
+        url='%CURRENTXML%/assets/icon/back.png'
+        capture='false'
+        enabled='true'
+        alpha='1'
+        edge='bottom'
+        align='bottom'
+        oy='-100'
+        org_oy='-100'
+        scale='0.5'
+        org_scale='0.5'
+        onover='mul(newScale, org_scale, 1.1); tween(scale, get(newScale));'
+        onout='tween(scale, get(org_scale));'
+        ondown='add(newOy, oy, 2); copy(oy, newOy);'
+        onup='copy(oy, org_oy);'
+        onclick='skin_hotspotstyle_click();'
+    />
+    <style name='style_backTo_distorted'
+        url='%CURRENTXML%/assets/icon/back.png'
+        distorted='true'
+        capture='false'
+        enabled='true'
+        alpha='1'
+        scale='0.5'
+        org_scale='0.5'
+        onover='mul(newScale, org_scale, 1.1); tween(scale, get(newScale));'
+        onout='tween(scale, get(org_scale));'
+        ondown='add(newOy, oy, 2); copy(oy, newOy);'
+        onup='copy(oy, org_oy);'
+        onclick='skin_hotspotstyle_click_custom();'
+    />
+
+
+    <style name='style_details_toggle'
+        url='%CURRENTXML%/assets/button/icon.png'
+        onclick='
+            playsound(click, get(nuskin_sound[click].url), false, 1);
+            if(hotspot[get(linkedhotspot)].alpha GT 0,
+                tween(hotspot[get(linkedhotspot)].alpha, 0);
+                
+                if(linkedhotspot2,
+                    hotspot[get(linkedhotspot2)].pause();
+                    tween(hotspot[get(linkedhotspot2)].alpha, 0);
+                );
+            ,
+                tween(hotspot[get(linkedhotspot)].alpha, 1);
+
+                if(linkedhotspot2,
+                    tween(hotspot[get(linkedhotspot2)].alpha, 1,,,
+                        hotspot[get(linkedhotspot2)].play();
+                    );
+                );
+            );
+            copy(clicked, hotspot[get(linkedhotspot)].visible);
+        '
+    />
+    <style name='style_detail_prop'
+        autoalpha='1' alpha='0'
+        scale='0.4'
+        zoom='true'
+        enabled='false'
+        capture='false'
+        zorder='100'
+    />
+
+
+    <style name='style_big_comingsoon' url='%SWFPATH%/assets/img/coming-soon.png'
+        capture='false'
+        enabled='false'
+        scale='0.3'
+        distorted='true'
+    />
+
+    <action name='stopPulse_layer'>
+        if(layer[%1],
+            stoptween(layer[%1].scale);
+        );
+    </action>
+    <action name='pulseUpEffect_layer'>
+        if(layer[%1],
+            mul(newScale, get(layer[%1].org_scale), 1.05);
+            set(pulseTime, 0.5);
+            if(layer[%1].pulse_time,
+                copy(pulseTime, layer[%1].pulse_time);
+            );
+            tween(layer[%1].scale, get(newScale), get(pulseTime),,
+                pulseDownEffect_layer(%1);
+            );
+        );
+    </action>
+    <action name='pulseDownEffect_layer'>
+        if(layer[%1],
+            set(pulseTime, 0.5);
+            if(layer[%1].pulse_time,
+                copy(pulseTime, layer[%1].pulse_time);
+            );
+            tween(layer[%1].scale, get(layer[%1].org_scale), get(pulseTime),,
+                pulseUpEffect(%1);
+            );
+        );
+    </action>
+    <action name='stopPulse_hotspot'>
+        if(hotspot[%1],
+            stoptween(hotspot[%1].scale);
+        );
+    </action>
+    <action name='pulseUpEffect_hotspot'>
+        if(hotspot[%1],
+            set(pulseScale, 1.2);
+            if(hotspot[%1].pulse_scale,
+                copy(pulseScale, hotspot[%1].pulse_scale);
+            );
+
+            mul(newScale, get(hotspot[%1].org_scale), get(pulseScale) );
+            set(pulseTime, 0.5);
+            if(hotspot[%1].pulse_time,
+                copy(pulseTime, hotspot[%1].pulse_time);
+            );
+            tween(hotspot[%1].scale, get(newScale), get(pulseTime),,
+                pulseDownEffect_hotspot(%1);
+            );
+        );
+    </action>
+    <action name='pulseDownEffect_hotspot'>
+        if(hotspot[%1],
+            set(pulseTime, 0.5);
+            if(hotspot[%1].pulse_time,
+                copy(pulseTime, hotspot[%1].pulse_time);
+            );
+            tween(hotspot[%1].scale, get(hotspot[%1].org_scale), get(pulseTime),,
+                pulseUpEffect_hotspot(%1);
+            );
+        );
+    </action>
+
+
+    <style name='zone_icon'
+        scale='0.25'
+        zoom='true'
+        capture='false'
+        url='%CURRENTXML%/assets/icon/info.png'
+        onclick='
+            playsound(click, get(nuskin_sound[click].url), false, 1, );
+            switch(hotspot[get(linkedhotspot)].alpha, 1, 0);
+            if(linkedhotspot2,
+                copy(hotspot[get(linkedhotspot2)].alpha, hotspot[get(linkedhotspot)].alpha);
+            );
+            if(linkedhotspot3,
+                copy(hotspot[get(linkedhotspot3)].alpha, hotspot[get(linkedhotspot)].alpha);
+            );
+            if(linkedhotspot4,
+                copy(hotspot[get(linkedhotspot4)].alpha, hotspot[get(linkedhotspot)].alpha);
+            );
+        '
+    />
+
+    <style name='prod_mag_icon'
+        style='zone_icon'
+        url='%CURRENTXML%/assets/icon/magnific.png'
+    />
+    <style name='prod_cart_icon'
+        style='zone_icon'
+        url='%CURRENTXML%/assets/icon/cart.png'
+    />
+    <style name='speaker_icon'
+        scale='0.25'
+        org_scale='0.25'
+        ox='40'
+        zoom='true'
+        url='%CURRENTXML%/assets/icon/speaker.png'
+        capture='false'
+        alpha='1'
+        oy='0'
+        org_oy='0'
+        onover='stopPulse_hotspot(get(name));'
+        onout='pulseUpEffect_hotspot(get(name));'
+        ondown='add(newOy, oy, 2); copy(oy, newOy);'
+        onup='copy(oy, org_oy); '
+        onclick='
+            if(sound[get(sound_source)],
+                playsound(click, get(nuskin_sound[click].url), false, 1);
+                sound[get(sound_source)].toggle();
+            ,
+                stopallsounds();
+                playsound(click, get(nuskin_sound[click].url), false, 1);
+                playsound(get(sound_source), get(sound_source[get(sound_source)].url), false, 1):
+            );
+        '
+        onloaded='pulseUpEffect_hotspot(get(name))'
+    />
+    <style name='video_icon'
+        style='zone_icon'
+        scale='0.25'
+        onclick.addevent='
+            delayedcall(0,
+                if(hotspot[get(linkedhotspot)].visible,
+                    if(plugin[skin_gyro].isavailable AND !plugin[skin_gyro].usersetdisabled,
+                        set(plugin[skin_gyro].enabled, true);
+                    );
+                    hotspot[get(linkedhotspot)].pause();
+                ,
+                    set(plugin[skin_gyro].enabled, false);
+                    hotspot[get(linkedhotspot)].play();
+                )
+            )
+        );
+        '
+        url='%CURRENTXML%/assets/icon/video.png'
+    />
+    
+    <style name='prod_btn'
+        autoalpha='1'
+        alpha='0' scale='0.7' zorder='101' zoom='1'
+        url='%CURRENTXML%/assets/button/btn_vrmode_close.png'
+        enabled='false' capture='false'
+    />
+    
+
+    <action name='product_setup' scope='local'>
+        if(caller.popup_type == 'right',
+            set(hotspot[get(caller.linkedhotspot)],
+                ox=40, edge='left',
+                ath=get(caller.ath),
+                atv=get(caller.atv),
+                parent=get(caller.name),
+                enabled=true,
+                capture=false,
+                onclick="callwith(hotspot[get(parent)], onclick)"
+            );
+        );
+        if(caller.popup_type == 'left',
+            set(hotspot[get(caller.linkedhotspot)],
+                ox=-40, edge='right',
+                ath=get(caller.ath),
+                atv=get(caller.atv),
+                parent=get(caller.name),
+                enabled=true,
+                capture=false,
+                onclick="callwith(hotspot[get(parent)], onclick)"
+            );
+        );
+        if(caller.popup_type == 'top',
+            set(hotspot[get(caller.linkedhotspot)],
+                oy=-20, edge='bottom', align='top',
+                ath=get(caller.ath),
+                atv=get(caller.atv),
+                parent=get(caller.name),
+                enabled=true,
+                capture=false,
+                onclick="callwith(hotspot[get(parent)], onclick)"
+            );
+        );
+        if(caller.popup_type == 'bottom',
+            set(hotspot[get(caller.linkedhotspot)],
+                oy=20, edge='top', align='bottom',
+                ath=get(caller.ath),
+                atv=get(caller.atv),
+                parent=get(caller.name),
+                enabled=true,
+                capture=false,
+                onclick="callwith(hotspot[get(parent)], onclick)"
+            );
+        );
+    </action>
+    <action name='prod_btn_setup' scope='local'>
+
+        mul(halfPopUpHeight, caller.height, 0.7);
+        div(halfPopUpHeight, 2);
+        mul(halfPopUpWidth, caller.width, 0.7);
+        div(halfPopUpWidth, 2);
+
+        if(caller.twobuttons,
+            add(halfPopUpHeight, -50);
+            add(halfPopUpWidth, 30);
+            
+            set(hotspot[get(caller.linkedhotspot)],
+                ath=get(caller.ath), atv=get(caller.atv),
+                oy=get(halfPopUpHeight), ox=get(halfPopUpWidth), edge='right'
+            );
+            add(halfPopUpWidth, 25);
+            set(hotspot[get(caller.linkedhotspot2)],
+                ath=get(caller.ath), atv=get(caller.atv),
+                oy=get(halfPopUpHeight), ox=get(halfPopUpWidth), edge='left'
+            );
+        ,
+            if(caller.threebuttons,
+                add(halfPopUpHeight, -50);
+                add(halfPopUpWidth, 40);
+                
+                if(caller.popup_type == 'left',
+                    mul(halfPopUpWidth, -1);
+                );
+                
+                add(halfPopUpWidth, 0);
+                set(hotspot[get(caller.linkedhotspot2)],
+                    ath=get(caller.ath), atv=get(caller.atv),
+                    oy=get(halfPopUpHeight), ox=get(halfPopUpWidth), edge='center'
+                );
+
+                add(halfPopUpWidth, -60);
+                set(hotspot[get(caller.linkedhotspot)],
+                    ath=get(caller.ath), atv=get(caller.atv),
+                    oy=get(halfPopUpHeight), ox=get(halfPopUpWidth), edge='right'
+                );
+                
+                add(halfPopUpWidth, 120);
+                set(hotspot[get(caller.linkedhotspot3)],
+                    ath=get(caller.ath), atv=get(caller.atv),
+                    oy=get(halfPopUpHeight), ox=get(halfPopUpWidth), edge='left'
+                );
+            ,
+                if(caller.linkedhotspot,
+                    add(halfPopUpHeight, -50);
+                    add(halfPopUpWidth, 45);
+                    
+                    if(caller.popup_type == 'left',
+                        mul(halfPopUpWidth, -1);
+                        add(halfPopUpWidth, 10);
+                    );
+                    set(hotspot[get(caller.linkedhotspot)],
+                        ath=get(caller.ath), atv=get(caller.atv),
+                        oy=get(halfPopUpHeight), ox=get(halfPopUpWidth), edge='center'
+                    );
+                )
+            )
+        )
+    </action>
+
+    <style name='videoPlayerCustomDefault'
+        url.flash="%SWFPATH%/plugins/videoplayer.swf"
+        url.html5="%SWFPATH%/plugins/videoplayer.js"
+        width='480'
+        height='270'
+        loop="true"
+        pausedonstart="true"
+        volume="1.0"
+        directionalsound="true"
+        range="90.0"
+        rangefalloff="1.0"
+        outofrangevolume="0.0"
+        onvideoready=""
+        onvideoplay=""
+        onvideopaused=""
+        onvideocomplete=""
+        onerror=""
+        depth="1000"
+        ishotspot="true"
+        loader_alternative=""
+        scaleflying="true"
+        autoresume='true'
+        autoalpha='1'
+        alpha='0'
+        renderer='webgl'
+        html5controls='true'
+        tx="0"
+        ty="0"
+        tz="0"
+        capture='true'
+        zoom='true'
+        scale='1'
+        onclick.addevent='
+            if(plugin[skin_gyro].isavailable AND !plugin[skin_gyro].usersetdisabled,
+                set(plugin[skin_gyro].enabled, true);
+            );
+            hotspot[get(name)].pause();
+        '
+    />
+
+
+    <style name='style_over_scale_up'
+        onloaded.addevent='mul(_tweenscale, scale, 1.1); copy(_orgscale, scale);'
+        onover.addevent='stoptween(scale); tween(scale, get(_tweenscale));'
+        onout.addevent='stoptween(scale); tween(scale, get(_orgscale));'
+    />
+
+    <action name="calc_pos_from_hfov_yaw_pitch_roll">  
+	 	div(hfov,%1,57.295779);
+	 	div(yaw,%2,-57.295779);
+	 	div(pitch,%3,57.295779);
+	 	div(roll,%4,-57.295779);
+	 	mul(hfov,0.5);Math.tan(hfov);mul(width,hfov,1000);set(height,'prop');
+	 	Math.cos(ch,yaw);Math.sin(sh,yaw);
+	 	Math.cos(ca,pitch);Math.sin(sa,pitch);
+	 	Math.cos(cb,roll);Math.sin(sb,roll);
+	 	mul(m0,ca,ch);
+	 	mul(tmp,cb,sa);mul(tmp,ch);mul(tmp2,sb,sh);add(m3,tmp,tmp2);
+	 	mul(m4,cb,ca);
+	 	mul(tmp,cb,sa);mul(tmp,sh);mul(tmp2,sb,ch);sub(m5n,tmp,tmp2);mul(m5n,-1);
+	 	mul(tmp,sb,sa);mul(tmp,ch);mul(tmp2,cb,sh);sub(m6n,tmp,tmp2);mul(m6n,-1);
+	 	Math.atan2(yaw,m6n,m0);
+	 	Math.atan2(roll,m5n,m4);
+	 	Math.asin(pitch,m3);
+	 	mul(ath,yaw,57.295779);
+	 	mul(atv,pitch,57.295779);
+	 	mul(rotate,roll,57.295779);
+	</action>
+    
+    <!-- 
+         trace('width:: ', width);
+         trace('ath:: ', ath);
+         trace('atv:: ', atv);
+         trace('rotate:: ', rotate);
+     -->
+     
+     <action name="lookinterrupt">
+        stoptween(view.hlookat);
+        stoptween(view.vlookat);
+        stoptween(view.fov);
+    </action>
+
+    <!-- 다음버튼 관련 스타일 -->
+    <style name='style_img_hs_next' url='%ROOT%/assets/common/next.png' 
+        scale='0.6' 
+        capture='false' 
+        enabled='true' 
+        distorted='true' 
+        autoalpha='true'
+        alpha='0'
+        zorder="1"
+        onclick='
+            if(!layer_btn_settings.bgmpaused, 
+                playsound(click, get(sound_source[click].url), false, 1, skin_nextscene_loop(+1); ); 
+            ,
+                skin_nextscene_loop(+1); 
+            );
+        '
+    />
+
+    <!-- 위험요소 관련 스타일 -->
+
+    <!-- 위험요소 아이콘 -->
+    <style name='st_powerranger'
+        style='style_drag_hotspot_distortion'
+        url='%ROOT%/assets/3_progress_1/blue.png'
+        durl='%ROOT%/assets/3_progress_1/red_danger.png'
+        surl='%ROOT%/assets/3_progress_1/green_safe.png'
+        scale='0.27'
+        tag='icon_risk_factor'
+        alpha='1' autoalpha='1'
+        enabled='true'
+        capture='false'
+        zoom='true'
+        zorder="3"
+        onloaded='
+            set(hotspot[get(linkedhotspot)].oy, calc(height/2.49));
+            set(hotspot[get(linkedhotspot2)].oy, calc(height/2.49));
+            set(hotspot[get(linkedhotspot3)].oy, calc(height/3.7));
+        '
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            );
+            switch(hotspot[get(linkedhotspot)].alpha, 1, 0);
+            switch(hotspot[get(linkedhotspot2)].alpha, 1, 0);
+            switch(hotspot[get(linkedhotspot3)].alpha, 1, 0);
+        '
+    />
+
+    <!-- 위험 버튼 -->
+    <style name='st_danger'
+        style='style_drag_hotspot_distortion'
+        url='%ROOT%/assets/3_progress_1/danger.png'
+        ourl='%ROOT%/assets/3_progress_1/danger_block.png'
+        curl='%ROOT%/assets/3_progress_1/danger_check.png'
+        scale='0.27'
+        alpha='0' autoalpha='1'
+        edge='bottom'
+        enabled='true'
+        capture='false'
+        zoom='true'
+        zorder="3"
+        ath='0' atv='0'
+        ox='-30' oy='0'
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            );
+            copy(url, curl);
+            copy(hotspot[get(linkedhotspot)].url, hotspot[get(linkedhotspot)].durl);
+            copy(hotspot[get(linkedhotspot2)].url, hotspot[get(linkedhotspot2)].durl);
+            copy(hotspot[get(changehotspot)].url, hotspot[get(changehotspot)].ourl);
+            copy(url, curl);
+        '
+    />
+
+    <!-- 안전 버튼 -->
+    <style name='st_safe'
+        style='style_drag_hotspot_distortion'
+        url='%ROOT%/assets/3_progress_1/safe.png'
+        ourl='%ROOT%/assets/3_progress_1/safe_block.png'
+        curl='%ROOT%/assets/3_progress_1/safe_check.png'
+        scale='0.27'
+        alpha='0' autoalpha='1'
+        edge='bottom'
+        enabled='true'
+        capture='false'
+        zoom='true'
+        zorder="3"
+        ath='0' atv='0'
+        ox='30' oy='0'
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            );
+            copy(hotspot[get(linkedhotspot)].url, hotspot[get(linkedhotspot)].surl);
+            copy(hotspot[get(linkedhotspot2)].url, hotspot[get(linkedhotspot2)].surl);
+            copy(hotspot[get(changehotspot)].url, hotspot[get(changehotspot)].ourl);
+            copy(url, curl);
+        '
+    />
+
+    <!-- 정답 틀렸을 때 강조해주는 효과 -->
+    <!-- <style name='st_emphasis' 
+        url='%ROOT%/assets/3_progress_1/emphasis1.png'
+        ourl='%ROOT%/assets/3_progress_1/emphasis1.png'
+        curl='%ROOT%/assets/3_progress_1/emphasis2.png'
+        style='style_drag_hotspot_distortion'
+        tag='empha'
+        alpha='0' autoalpha='1'
+        scale='0.25'
+        zorder='1'
+        zoom='true'
+        oy='75'
+        enabled='false'
+        onbig='stoptween(scale); tween(scale, 0.26, 0.5, , onsmall());'
+        onsmall='stoptween(scale); tween(scale, 0.24, 0.5 , ,onbig());'
+        onloaded='onbig();'
+    /> -->
+
+    <!-- 위험요소 안에 들어가는 내용 -->
+    <style name='st_content'
+        scale='0.27'
+        zoom='true'
+        oy='0'
+        zorder="2"
+        enabled='false'
+        alpha='0' autoalpha='1'
+    />
+
+
+    <action name='checked_answer_and_show_emphasis'>
+        set(check_count, 0);
+        set(full_count, 0);
+        set(full_count1, 5);
+        set(clicked_count, 0);
+        set(click_count, 1);
+
+        for(set(i,0), i LT hotspot.count, inc(i),
+            if(hotspot[get(i)].tag == 'icon_risk_factor' AND !hotspot[get(i)].checked,
+                inc(full_count);
+            );
+        );
+
+        for(set(i,0), i LT hotspot.count, inc(i),
+            if(hotspot[get(i)].tag == 'icon_risk_factor',
+                if(hotspot[get(i)].checked,
+                    inc(check_count);
+                    
+                );
+                if(hotspot[get(i)].click,
+                    inc(clicked_count);
+                    
+                );
+            );
+        );
+
+        
+        
+
+        if(full_count1 == check_count AND click_count == clicked_count,
+            insert_script(script_3_1_2);
+            play_script();
+            tween(hotspot[checking_btn].alpha, 0);
+            tween(hotspot[hint_btn].alpha, 0);
+            for(set(k,0), k LT hotspot.count, inc(k),
+                if(hotspot[get(k)].tag == 'empha',
+                    tween(hotspot[get(k)].alpha, 0);
+                );
+            );
+            if(!layer_btn_settings.bgmpaused,
+                playsound(narration, get(sound_source[narration_4_3].url), false, 1,
+                    tween(hotspot[img_hs_next].alpha, 1);
+                    playsound(narration, get(sound_source[narration_3_6].url), false, 1,);
+                );
+            ,
+                tween(hotspot[img_hs_next].alpha, 1);
+            );
+            
+        ,
+            stop_script();
+            delayedcall(0.2,
+                insert_script(script_3_1_3);
+                play_script();
+                if(!layer_btn_settings.bgmpaused,
+                    playsound(narration, get(sound_source[narration_4_4].url), false, 1,
+                        if(!hotspot[get(i)].checked,
+                            for(set(j,0), j LT hotspot.count, inc(j),
+                                if(hotspot[get(j)].tag == 'empha',
+                                    if(!hotspot[get(j)].click,
+                                        if(!hotspot[get(j)].check,
+                                            copy(hotspot[get(j)].url, hotspot[get(j)].curl);
+                                            tween(hotspot[get(j)].alpha, 1);
+                                        ,
+                                            if(!hotspot[get(j)].check2,
+                                                copy(hotspot[get(j)].url, hotspot[get(j)].ourl);
+                                                tween(hotspot[get(j)].alpha, 1);
+                                            );
+                                        )
+                                        
+                                    ,
+                                        tween(hotspot[get(j)].alpha, 0);
+                                    );
+                                    
+                                );
+                            );
+                        );
+                    );
+                ,
+                    if(!hotspot[get(i)].checked,
+                        for(set(j,0), j LT hotspot.count, inc(j),
+                            if(hotspot[get(j)].tag == 'empha',
+                                if(!hotspot[get(j)].click,
+                                    if(!hotspot[get(j)].check,
+                                        copy(hotspot[get(j)].url, hotspot[get(j)].curl);
+                                        tween(hotspot[get(j)].alpha, 1);
+                                    ,
+                                        if(!hotspot[get(j)].check2,
+                                            copy(hotspot[get(j)].url, hotspot[get(j)].ourl);
+                                            tween(hotspot[get(j)].alpha, 1);
+                                        );
+                                    )
+                                    
+                                ,
+                                    tween(hotspot[get(j)].alpha, 0);
+                                );
+                                
+                            );
+                        );
+                    );
+                );
+            );
+        );
+    </action>
+    
+
+    <nuskin_sound name='click' url="%SWFPATH%/assets/sound/Button-SoundBible.com-1420500901.mp3|%SWFPATH%/assets/sound/Button-SoundBible.com-1420500901.ogg" />
+    <nuskin_sound name='shook' url='%SWFPATH%/assets/sound/effect_image_appears.mp3|%SWFPATH%/assets/sound/effect_image_appears.ogg' />
+</krpano>

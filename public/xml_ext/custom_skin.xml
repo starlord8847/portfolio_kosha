@@ -1,0 +1,307 @@
+<krpano>
+    <events name='custom_skin_event'
+        keep='true'
+        onnewpano=''
+        onremovepano='stopdelayedcall(delayed_when); js(App.setIsRightSideShow(false));'
+    />
+
+    <style name='st_custom_skin'
+        keep='true'
+        alpha='1'
+        scale='0.35' 
+        edge='bottom'
+        align='bottom'
+        oy='-30'
+    />
+
+    <style name='st_custom_skin_btn'
+        keep='true'
+        alpha='1'
+        scale='0.35' 
+        edge='bottom'
+        align='bottom'
+        oy='-60'
+        
+    />
+
+    <layer name='custom_skin_bg' url='%ROOT%/assets/common/custom_skin/skin_background.png'
+        style='st_custom_skin'
+        handcursor='false'
+    />
+
+    <layer name='custom_skin_location' url='%ROOT%/assets/common/custom_skin/skin_location.png'
+        style='st_custom_skin'
+        parent='custom_skin_bg'
+        enabled='false'
+        capture='false'
+        oy='-58'
+    />
+    <layer name='st_chapter_move_left' url='%ROOT%/assets/common/custom_skin/chapter_move_left.png'
+        style='st_custom_skin_btn'
+        parent='custom_skin_bg'
+        enabled='true'
+        capture='false'
+        oy='-20' ox='-113'
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+            if(layer_btn_settings.autoplay,
+                callwith(layer[autoplay_toggle_btn], onclick);
+            );
+            loadscene(get(linkedscene), , , colorblend(0.5, 0x000000));
+        '
+        onhover='showtext(이전챕터, text_st);'
+    />
+    <layer name='st_chapter_move_right' url='%ROOT%/assets/common/custom_skin/chapter_move_right.png'
+        style='st_custom_skin_btn'
+        parent='custom_skin_bg'
+        enabled='true'
+        capture='false'
+        oy='-20' ox='113'
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+            if(layer_btn_settings.autoplay,
+                callwith(layer[autoplay_toggle_btn], onclick);
+            );
+            loadscene(get(linkedscene), , , colorblend(0.5, 0x000000));
+        '
+        onhover='showtext(다음챕터, text_st);'
+    />
+    <layer name='st_pano_move_left' url='%ROOT%/assets/common/custom_skin/pano_move_left.png'
+        style='st_custom_skin_btn'
+        parent='custom_skin_bg'
+        enabled='true'
+        capture='false'
+        oy='-20' ox='-75'
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+            if(layer_btn_settings.autoplay,
+                callwith(layer[autoplay_toggle_btn], onclick);
+            );
+            ban_go_to_past_scene();
+        '
+        onhover='showtext(이전장면, text_st);'
+    />
+    <layer name='st_pano_move_right' url='%ROOT%/assets/common/custom_skin/pano_move_right.png'
+        style='st_custom_skin_btn'
+        parent='custom_skin_bg'
+        enabled='true'
+        capture='false'
+        oy='-20' ox='75'
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+            if(layer_btn_settings.autoplay,
+                callwith(layer[autoplay_toggle_btn], onclick);
+            );
+            go_to_next_scene();
+        '
+        onhover='showtext(다음장면, text_st);'
+    />
+
+    <layer name='intro_btn' url='%ROOT%/assets/common/custom_skin/intro_btn.png'
+        style='st_custom_skin_btn'
+        parent='custom_skin_bg'
+        enabled='true'
+        capture='false'
+        align='leftbottom'
+        oy='-10' ox='65'
+        linkedscene='scene_intro'
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+            if(layer_btn_settings.autoplay,
+                callwith(layer[autoplay_toggle_btn], onclick);
+            );
+            loadscene(get(linkedscene), , , colorblend(0.5, 0x000000));
+        '
+        onhover='showtext(메인으로 이동, text_st);'
+    />
+
+    <layer name='outro_btn' url='%ROOT%/assets/common/custom_skin/outro_btn.png'
+        style='st_custom_skin_btn'
+        parent='custom_skin_bg'
+        enabled='true'
+        capture='false'
+        align='rightbottom'
+        oy='-10' ox='-65'
+        linkedscene='scene_outro'
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+            if(layer_btn_settings.autoplay,
+                callwith(layer[autoplay_toggle_btn], onclick);
+            );
+            loadscene(get(linkedscene), , , colorblend(0.5, 0x000000));
+        '
+        onhover='showtext(아우트로로 이동, text_st);'
+    />
+
+    <action name='ban_go_to_past_scene'>
+        def(maginot_number, maginot_number);
+        set(current_number, calc(scene[get(xml.scene)].index+1));
+        if(current_number !== maginot_number,
+            skin_nextscene_loop(-1);
+        );
+        
+    </action>
+
+    <action name='go_to_next_scene'>
+        def(maginot_number, maginot_number);
+        set(current_number, calc(scene[get(xml.scene)].index+1));
+        if(current_number LT maginot_number,
+            skin_nextscene_loop(+1);
+        );
+    </action>
+
+    <!-- <style name='st_hit_box'
+        keep='true'
+        type='container'
+        alpha='0'  bgalpha='1'
+        bgcapture="true"
+        bgcolor='0xffffff'
+        edge='bottom'
+        align='bottom'
+        oy='-88'
+        width='30' height='30'
+        onclick='loadscene(get(linkedscene), , ,COLORBLEND(0.5, 0x000000, linear));'
+    /> -->
+
+    <style name='st_hit_box_img' url='%ROOT%/assets/common/custom_skin/skin_btn.png'
+        keep='true'
+        alpha='0'
+        scale='0.3'
+        edge='bottom'
+        align='bottom'
+        oy='-82'
+        onover='
+            if(!scene[get(xml.scene)].noshow,
+                tween(alpha, 1, 0.2); 
+                tween(layer[get(linkedlayer)].alpha, 1, 0.2);
+            );
+        '
+        onout='tween(alpha, 0, 0.2); tween(layer[get(linkedlayer)].alpha, 0, 0.2);'
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+            if(layer_btn_settings.autoplay,
+                callwith(layer[autoplay_toggle_btn], onclick);
+            );
+            loadscene(get(linkedscene), , ,COLORBLEND(0.5, 0x000000, linear));
+        '
+    />
+    
+    <style name='st_hit_box_name'
+        keep='true'
+        enabled='false' 
+        edge='bottom' 
+        align='bottom' 
+        oy='-110'
+        alpha='0' 
+        scale='0.4'
+    />
+
+    <!-- <layer name='hit_box_1' style='st_hit_box_img' ox='-269' linkedscene='scene_1_1' linkedlayer='hit_box_name_1' /> -->
+    <layer name='hit_box_1' style='st_hit_box_img' ox='-201.5' linkedscene='scene_1_1' linkedlayer='hit_box_name_1' />
+    <layer name='hit_box_2' style='st_hit_box_img' ox='-134.3' linkedscene='scene_2_1' linkedlayer='hit_box_name_2' />
+    <layer name='hit_box_3' style='st_hit_box_img' ox='-67' linkedscene='scene_3_1' linkedlayer='hit_box_name_3' />
+    <layer name='hit_box_4' style='st_hit_box_img' ox='0.5' linkedscene='scene_4_1' linkedlayer='hit_box_name_4' />
+    <layer name='hit_box_5' style='st_hit_box_img' ox='67.9' linkedscene='scene_5_1' linkedlayer='hit_box_name_5' />
+    <layer name='hit_box_6' style='st_hit_box_img' ox='135' linkedscene='scene_6_1' linkedlayer='hit_box_name_6' />
+    <layer name='hit_box_7' style='st_hit_box_img' ox='202.5' linkedscene='scene_7_1' linkedlayer='hit_box_name_7' />
+
+    <!-- <layer name='hit_box_name_1' url='%ROOT%/assets/etc/hit_box_name_1.png' style='st_hit_box_name' ox='-269' /> -->
+    <layer name='hit_box_name_1' url='%ROOT%/assets/etc/hit_box_name_1.png' style='st_hit_box_name' ox='-201.5' />
+    <layer name='hit_box_name_2' url='%ROOT%/assets/etc/hit_box_name_2.png' style='st_hit_box_name' ox='-134.3' />
+    <layer name='hit_box_name_3' url='%ROOT%/assets/etc/hit_box_name_3.png' style='st_hit_box_name' ox='-67' />
+    <layer name='hit_box_name_4' url='%ROOT%/assets/etc/hit_box_name_4.png' style='st_hit_box_name' ox='-0.5' />
+    <layer name='hit_box_name_5' url='%ROOT%/assets/etc/hit_box_name_5.png' style='st_hit_box_name' ox='67.9' />
+    <layer name='hit_box_name_6' url='%ROOT%/assets/etc/hit_box_name_6.png' style='st_hit_box_name' ox='135' />
+    <layer name='hit_box_name_7' url='%ROOT%/assets/etc/hit_box_name_7.png' style='st_hit_box_name' ox='202.5' />
+
+    <style name='st_page_txt'
+        parent='custom_skin_bg'
+        alpha='1'
+        edge='bottom'
+        align='bottom'
+        zorder="1"
+        enabled='false'
+        capture='false'
+        scale='0.35'
+        oy='-41' ox='-25'
+        type='text'
+        html_org=''
+        css='font-family:VitroCore; font-size: 20px; text-align: center; color: #fff; text-shadow: -0px 0px 5px rgba(0,0,0, 0.2), 0 0px 5px rgba(0,0,0, 0.2), 0px 0 5px rgba(0,0,0, 0.2), 0 -0px 5px rgba(0,0,0, 0.2);'
+        background="false"
+        backgroundalpha='1'
+        backgroundcolor='0xffffff'
+        onreload='copy(html_org, html); set(html, null); copy(html, html_org);'
+    />
+    <layer name='page_text'
+        style='st_page_txt'
+        parent='custom_skin_bg'
+        html=''
+        loadtxt='show_chapter_page_text(); copy(hotspot[skin_webvr_page].html, html);'
+    />
+    <style name='st_page_txt' devices='mobile'
+        keep='true'
+        alpha='1'
+        edge='bottom'
+        align='bottom'
+        zorder="1"
+        enabled='false'
+        capture='false'
+        type='text'
+        html_org=''
+        css='font-family:VitroCore; font-size: 0.7em; text-align: center; color: #fff; text-shadow: -0px 0px 5px rgba(0,0,0, 0.2), 0 0px 5px rgba(0,0,0, 0.2), 0px 0 5px rgba(0,0,0, 0.2), 0 -0px 5px rgba(0,0,0, 0.2);'
+        background="false"
+        backgroundalpha='1'
+        backgroundcolor='0xffffff'
+        onreload='copy(html_org, html); set(html, null); copy(html, html_org);'
+    />
+    <layer name='page_text' devices='mobile'
+        style='st_page_txt'
+        parent='custom_skin_bg'
+        scale=''
+        oy='' ox=''
+        html=''
+        loadtxt='show_chapter_page_text(); copy(hotspot[skin_webvr_page].html, html);'
+        onloaded='
+            delayedcall(delayed_when,0.5,
+                callwhen(layer[custom_skin_bg].flag, calc_ox_oy_action());
+            );
+        '
+    />
+    <action name='calc_ox_oy_action' scope='local' devices='mobile'>
+        copy(newscale, layer[custom_skin_bg].new_scale);
+        set(caller.ox, calc(-25 * newscale / 0.35) );
+        set(caller.oy, calc(-58 * newscale / 0.35) );
+    </action>
+
+    <style name='st_hit_box' url='%ROOT%/assets/common/custom_skin/skin_btn_2.png'
+        keep='true'
+        alpha='1'
+        enabled='false'
+        scale='0.44'
+        edge='bottom'
+        align='bottom'
+        oy='-82'
+        zorder="99"
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+            loadscene(get(linkedscene), , ,COLORBLEND(0.5, 0x000000, linear));
+        '
+    />
+    <layer name='hit_box' style='st_hit_box' ox='-269'/>
+</krpano>

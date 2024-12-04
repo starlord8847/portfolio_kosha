@@ -1,0 +1,303 @@
+<krpano>
+
+    <!-- 
+        데이터 항시 저장을 위해서 tour.xml 로 이동시킴
+
+        <events name='events_layer_btn' keep='true'
+            onnewpano='loadimgs();'
+        />
+        <layer_btn_settings 
+            autoplay='false'
+            bgmpaused='false'
+        />
+    
+    -->
+
+    <action name='loadimgs'>
+        callwith(layer[autoplay_toggle_btn], loadimg);
+        callwith(layer[bgm_toggle_btn], loadimg);
+        callwith(layer[script_toggle_btn], loadimg);
+    </action>
+
+    <hotspot name='infomation_backdrop'
+        flying='1'
+        capture='false'
+        enabled='true'
+        url='%ROOT%/assets/etc/black_80_percent.png'
+        width='get:stagewidth'
+        height='get:stageheight'
+        autoalpha='true'
+        alpha='0'
+        scale='2'
+        zorder="2"
+        linkedclose='help_slide_close'
+        onloaded='properBlackBackStage();'
+        onclick='
+            help_slide_hide();
+            set(layer_btn_settings.infomation, true);
+            tween(hotspot[infomation_backdrop].alpha, 0);
+            tween(hotspot[help_slide_close].alpha, 0);
+        '
+    />
+
+    <action name='properBlackBackStage'>
+        mul(doubleStageW, stagewidth, 2);
+        mul(doubleStageH, stageheight, 2);
+        set(hotspot[backdrop], width=get(doubleStageW), height=get(doubleStageH));
+    </action>
+
+    <layer name='infomation_toggle_btn'
+        url='%ROOT%/assets/common/infomation_on.png'
+        onurl='%ROOT%/assets/common/infomation_on.png'
+        offurl='%ROOT%/assets/common/infomation_off.png'
+        style='st_setting_btn'
+        scale='0.5'
+        oy='215' ox='6'
+        flag='true'
+        linkedclose='help_slide_close'
+        onclick='
+            if(layer_btn_settings.infomation,
+                trace("true");
+                help_slide_show(get(help_slide_settings.slide_current_index), get(view.hlookat), get(view.vlookat));
+                set(layer_btn_settings.infomation, false);
+                tween(hotspot[infomation_backdrop].alpha, 0.8);
+                
+            ,
+                trace("false");
+                help_slide_hide();
+                set(layer_btn_settings.infomation, true);
+                tween(hotspot[infomation_backdrop].alpha, 0);
+                tween(hotspot[help_slide_close].alpha, 0);
+            );
+        '
+    />
+
+    <!-- <layer name='fullscreen_toggle_btn'
+        url='%ROOT%/assets/common/full_screen.png'
+        onurl='%ROOT%/assets/common/full_screen.png'
+        offurl='%ROOT%/assets/common/nomal_screen.png'
+        style='st_setting_btn'
+        scale='0.5'
+        oy='151' ox='6'
+        flag='true'
+        onclick='
+            if(flag,
+                js(fullscreen(););
+                set(flag, false);
+                copy(url, offurl);
+            ,
+                callwith(layer[skin_btn_fs], onclick);
+                set(flag, true);
+                copy(url, onurl);
+            );
+        '
+    /> -->
+    <layer name='script_toggle_btn'
+        style='st_setting_btn'
+        url=''
+        capture='true'
+        scale='0.5'
+        oy='87' ox='6'
+        onurl='%ROOT%/assets/common/navigator_cc_on.png'
+        offurl='%ROOT%/assets/common/navigator_cc_off.png'
+        loadimg='
+            if(layer_btn_settings.scriptpaused,
+                copy(url, offurl);
+                copy(hotspot[skin_webvr_script].url, offurl);
+            ,
+                copy(url, onurl);
+                copy(hotspot[skin_webvr_script].url, onurl);
+                set(hotspot[narration_script].alpha, 1);
+            );
+        '
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            );
+            switch(layer_btn_settings.scriptpaused, true, false); loadimg();'
+    />
+    <layer name='bgm_toggle_btn'
+        style='st_setting_btn'
+        url=''
+        capture='true'
+        scale='0.5'
+        oy='23' ox='6'
+        onurl='%ROOT%/assets/common/navigator_sound_on.png'
+        offurl='%ROOT%/assets/common/navigator_sound_off.png'
+        loadimg='
+            if(layer_btn_settings.bgmpaused,
+                copy(url, offurl);
+                copy(hotspot[skin_webvr_bgm].url, offurl);
+
+                if(sound[bgm],
+                    pauseallsounds();
+                    stop_arrays();
+                );
+                trace("bgmpaused false");
+            ,
+                
+                copy(url, onurl);
+                copy(hotspot[skin_webvr_bgm].url, onurl);
+                
+                
+
+                if(sound[bgm],
+                    narration_start();
+                );
+                trace("bgmpaused true");
+            );
+        '
+        loadsound='controll_sound_script();'
+        onclick='
+            if(layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            );
+            switch(layer_btn_settings.bgmpaused, true, false); loadimg(); loadsound();'
+    />
+    <layer name='autoplay_toggle_btn'
+        style='st_setting_btn'
+        scale='0.5'
+        url='%ROOT%/assets/common/autoplay_off.png'
+        oy='151' ox='6'
+        flag='true'
+        onurl='%ROOT%/assets/common/autoplay_on.png'
+        offurl='%ROOT%/assets/common/autoplay_off.png'
+        loadimg='
+            if(layer_btn_settings.autoplay,
+                copy(url, onurl);
+                copy(hotspot[skin_webvr_autoplay].url, onurl);
+            ,
+                copy(url, offurl);
+                copy(hotspot[skin_webvr_autoplay].url, offurl);
+            );
+        '
+        onloaded='if(scene[get(xml.scene)].autoplay_diabled, set(alpha, 0); set(visible, 0); );'
+        onclick='
+            stoptween(layer[autoplay_indicator_gauge].width);
+            callwith(layer[autoplay_indicator_gauge], reset);
+            copy(layer_btn_settings.delay_autoplay, layer_btn_settings.delay_autoplay_org);
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            );
+            switch(layer_btn_settings.autoplay, true, false); loadimg();
+            if(layer_btn_settings.autoplay,
+                auto_start_scene();
+            ,
+                stop_autoplay_indicator_start();
+            );
+        '
+    />
+
+    <action name='controll_sound_script'>
+        for(set(i,0), i LT hotspot.count, inc(i),
+            if(layer_btn_settings.bgmpaused,
+                stop_arrays();
+            ,
+                if(sound[narration],
+                    play_arrays();
+                );
+                
+            );
+        );
+        for(set(i,0), i LT sound_source.count, inc(i),
+            if(layer_btn_settings.bgmpaused,
+                sound[narration].stop();
+            );
+        );
+    </action>
+
+    <action name='stop_arrays'>
+        for(set(i,0), i LT hotspot.count, inc(i),
+            stop_script();
+        );
+    </action>
+
+    <action name='play_arrays'>
+        for(set(i,0), i LT hotspot.count, inc(i),
+            play_script();
+        );
+    </action>
+
+    <action name='auto_start_scene'>
+        set(layer_btn_settings.autoplay, true);
+        autoplay_indicator_start();
+    </action>
+
+    <action name='autoplay_indicator_start'>
+        if(webvr.isenabled,
+            set(hotspot[autoplay_indicator_gauge].alpha, 1);
+            set(hotspot[autoplay_indicator_bg].alpha, 1);
+            set(hotspot[autoplay_indicator_txt].alpha, 1);
+            callwith(hotspot[autoplay_indicator_gauge], filling);
+        ,
+            tween(layer[autoplay_indicator_gauge].alpha, 1);
+            tween(layer[autoplay_indicator_bg].alpha, 1);
+            callwith(layer[autoplay_indicator_gauge], filling);
+        );
+    </action>
+
+    <action name='stop_autoplay_indicator_start'>
+        if(webvr.isenabled,
+            set(hotspot[autoplay_indicator_gauge].alpha, 0);
+            set(hotspot[autoplay_indicator_bg].alpha, 0);
+            set(hotspot[autoplay_indicator_txt].alpha, 0);
+        ,
+            tween(layer[autoplay_indicator_gauge].alpha, 0);
+            tween(layer[autoplay_indicator_bg].alpha, 0);
+            stoptween(width);
+            callwith(layer[autoplay_indicator_gauge], reset);
+            set(layer[autoplay_indicator_gauge].width, 0);
+        );
+    </action>
+
+    <layer name='autoplay_indicator_gauge' url='%ROOT%/assets/etc/blue_100_percent.png' 
+        capture='false'
+        enabled='false'
+        alpha='0'
+        scale='1'
+        edge='lefttop'
+        align='top'
+        y='150'
+        x='-160'
+        width='0'
+        flag='false'
+        height='30'
+        zorder="99"
+        reset='set(width, 0)'
+        filling='
+            stoptween(width);
+            tween(width, 320, get(layer_btn_settings.delay_autoplay), linear,
+                tween(layer[autoplay_indicator_gauge].alpha, 0);
+                tween(layer[autoplay_indicator_bg].alpha, 0);
+                callwith(layer[autoplay_indicator_gauge], reset);
+                set(layer[autoplay_indicator_gauge].flag, true);
+                callwhen(layer[autoplay_indicator_gauge].flag, skin_nextscene_loop(+1););
+                callwhen(layer[autoplay_indicator_gauge].flag, set(layer[autoplay_indicator_gauge].flag, false););
+            );
+            
+        '
+    />
+
+    <layer name='autoplay_indicator_bg' url='%ROOT%/assets/common/autoplaying_table.png' 
+        capture='false'
+        enabled='false'
+        alpha='0'
+        scale='0.3'
+        edge='top'
+        align='top'
+        y='100'
+        zorder="99"
+    >
+        <layer name='autoplay_indicator_txt' url='%ROOT%/assets/common/autoplaying_text.png' 
+            capture='false'
+            enabled='false'
+            alpha='1'
+            scale='0.3'
+            edge='top'
+            align='top'
+            y='10'
+            zorder="99"
+        />
+    </layer>
+
+</krpano>

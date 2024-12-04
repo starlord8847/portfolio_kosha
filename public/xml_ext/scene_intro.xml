@@ -1,0 +1,103 @@
+<krpano>
+    <events name='scene_intro_event'
+        onnewpano='
+            insert_script(script_intro);
+        '
+        onremovepano='stopdelayedcall(delayedcall_next); stopdelayedcall(delayedcall_autoplay_next); pausesound(bgm); stop_script(); trace("온 리무브");'
+        onresize='set(hotspot[new_backdrop].width, get:stagewidth); set(hotspot[new_backdrop].height, get:stageheight);'
+        onviewchange='follow_script_intro();'
+    />
+
+    <include url='%ROOT%/xml_ext/scene_layer_btn.xml' />
+    <include url='scene_center_navi.xml' />
+    <include url='scene_intro_front.xml' />
+    <include url='scene_intro_left.xml' />
+    <include url='scene_intro_right.xml' />
+    <include url='scene_intro_behind.xml' />
+
+
+    <array name='script_intro'>
+        <line name='line_0' text='본 콘텐츠는 실제 작업 현장을 360도' />
+        <line name='line_1' text='로드뷰 형태로 둘러보며 위험성수준 3단계 판단법을' />
+        <line name='line_2' text='적용하여 위험성평가를 진행해보는 콘텐츠입니다.' />
+        <line name='line_3' text='현장을 이동하며 유해·위험요인들을 파악하고,' />
+        <line name='line_4' text='그 위험성이 어느 정도인지 평가해보세요.' />
+        <line name='line_5' text='PC에서 체험한 자료는 파일로 다운로드 받아 수정,' />
+        <line name='line_6' text='보완하여 사용할 수 있습니다. 준비되었다면' />
+        <line name='line_7' text='시작하기 버튼을 눌러주세요.' />
+    </array>
+
+    <action name='follow_script_intro'>
+        for(set(i, 0), i LT hotspot.count, inc(i),
+            if(hotspot[get(i)].tag == 'narration_script',
+                tween(hotspot[get(hotspot[get(i)].name)].ath, get(view.hlookat));
+                tween(hotspot[get(hotspot[get(i)].name)].atv, calc(view.vlookat+16));
+            );
+        );
+    </action>
+
+    <sound_setting nosound='true' />
+    
+    <action name='narration_start'>
+        play_script();
+        if(!sound[narration] OR (sound[narration] AND sound[narration].paused),
+            if(!layer_btn_settings.bgmpaused,
+                playsound(bgm, get(sound_source[bgm_scene_1].url), true, 0.1);
+                playsound(narration, get(sound_source[narration_intro].url), false, 1,
+                        bgm_volume_control();
+                    if(layer_btn_settings.autoplay,
+                        autoplay_indicator_start();
+                    );
+                );
+            ,
+                if(layer_btn_settings.autoplay,
+                    autoplay_indicator_start();
+                );
+            );
+        );
+    </action>
+
+    <hotspot name='new_backdrop'
+        flying='1'
+        capture='false'
+        enabled='true'
+        handcursor='false'
+        url='%ROOT%/assets/etc/black_80_percent.png'
+        width='get:stagewidth'
+        height='get:stageheight'
+        autoalpha='true'
+        alpha='0.6'
+        scale='2'
+        onloaded='properBlackBackStage();'
+        onclick='callwith(hotspot[vr_start], onclick);'
+    />
+
+    <action name='properBlackBackStage'>
+        mul(doubleStageW, stagewidth, 2);
+        mul(doubleStageH, stageheight, 2);
+
+        set(hotspot[new_backdrop], width=get(doubleStageW), height=get(doubleStageH));
+    </action>
+
+    <hotspot name='vr_start' url='%ROOT%/assets/intro/vr_start.png'
+        scale='0.4'
+        zorder="99"
+        distorted='true'
+        capture='false'
+        alpha='1' autoalpha='1'
+        ath='0' atv='0'
+        onover='stoptween(scale);tween(scale, 0.41, 0.2);'
+        onout='stoptween(scale);tween(scale, 0.4, 0.2);'
+        onclick="
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+            tween(alpha, 0, , ,);
+            tween(hotspot[new_backdrop].alpha, 0);
+            delayedcall(0.5,
+                narration_start();
+                trace('온 클릭');
+            );
+        "
+    />
+</krpano>

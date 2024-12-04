@@ -1,0 +1,34 @@
+<krpano>
+    <style name='style_icon_docent'
+        scale='0.3'
+        zoom='true'
+        capture='false'
+        url='%CURRENTXML%/assets/hotspot/0/icon_docent.png'
+        onclick='
+            mouse_click();
+            tween(hotspot[get(linkedhotspot)].alpha, 1);
+            set(hotspot[get(linkedhotspot)].visible, 1);
+
+            if(linkedhotspot2,
+                tween(hotspot[get(linkedhotspot2)].alpha, 1);
+                set(hotspot[get(linkedhotspot2)].visible, 1);
+            );
+            if(linkedhotspot3,
+                tween(hotspot[get(linkedhotspot3)].alpha, 1);
+                set(hotspot[get(linkedhotspot3)].visible, 1);
+            );
+
+            hotspot[get(linkedhotspot)].play();
+            start_ani();
+        '
+    />
+    <style name='style_icon_addon'
+        scale='0.3'
+        zoom='true'
+        capture='false'
+        distorted='true'
+        url='%CURRENTXML%/assets/hotspot/0/btn_addon.png'
+        onclick='mouse_click();'
+    />
+
+</krpano>

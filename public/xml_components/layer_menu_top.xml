@@ -1,0 +1,101 @@
+<krpano>
+
+    <style name="style_menu_outer" keep="true" width="100%" height="30" bgcolor="0x474644" bgalpha="1.0" />
+    <style name="style_menu_text" type="text" keep="true" width="75" css="font-family:Arial; font-size:16px; color:#FFFFFF; text-align:center;" vcenter="true" bgcolor="0x474644" bgalpha="1.0" onclick="layer[top_menus_scroller].scrolltocenter(calc(i*width),0);loadscene(get(linkedscene));" />
+
+    <events name="event_scenes" keep="true" onnewscene="detect_scenes();" />
+
+    <layer name="top_menus_outer" type="container" style="style_menu_outer">
+        <layer name="top_menus_scroller" url.flash="%VIEWER%/plugins/scrollarea.swf" url.html5="%VIEWER%/plugins/scrollarea.js" direction="h" onhover_autoscrolling="true" />
+    </layer>
+
+    <topmenu_contents name="menu1" html="거 실" linkedscene="scene_10_b" />
+    <topmenu_contents name="menu2" html="주 방" linkedscene="scene_1" />
+    <topmenu_contents name="menu3" html="침실1" linkedscene="scene_2" />
+    <topmenu_contents name="menu4" html="침실2" linkedscene="scene_3" />
+    <topmenu_contents name="menu5" html="침실3" linkedscene="scene_4" />
+    <topmenu_contents name="menu6" html="드레스룸" linkedscene="scene_5" />
+    <topmenu_contents name="menu7" html="다용도실" linkedscene="scene_6" />
+    <topmenu_contents name="menu8" html="팬트리" linkedscene="scene_7" />
+    <topmenu_contents name="menu9" html="욕실1" linkedscene="scene_8" />
+    <topmenu_contents name="menu10" html="욕실2" linkedscene="scene_9" />
+    <topmenu_contents name="menu11" html="현 관" linkedscene="scene_10" />
+
+    <action name="add_top_menus" autorun="onstart">
+        for(
+            <!-- startactions -->
+            set(i, 0);
+        ,
+            <!-- condition -->
+            i LT topmenu_contents.count
+        ,
+            <!-- nextactions -->
+            inc(i);
+        ,
+            <!-- loopactions -->
+            set(text_layer_name, calc('btn_'+i));
+            addlayer(get(text_layer_name));
+            layer[get(text_layer_name)].loadstyle(style_menu_text);
+            set(layer[get(text_layer_name)],
+                i           = get(i),
+                parent      = top_menus_scroller,
+                html        = get(topmenu_contents[get(i)].html),
+                x           = calc(i*get(layer[get(text_layer_name)].width)),
+                linkedscene = get(topmenu_contents[get(i)].linkedscene)
+            );
+        );
+
+        addlayer(btn_active);
+        set(layer[btn_active],
+            keep        = 'true',
+            type        = 'container',
+            parent      = 'top_menus_outer',
+            bg          = 'true',
+            bgcolor     = '0xFFA800',
+            bgalpha     = "1",
+            alpha       = '1',
+            width       = get(layer[get(text_layer_name)].width),
+            height      = '4',
+            x           = '0',
+            y           = '0',    
+            edge        = 'leftbottom',
+            align       = 'leftbottom',
+            zorder      = '2'
+        );
+
+        set(layer[top_menus_scroller].width, calc((topmenu_contents.count)*style[style_menu_text].width));
+    </action>
+
+    <action name="detect_scenes">
+        set(detected_scene, '');
+        for(
+            <!-- startactions -->
+            set(i, 0);
+        ,
+            <!-- condition -->
+            i LT topmenu_contents.count
+        ,
+            <!-- nextactions -->
+            inc(i);
+        ,
+            <!-- loopactions -->
+            set(text_layer_name, calc('btn_'+i));
+            if(
+                <!-- condition -->
+                xml.scene == layer[get(text_layer_name)].linkedscene
+            ,
+                <!-- then-actions -->
+                copy(detected_scene, text_layer_name);
+                break();
+            );
+        );
+        if(detected_scene,
+            set(layer[btn_active].alpha, 1);
+            mul(destX, get(layer[get(detected_scene)].width), get(layer[get(detected_scene)].i));
+            tween(layer[btn_active].x, get(destX));
+        ,
+            set(layer[btn_active].alpha, 0);
+
+        );
+    </action>
+</krpano>

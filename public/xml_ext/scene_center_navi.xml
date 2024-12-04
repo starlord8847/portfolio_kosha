@@ -1,0 +1,143 @@
+<krpano>
+    <events name='events_scene_center_navi'
+        onnewpano=''
+    />
+    <nav_settings 
+        thumbWidth='120'
+        thumbHeight='80'
+        thumbWidthGap='15'
+        thumbOy=''
+    />
+
+    <style name="scrollarea" url.html5="%ROOT%/plugins/scrollarea.js" />
+
+    <layer name="scroll_navi" keep="false" type="container" width="750" width.mobile='95%' height.normal="120" height.mobile="80" align="bottom" oy="" bgcolor="0x9b9b9b" bgalpha="0.8" bgborder="get:skin_settings.design_bgborder" bgroundedge="100" bgshadow="get:skin_settings.design_bgshadow" bgcapture="true" x="0" y="0" capture="false">
+        <layer name="btn_nav_left" style="style_nav_bottom" url="%ROOT%/assets/intro/btn_nav_left.png" width="5%" align="centerleft" ox="20" onclick="prevscene();"/>
+        <layer name="btn_nav_right" style="style_nav_bottom" url="%ROOT%/assets/intro/btn_nav_right.png" width="5%" align="centerright" ox="-20" onclick="nextscene();"/>
+
+        <layer name="bd_scroller_container" type="container" align="center" y="0" width="-150" width.mobile='-100' height="-20" bgborder="0 0xFFFFFF 0.8">
+            <layer name="bd_scroller" style="scrollarea" direction="h" width="" height="100" align="left" y="-5" onloaded='generateThumbsOfScenes()'></layer>
+        </layer>
+    </layer>
+
+    <action name='generateThumbsOfScenes' scope='local'>
+        copy(thumbWidth, nav_settings.thumbWidth);
+        copy(thumbHeight, nav_settings.thumbHeight);
+        copy(thumbWidthGap, nav_settings.thumbWidthGap);
+        copy(thumbOy, nav_settings.thumbOy);
+
+
+        set(layerName, '');
+        for(set(i, 0), i LT scene.count, inc(i),
+            txtadd(layerName, 'thumb_', get(scene[get(i)].name));
+            addlayer(get(layerName));
+            layer[get(layerName)].loadstyle('style_nav_bottom');
+
+            txtadd(onClickEvent, 'loadscene(', get(scene[get(i)].name), ',null, MERGE, get(skin_settings.loadscene_blend_next));');
+            set(layer[get(layerName)],
+                url=get(scene[get(i)].thumburl),
+                width=get(thumbWidth),
+                height=get(thumbHeight),
+                align='topleft',
+                parent='bd_scroller',
+                x=calc((thumbWidth+thumbWidthGap)* i),
+                y=get(thumbOy),
+                onclick=get(onClickEvent),
+            );
+            txtadd(layerNameLabel, 'thumb_label_', get(scene[get(i)].name));
+            addlayer(get(layerNameLabel));
+            layer[get(layerNameLabel)].loadstyle('style_nav_bottom_label');
+            set(layer[get(layerNameLabel)],
+                html=get(scene[get(i)].title),
+                parent=get(layerName),
+            );
+        );
+
+        <!-- 스크롤 크기 계산 -->
+        set(caller.width, calc(scene.count * (thumbWidth + thumbWidthGap)  ));
+
+        <!-- 스크롤 위치 계산 -->
+        set(newScrolX, calc((nav_settings.thumbWidth + nav_settings.thumbWidthGap)* scene[get(xml.scene)].index) );        
+        delayedcall(0,
+            layer[bd_scroller].setcenter( get(newScrolX) ,0);
+        );
+    
+    </action>
+
+    <style name='style_nav_bottom_label'
+        type='text'
+        align='bottom'
+        edge='top'
+        y='-4'
+        css='font-size: 0.8rem; color: white; font-weight: bold;'
+        bg='false'
+    />
+    <style name="style_nav_bottom"
+       type="image"
+       keep="false"
+       parent=""
+       visible="true"
+       enabled="true"
+       handcursor="true"
+       cursor="pointer"
+       maskchildren="false"
+       scalechildren="false"
+       zorder=""
+       capture="false"
+       capturefocus="true"
+       children="true"
+       nativecontextmenu="false"
+       preload="false"
+       blendmode="normal"
+       style=""
+       align="bottomcenter"
+       edge=""
+       safearea="true"
+       x=""
+       y=""
+       ox=""
+       oy=""
+       rotate="0.0"
+       width="900"
+       height="prop"
+       scale="1.0"
+       pixelhittest="false"
+       smoothing="true"
+       accuracy="0"
+       alpha="1.0"
+       autoalpha="false"
+       usecontentsize="false"
+       scale9grid=""
+       crop=""
+       onovercrop=""
+       ondowncrop=""
+       mask=""
+       effect=""
+       bgcolor="0x000000"
+       bgalpha="0.0"
+       bgborder="0"
+       bgroundedge="0"
+       bgshadow=""
+       bgcapture="false"
+       onover.addevent=""
+       onhover.addevent=""
+       onout.addevent=""
+       onclick.addevent="
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            );
+            "
+       ondown.addevent=""
+       onup.addevent=""
+       onloaded.addevent=""
+    />
+    <action name="nextscene">
+        add(nextsceneindex, get(scene[get(xml.scene)].index),1);
+        if(nextsceneindex LT scene.count, loadscene(get(scene[get(nextsceneindex)].name), null, MERGE, LIGHTBLEND(0.7)); );
+    </action>
+
+    <action name="prevscene">
+        sub(nextsceneindex, get(scene[get(xml.scene)].index),1);
+        if(nextsceneindex GT -1, loadscene(get(scene[get(nextsceneindex)].name), null, MERGE, LIGHTBLEND(0.7)); );
+    </action>
+</krpano>

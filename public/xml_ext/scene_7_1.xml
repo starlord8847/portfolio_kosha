@@ -1,0 +1,60 @@
+<krpano>
+    <include url='%ROOT%/xml_ext/scene_layer_btn.xml' />
+    <events name='scene_7_1_event'
+        onnewpano='
+            insert_script(script_7);
+            delayedcall(0.5,
+                narration_start();
+                play_script();
+            );
+            delayedcall(scene_7_1_delay, 5,
+                tween(hotspot[next_chapter_btn].alpha, 1);
+            );
+            copy(layer[icon_count_text].html, calc("0 / 0"); );
+            check_all_scene();
+        '
+        onremovepano='stopdelayedcall(delayed_ani_1); stopdelayedcall(scene_7_1_delay); pausesound(bgm); action_stoptween(); stop_script();'
+    />
+    <include url="%ROOT%/xml_ext/custom_skin.xml" />
+
+    <array name='script_7'>
+        <line name='line_0' text='현장 정리할 때도 끝까지 긴장을 늦추면 안 되겠죠.' />
+        <line name='line_1' text='현장 정리 시 알아야 할 유해·위험요인을 확인해보세요.' />
+    </array>
+
+    <sound_setting nosound='true' />
+
+    <action name='narration_start'>
+        if(!sound[narration] OR (sound[narration] AND sound[narration].paused) ,
+            if(!layer_btn_settings.bgmpaused,
+                playsound(narration, get(sound_source[narration_7].url), false, 1,
+                    bgm_volume_control();
+                    if(layer_btn_settings.autoplay,
+                        autoplay_indicator_start();
+                    );
+                );
+            ,
+                if(layer_btn_settings.autoplay,
+                    autoplay_indicator_start();
+                );
+            );
+        );
+    </action>
+
+    <hotspot name='icon_ext_21'
+        style='st_icon_ext'
+        ath="50.0393954259" atv="37.4226501203"
+        idx='21'
+    />
+    
+    <hotspot name='icon_ext_22'
+        style='st_icon_ext'
+        ath="22.8144698528" atv="-13.2145894076"
+        idx='22'
+    />
+
+    <hotspot name='next_chapter_btn' url='%ROOT%/assets/common/next_chapter_btn_2.png'
+        style='st_next_chapter_btn'
+        ath="22.9385733653" atv="9.7126104963"
+    />
+</krpano>

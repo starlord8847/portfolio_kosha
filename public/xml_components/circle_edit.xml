@@ -1,0 +1,53 @@
+<krpano>
+	<include url='include_editor.xml' />
+
+	<!-- url='%CURRENTXML%/skin/redring.png' -->
+	<!-- <layer name='circle_red'
+		if='editor'
+		url='%CURRENTXML%/skin/move_hotspot.png'
+		scale='1'
+		distorted='true'
+		x='0'
+		y='0'
+		edge='center'
+		align='center'
+		zorder='1000'
+		ondown='if(editor, set(dragging, true); draglayer() );'
+		onup='if(editor, set(dragging, false););'
+	>
+		<layer name='circle_red_circle_position' type='text' html='X, Y' edge='bottom' align='top' padding='10' bgcolor='0xffffff' onclick='onClickCirclePosition()' />
+		<layer name='circle_red_circle_scale' type='text' html='SCALE' edge='bottom' align='top' padding='10' y='-50' bgcolor='0xffffff' />
+	</layer>
+	<layer name='circle_red' if='editor' url='%CURRENTXML%/skin/move_hotspot.png' scale='0.3' /> -->
+
+
+	<action name='onClickCirclePosition'>
+		txtadd(c2ctext, 'x="', get(layer[get(parent)].org_x), '" y="', get(layer[get(parent)].org_y), '"');
+		plugin[c2c].copy2clipboard(get(c2ctext));
+	</action>
+	<action name="draglayer">
+		<![CDATA[
+			if(dragging,
+				div(halfstagewidth, stagewidth, 2);
+				div(halfstageheight, stageheight, 2);
+				sub(tempx, mouse.stagex, halfstagewidth);
+				sub(tempy, mouse.stagey, halfstageheight);
+
+				copy(x, tempx);
+				copy(y, tempy);
+
+				div(layer[get(name)].org_x, tempx, scale);
+				div(layer[get(name)].org_y, tempy, scale);
+
+				callwith(layer[get(name)], update_xy);
+
+				delayedcall(0,draglayer());
+			);
+		]]>
+	</action>
+	<action name='update_xy'>
+		txtadd(posHtml, get(layer[get(name)].org_x), ', ', get(layer[get(name)].org_y));
+		txtadd(xyHtmlLayerName, get(name), '_circle_position');
+		copy(layer[get(xyHtmlLayerName)].html, posHtml);
+	</action>
+</krpano>

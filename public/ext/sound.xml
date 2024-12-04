@@ -1,0 +1,294 @@
+<krpano>
+    <events name='events_sound'
+        keep='true'
+        onnewpano='stopdelayedcall(delayedcall_script); stop_script(); bgm_volume_control();'
+        onremovepano='stopallnarration(); stopdelayedcall(delayedcall_script);'
+        onviewchange='follow_script();'
+    />
+
+    <action name='bgm_volume_control' >
+        if(!sound[bgm] OR (sound[bgm] AND sound[bgm].paused),
+            if(!sound[narration].paused,
+                tween(sound[bgm].volume, 0.1, 2);
+            ,
+                tween(sound[bgm].volume, 0.5, 2);
+            );
+        
+        );
+    </action>
+
+    <!-- <hotspot name='narration_script'
+        keep='true'
+        type='text'
+        html=''
+        autoalpha='true'
+        alpha='0'
+        padding="4"
+        bg="true"
+        bgalpha='0.8'
+        bgcolor='0x000000'
+        css='font-size:1.2rem; color:white;'
+        atv='20'
+        zorder='999'
+        capture='false'
+        enabled='false'
+    /> -->
+    <style name='st_array_tag'
+        tag='arrays'
+    />
+
+    <style name='st_narration_script'
+        tag='narration_script'
+        keep='true'
+        type='text'
+        html=''
+        enabled='false'
+        capture='false'
+        zorder="998"
+        alpha='0'
+        ath='' atv='0'
+        padding='4'
+        bg='true' bgcolor='#000000' bgalpha='0.85'
+        css='font-size: 18px; color: #ffffff; align: center;'
+    />
+    <action name='follow_script'>
+        for(set(i, 0), i LT hotspot.count, inc(i),
+            if(hotspot[get(i)].tag == 'narration_script',
+                tween(hotspot[get(hotspot[get(i)].name)].ath, get(view.hlookat));
+                tween(hotspot[get(hotspot[get(i)].name)].atv, calc(view.vlookat+20));
+            );
+        );
+    </action>
+
+    <action name='insert_script' scope='local' args='arrayScript'>
+        if(events[event_sounds].lastscript,
+            for(set(i,0), i LT hotspot.count, inc(i),
+                
+                txtadd(hsScript, 'narration_', get(events[event_sounds].lastscript));
+                indexoftxt(textindex, get(hotspot[get(i)].name), 'get(hsScript)');
+                
+                if(textindex != -1,
+                    set(hotspot[get(hotspot[get(i)].name)].alpha, 0);
+                    
+                    removehotspot(hotspot[get(i)].name);
+                );
+            );
+        );
+
+        copy(events[event_sounds].lastscript, arrayScript);
+        
+        if(array[get(arrayScript)] AND array[get(arrayScript)].line.count,
+            for(set(i,0), i LT array[get(arrayScript)].line.count, inc(i),
+                txtadd(hsScript, 'narration_', get(arrayScript), '_', get(i));
+                addhotspot(get(hsScript));
+                hotspot[get(hsScript)].loadstyle(st_narration_script);
+
+                set(scriptYgap, 31);
+                set(hotspot[get(hsScript)], 
+                    html=get(array[get(arrayScript)].line[get(i)].text),
+                    oy=get(scriptYgap),
+                );
+            );
+
+            reset_script(get(arrayScript));
+        );
+    </action>
+
+    <action name='play_script'>
+        set(currentLine, 0);
+
+        climb_script(get(currentLine));
+
+        inc(currentLine);
+
+        setinterval(scriptInterval, 4,
+            climb_script(get(currentLine));
+
+            set(scriptCount, 0);
+            for(set(i,0), i LT hotspot.count, inc(i),
+                if(hotspot[get(i)].tag == 'narration_script',
+                    inc(scriptCount);
+                );
+            );
+            if(currentLine GE scriptCount,
+                hide_script();
+                clearinterval(scriptInterval);
+            );
+            inc(currentLine);
+        );
+    </action>
+
+    <action name='stop_script'>
+        clearinterval(scriptInterval);
+        hide_script(0);
+    </action>
+
+    <action name='climb_script' scope='local' args='currentLine'>
+        set(scriptYgap, 31);
+
+        if(currentLine GE 0,
+            sub(beforeLine_1, currentLine, 1);
+            sub(beforeLine_2, currentLine, 2);
+
+            if(beforeLine_1 GE 0,
+                txtadd(hsScript, 'narration_', get(events[event_sounds].lastscript), '_', get(beforeLine_1));
+                tween(hotspot[get(hsScript)].oy, calc(hotspot[get(hsScript)].oy - scriptYgap));
+                if(layer_btn_settings.scriptpaused,
+                    tween(hotspot[get(hsScript)].alpha, 0);
+                );
+            );
+            if(beforeLine_2 GE 0,
+                txtadd(hsScript, 'narration_', get(events[event_sounds].lastscript), '_', get(beforeLine_2));
+                tween(hotspot[get(hsScript)].oy, calc(hotspot[get(hsScript)].oy - scriptYgap));
+                tween(hotspot[get(hsScript)].alpha, 0);
+                if(layer_btn_settings.scriptpaused,
+                    tween(hotspot[get(hsScript)].alpha, 0);
+                );
+            );
+            txtadd(hsScript, 'narration_', get(events[event_sounds].lastscript), '_', get(currentLine));
+            tween(hotspot[get(hsScript)].oy, 0);
+            tween(hotspot[get(hsScript)].alpha, 1);
+            if(layer_btn_settings.scriptpaused,
+                    tween(hotspot[get(hsScript)].alpha, 0);
+                );
+        );
+    </action>
+
+    <action name='hide_script' scope='local' args='delayHide'>
+        set(delayTime, calc(delayHide!=null?delayHide:4));
+        
+        delayedcall(delayedCall, get(delayTime),
+            for(set(i,0), i LT hotspot.count, inc(i),
+                if(hotspot[get(i)].tag == 'narration_script',
+                    tween(hotspot[get(hotspot[get(i)].name)].alpha, 0);
+                );
+            );
+        );
+    </action>
+
+    <action name='reset_script' scope='local' args='arrayScript'>
+        copy(linecount, array[get(arrayScript)].line.count);
+        for(set(i,0), i LT linecount, inc(i),
+            array[get(arrayScript)].line.removearrayitem(0);
+        );
+    </action>
+
+
+    <plugin name="soundinterface"
+        keep='true'
+        url.html5="%SWFPATH%/plugins/soundinterface.js"
+        url.flash="%SWFPATH%/plugins/soundinterface.swf"
+        preload="true"
+        rootpath=""
+        volume="1.0"
+        mute="false"
+        panningmodel="simple"
+        worldscale="1.0"
+        autopause="false"
+        autounlock="true"
+    />
+
+    <!-- <sound_source name='bgm' url='%SWFPATH%/assets/sound/bgm.mp3|%SWFPATH%/assets/sound/bgm.ogg' /> -->
+    <sound_source name='bgm_scene_1' url='%SWFPATH%/assets/sound/bgm_scene_1.mp3' />
+    <sound_source name='bgm_scene_2' url='%SWFPATH%/assets/sound/bgm_scene_2.mp3|%SWFPATH%/assets/sound/bgm/bgm_scene_2.ogg' />
+
+    <sound_source name='click' url="%SWFPATH%/assets/sound/abdrtar_recording-start.mp3" />
+    <sound_source name='click_answer' url="%SWFPATH%/assets/sound/kickhat__open-button-1.mp3" />
+    <sound_source name='click_mouse' url="%SWFPATH%/assets/sound/Button-SoundBible.com-1420500901.mp3|%SWFPATH%/assets/sound/Button-SoundBible.com-1420500901.ogg" />
+
+    <sound_source name='power_up' url='%SWFPATH%/assets/sound/power_up.mp3|%SWFPATH%/assets/sound/power_up.ogg' />
+    <sound_source name='shook' url='%SWFPATH%/assets/sound/effect_image_appears.mp3|%SWFPATH%/assets/sound/effect_image_appears.ogg' />
+    <sound_source name='bbeep' url='%SWFPATH%/assets/sound/bbeep_sound.mp3|%SWFPATH%/assets/sound/bbeep_sound.ogg' />
+    <sound_source name='walk' url='%SWFPATH%/assets/sound/Walking_fast_on_Dirt.mp3|%SWFPATH%/assets/sound/Walking_fast_on_Dirt.ogg' />
+    <sound_source name='new_msg' url='%SWFPATH%/assets/sound/new_message.mp3|%SWFPATH%/assets/sound/new_message.ogg' />
+    <sound_source name='door_opening' url='%SWFPATH%/assets/sound/door_opening.mp3|%SWFPATH%/assets/sound/door_opening.ogg' />
+    <!-- <sound_source name='deflect' url='%SWFPATH%/assets/sound/deflect.mp3|%SWFPATH%/assets/sound/deflect.ogg' /> -->
+    <!-- <sound_source name='deflect' url='%SWFPATH%/assets/sound/strangehorizon__hammer-vs-hammer-3.mp3' /> -->
+    <sound_source name='deflect' url='%SWFPATH%/assets/sound/process_effect_sound.mp3|%SWFPATH%/assets/sound/process_effect_sound.ogg' />
+    <sound_source name='screaming' url='%SWFPATH%/assets/sound/man_screaming_a.mp3' />
+    <!-- <sound_source name='screaming' url='%SWFPATH%/assets/sound/man_screaming_b.mp3' /> -->
+    <!-- <sound_source name='screaming' url='%SWFPATH%/assets/sound/man_screaming_c.mp3|%SWFPATH%/assets/sound/man_screaming_c.ogg' /> -->
+    <!-- <sound_source name='screaming' url='%SWFPATH%/assets/sound/man_screaming_d_woman.mp3|%SWFPATH%/assets/sound/man_screaming_d_woman.ogg' /> -->
+    <sound_source name='accident_occurs' url='%SWFPATH%/assets/sound/accident_occurs_sound.mp3|%SWFPATH%/assets/sound/accident_occurs_sound.ogg' />
+    <sound_source name='magic_wand' url='%SWFPATH%/assets/sound/magic_wand.mp3|%SWFPATH%/assets/sound/magic_wand.ogg' />
+    <sound_source name='bad_answer' url='%SWFPATH%/assets/sound/richerlandtv__bad-beep-incorrect.mp3' />
+    <sound_source name='good_answer' url='%SWFPATH%/assets/sound/oggraphics__good-answer-harp-glissando.mp3' />
+    <sound_source name='ambulance' url='%SWFPATH%/assets/sound/ambulance.mp3' />
+    
+
+    <sound_source name='narration_1' url='%ROOT%/assets/narration/narration_1.mp3|%ROOT%/assets/narration/narration_1.ogg' />
+    <sound_source name='narration_2' url='%ROOT%/assets/narration/narration_2.mp3|%ROOT%/assets/narration/narration_2.ogg' />
+    <sound_source name='narration_3' url='%ROOT%/assets/narration/narration_3.mp3|%ROOT%/assets/narration/narration_3.ogg' />
+    <sound_source name='narration_4' url='%ROOT%/assets/narration/narration_4.mp3|%ROOT%/assets/narration/narration_4.ogg' />
+    <sound_source name='narration_5' url='%ROOT%/assets/narration/narration_5.mp3|%ROOT%/assets/narration/narration_5.ogg' />
+    <sound_source name='narration_6' url='%ROOT%/assets/narration/narration_6.mp3|%ROOT%/assets/narration/narration_6.ogg' />
+    <sound_source name='narration_7' url='%ROOT%/assets/narration/narration_7.mp3|%ROOT%/assets/narration/narration_7.ogg' />
+    <sound_source name='narration_8' url='%ROOT%/assets/narration/narration_8.mp3|%ROOT%/assets/narration/narration_8.ogg' />
+    <sound_source name='narration_9' url='%ROOT%/assets/narration/narration_9.mp3|%ROOT%/assets/narration/narration_9.ogg' />
+    <sound_source name='narration_10' url='%ROOT%/assets/narration/narration_10.mp3|%ROOT%/assets/narration/narration_10.ogg' />
+    <sound_source name='narration_intro' url='%ROOT%/assets/narration/narration_intro.mp3|%ROOT%/assets/narration/narration_intro.ogg' />
+    <sound_source name='narration_outro' url='%ROOT%/assets/narration/narration_outro.mp3|%ROOT%/assets/narration/narration_outro.ogg' />
+    <sound_source name='narration_last_chapter' url='%ROOT%/assets/narration/narration_last_chapter.mp3|%ROOT%/assets/narration/narration_last_chapter.ogg' />
+
+    <!-- playsound(click, get(sound_source[click].url), false, 1);  -->
+
+
+    <action name='mouse_click'>
+        playsound(click, get(sound_source[click].url), false, 1,
+            delayedcall(0, %1);
+        );
+    </action>
+
+    <action name='start_bgm'>
+        playsound(bgm, get(sound_source[bgm].url), true, 1);
+    </action>
+
+    <action name='stopallnarration'>
+        if(sound[walk],
+            sound[walk].stop();
+        );
+        if(sound[narration],
+            sound[narration].stop();
+        );
+        if(sound[narration_1],
+            sound[narration_1].stop();
+        );
+        if(sound[narration_2],
+            sound[narration_2].stop();
+        );
+        if(sound[narration_3],
+            sound[narration_3].stop();
+        );
+        if(sound[narration_4],
+            sound[narration_4].stop();
+        );
+        if(sound[narration_5],
+            sound[narration_5].stop();
+        );
+        if(sound[narration_6],
+            sound[narration_6].stop();
+        );
+        if(sound[narration_7],
+            sound[narration_7].stop();
+        );
+        if(sound[narration_8],
+            sound[narration_8].stop();
+        );
+        if(sound[narration_9],
+            sound[narration_9].stop();
+        );
+        if(sound[narration_10],
+            sound[narration_10].stop();
+        );
+        if(sound[narration_intro],
+            sound[narration_intro].stop();
+        );
+        if(sound[narration_outro],
+            sound[narration_outro].stop();
+        );
+        if(sound[narration_last_chapter],
+            sound[narration_last_chapter].stop();
+        );
+    </action>
+
+</krpano>

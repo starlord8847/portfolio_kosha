@@ -1,0 +1,17 @@
+<krpano>
+    <events name='scene_intro_event'
+        onnewpano=''
+        onremovepano=''
+    />
+    <include url='scene_center_navi.xml' />
+
+    <hotspot name="logo" url="%ROOT%/assets/intro/vr_big_logo.png"
+        style="image_hotspot"  
+        ath="-180" atv="0" 
+        scale="0.30" 
+        onover.addevent="tween(scale, 0.32, 0.2);" 
+        onout.addevent="tween(scale, 0.30, 0.2);" 
+        onclick="openurl(https://360vr.kosha.or.kr/main);" 
+    />
+    
+</krpano>

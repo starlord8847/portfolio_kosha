@@ -1,0 +1,162 @@
+<krpano>
+    <include url='%ROOT%/xml_ext/scene_layer_btn.xml' />
+    <events name='scene_1_event'
+        onnewpano='
+            insert_script(script_1);
+            
+            delayedcall(event_delayed, 0.5,
+                tween(hotspot[infomation].alpha, 1);
+                tween(hotspot[backdrop].alpha, 0.6);
+                set(hotspot[tooltip_X_btn].handcursor, true);
+                set(hotspot[tooltip_X_btn].enabled, true);
+                narration_start();
+                play_script();
+            );
+            copy(layer[icon_count_text].html, calc("0 / 0"); );
+            check_all_scene();
+        '
+        onremovepano='stopdelayedcall(delayed_ani_1); stopdelayedcall(event_delayed); action_stoptween(); pausesound(narration); stoptween(hotspot[backdrop].alpha); stoptween(hotspot[infomation].alpha); stop_script();'
+        onresize='set(hotspot[backdrop].width, get:stagewidth); set(hotspot[backdrop].height, get:stageheight);'
+    />
+    <include url="%ROOT%/xml_ext/custom_skin.xml" />
+
+    <array name='script_1'>
+        <line name='line_0' text='본 현장은 주상복합 건축물에 창호 및 유리' />
+        <line name='line_1' text='설치 작업을 진행하는 공사 현장입니다.' />
+    </array>
+
+    <sound_setting nosound='true' />
+
+    <action name='narration_start'>
+        if(!sound[narration] OR (sound[narration] AND sound[narration].paused),
+            if(!layer_btn_settings.bgmpaused,
+                playsound(narration, get(sound_source[narration_1].url), false, 1,
+                    bgm_volume_control();
+                );
+            );
+        );
+    </action>
+    
+    <!-- <hotspot name='moving_hotspot' 
+        url='%ROOT%/assets/common/moving_hotspot.png'
+        style='style_drag_hotspot_distortion'
+        alpha='1' autoalpha='1'
+        scale='0.24'
+        distorted='true'
+        enabled='true'
+        capture='false'
+        ath="-76.3951521173" atv="24.6685498648"
+        onover='stoptween(scale); tween(scale, 0.24, 0.2);'
+        onout='stoptween(scale); tween(scale, 0.22, 0.2);'
+        linkedscene='scene_2_1'
+        linkedlookat_h=''
+        linkedlookat_v=''
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+            looktohotspot(moving_hotspot, 90);
+            loadscene(get(linkedscene), , , colorblend(0.5, 0x000000));
+        '
+    /> -->
+    <!-- crop='0|0|233|306'
+        frames='5' framewidth='233' frameheight='306' frame='0'
+        onloaded='animation();' -->
+
+    <hotspot name='infomation' url='%ROOT%/assets/chapter_1/scene_1_1/infomation.png'
+        alpha='0'
+        scale='0.4'
+        distorted='true'
+        edge='center'
+        align='center'
+        enabled='false'
+        capture='false'
+        oy='-10'
+        zorder="1"
+    />
+
+    <!-- <hotspot name='infomation' url='%ROOT%/assets/chapter_1/scene_1/infomation.png' devices='mobile'
+        alpha='1'
+        scale='0.8'
+        distorted='true'
+        enabled='false'
+        capture='false'
+        ath="-77" atv="0"
+        zorder="1"
+    /> -->
+
+    <hotspot name='backdrop'
+        flying='1'
+        capture='false'
+        enabled='false'
+        url='%ROOT%/assets/etc/black_80_percent.png'
+        width='get:stagewidth'
+        height='get:stageheight'
+        autoalpha='true'
+        alpha='0'
+        scale='2'
+        onloaded='properBlackBackStage();'
+    />
+
+    <action name='properBlackBackStage'>
+        mul(doubleStageW, stagewidth, 2);
+        mul(doubleStageH, stageheight, 2);
+        set(hotspot[backdrop], width=get(doubleStageW), height=get(doubleStageH));
+    </action>
+
+    <hotspot name='tooltip_X_btn' url='%ROOT%/assets/chapter_1/scene_1_1/close.png'
+        ox='455' oy='-240'
+        edge='center'
+        align='center'
+        scale='0.6'
+        zorder="4"
+        enabled='false'
+        handcursor="false"
+        capture='false'
+        distorted='true'
+        visible='true'
+        alpha='0'
+        linkedscene='scene_2_1'
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            );
+            tween(alpha, 0);
+            tween(hotspot[infomation].alpha, 0);
+            tween(hotspot[backdrop].alpha, 0);
+            set(visible, false);
+            loadscene(get(linkedscene), , , colorblend(0.5, 0x000000));
+        '
+    />
+
+    <action name='move_addhotspot'>
+        if(hotspot[move_addhotspot],
+            removehotspot(move_addhotspot);
+        );
+        addhotspot(move_addhotspot);
+        hotspot[move_addhotspot].loadstyle(st_moving_hotspot_text);
+        copy(hotspot[move_addhotspot].ath, hotspot[moving_hotspot].ath);
+        copy(hotspot[move_addhotspot].atv, hotspot[moving_hotspot].atv );
+        copy(hotspot[move_addhotspot].html, hotspot[moving_hotspot].linkedtitle);
+    </action>
+
+    <!-- <hotspot name='tooltip_X_btn' url='%ROOT%/assets/chapter_1/scene_1/close.png'
+        ath="-77" atv="0"
+        ox='455' oy='-265'
+        scale='0.6'
+        zorder="4"
+        enabled='true'
+        capture='false'
+        distorted='true'
+        visible='true'
+        alpha='1'
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            );
+            tween(alpha, 0);
+            tween(hotspot[tooltip].alpha, 0);
+            set(visible, false);
+        '
+    /> -->
+</krpano>

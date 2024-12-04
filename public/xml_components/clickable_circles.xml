@@ -1,0 +1,272 @@
+<krpano>
+	<style name='style_circle'
+		url='%CURRENTXML%/skin/move_hotspot.png'
+		x='0'
+		y='0'
+		edge='center'
+		align='center'
+		zorder='800'
+		capture='false'
+		autoalpha='1'
+		onclick='
+			if( settings[main].frameloadcomplete,
+				onClickCicleAtFront2();
+			, 
+				js(console.info( "still loading !!" ));
+			);
+		'
+		ondown='
+			if(editor, set(dragging, true); draglayer() );
+		'
+		onup='if(editor, set(dragging, false););'
+		linkedtooltip=''
+		onover='onOverCircle();'
+		onout='onOutCircle()'
+		onloaded='if(editor, set(capture, true); );'
+	/>
+
+	<layer name='circle_0'
+		style='style_circle'
+		url='%CURRENTXML%/skin/videoplay_icon.png'
+		onclick="js( App.$children[0].$children[0].showModalIframe( video_preview_0 ));"
+		onhover='showLayerHoverTooltip("Click To Watch This Video");'
+		onout='hideLayerHoverTooltip'
+		capture='true'
+	>
+		<layer if='editor' name='circle_0_circle_position' type='text' html='X, Y' edge='bottom' align='top' padding='10' bgcolor='0xffffff' onclick='onClickCirclePosition()' />
+		<layer if='editor' name='circle_0_circle_scale' type='text' html='SCALE' edge='bottom' align='top' padding='10' y='-50' bgcolor='0xffffff' />
+		<!-- <layer name='circle_0_tooltip' url='%CURRENTXML%/skin/main_lands/storytown.png' edge='bottom' align='top' autoalpha='1' alpha='0' onloaded='bounceUp(get(name))' bouncetime='0.5' bounceygap='-10' /> -->
+	</layer>
+
+
+	<layer name='circle_1'
+		style='style_circle'
+		linkedscene='scene_6'
+	>
+		<layer if='editor' name='circle_1_circle_position' type='text' html='X, Y' edge='bottom' align='top' padding='10' bgcolor='0xffffff' onclick='onClickCirclePosition()' />
+		<layer if='editor' name='circle_1_circle_scale' type='text' html='SCALE' edge='bottom' align='top' padding='10' y='-50' bgcolor='0xffffff' />
+		<!-- <layer name='circle_1_tooltip' url='%CURRENTXML%/skin/main_lands/storytown.png' edge='bottom' align='top' autoalpha='1' alpha='0' onloaded='bounceUp(get(name))' bouncetime='0.5' bounceygap='-10' /> -->
+	</layer>
+	<layer name='circle_1' if='editor' url='%CURRENTXML%/skin/move_hotspot.png' />
+
+	<layer name='circle_2'
+		style='style_circle'
+		linkedscene='scene_3'
+	>
+		<layer if='editor' name='circle_2_circle_position' type='text' html='X, Y' edge='bottom' align='top' padding='10' bgcolor='0xffffff' onclick='onClickCirclePosition()' />
+		<layer if='editor' name='circle_2_circle_scale' type='text' html='SCALE' edge='bottom' align='top' padding='10' y='-50' bgcolor='0xffffff' />
+		<!-- <layer name='circle_2_tooltip' url='%CURRENTXML%/skin/main_lands/storytown.png' edge='bottom' align='top' autoalpha='1' alpha='0' onloaded='bounceUp(get(name))' bouncetime='0.5' bounceygap='-10' /> -->
+	</layer>
+	<layer name='circle_2' if='editor' url='%CURRENTXML%/skin/move_hotspot.png' />
+
+	<layer name='circle_3'
+		style='style_circle'
+		linkedscene='scene_4'
+	>
+		<layer if='editor' name='circle_3_circle_position' type='text' html='X, Y' edge='bottom' align='top' padding='10' bgcolor='0xffffff' onclick='onClickCirclePosition()' />
+		<layer if='editor' name='circle_3_circle_scale' type='text' html='SCALE' edge='bottom' align='top' padding='10' y='-50' bgcolor='0xffffff' />
+		<!-- <layer name='circle_3_tooltip' url='%CURRENTXML%/skin/main_lands/storytown.png' edge='bottom' align='top' autoalpha='1' alpha='0' onloaded='bounceUp(get(name))' bouncetime='0.5' bounceygap='-10' /> -->
+	</layer>
+	<layer name='circle_3' if='editor' url='%CURRENTXML%/skin/move_hotspot.png' />
+
+	<layer name='circle_4'
+		style='style_circle'
+		linkedscene='scene_5'
+	>
+		<layer if='editor' name='circle_4_circle_position' type='text' html='X, Y' edge='bottom' align='top' padding='10' bgcolor='0xffffff' onclick='onClickCirclePosition()' />
+		<layer if='editor' name='circle_4_circle_scale' type='text' html='SCALE' edge='bottom' align='top' padding='10' y='-50' bgcolor='0xffffff' />
+		<!-- <layer name='circle_4_tooltip' url='%CURRENTXML%/skin/main_lands/storytown.png' edge='bottom' align='top' autoalpha='1' alpha='0' onloaded='bounceUp(get(name))' bouncetime='0.5' bounceygap='-10' /> -->
+	</layer>
+	<layer name='circle_4' if='editor' url='%CURRENTXML%/skin/move_hotspot.png' />
+
+	<layer name='circle_5'
+		style='style_circle'
+		linkedscene='scene_1'
+	>
+		<layer if='editor' name='circle_5_circle_position' type='text' html='X, Y' edge='bottom' align='top' padding='10' bgcolor='0xffffff' onclick='onClickCirclePosition()' />
+		<layer if='editor' name='circle_5_circle_scale' type='text' html='SCALE' edge='bottom' align='top' padding='10' y='-50' bgcolor='0xffffff' />
+		<!-- <layer name='circle_5_tooltip' url='%CURRENTXML%/skin/main_lands/storytown.png' edge='bottom' align='top' autoalpha='1' alpha='0' onloaded='bounceUp(get(name))' bouncetime='0.5' bounceygap='-10' /> -->
+	</layer>
+	<layer name='circle_5' if='editor' url='%CURRENTXML%/skin/move_hotspot.png' />
+
+
+
+	<layer name='move_to_scene_layer' type='이동하기' bgborder='2 0x000000 0.8' bgroundedge='4' padding='5' autoalpha='true' alpha='1' onclick=''/>
+
+	<action name='onOverCircle' scope='local'>
+		<!-- js(console.info('circle name', get(name))); -->
+		tween(layer[get(caller.linkedtooltip)].alpha, 1);
+
+		<!-- mul(newScale, caller.org_scale, 1.2); -->
+		<!-- tween(caller.scale, get(newScale)); -->
+	</action>
+	<action name='onOutCircle' scope='local'>
+		tween(layer[get(caller.linkedtooltip)].alpha, 0);
+		<!-- tween(caller.scale, get(caller.org_scale)); -->
+	</action>
+
+	<action name='onClickCicleAtFront'>
+		<!-- <circle name='circle_1' centerframe='59' leftendframe='12' rightendframe='34'> -->
+		
+		<!-- 오른쪽으로 회전 -->
+		if(currentframe GT circle[get(name)].centerframe OR currentframe LE circle[get(name)].leftendframe,
+			<!-- 회전 횟수 파악 -->
+			sub(movecount, currentframe, circle[get(name)].centerframe);
+			if(movecount LT 0,
+				sub(addMove, framecount, circle[get(name)].centerframe);
+				add(movecount, currentframe, addMove);
+			);
+			set(direction, -1);
+		,
+		<!-- 왼쪽으로 회전 -->
+			<!-- 회전 횟수 파악 -->
+			sub(movecount, circle[get(name)].centerframe, currentframe);
+			set(direction, 1);
+		);
+
+		set(asyncloopidx,0);
+		asyncloop(asyncloopidx LT movecount,
+			txtadd(fname,frame,get(currentframe));
+			set(plugin[get(fname)].visible,false);
+
+			add(currentframe, direction);
+			showframe(0, true);
+			inc(asyncloopidx);
+			wait(0.5);
+		,
+			<!-- 이동 아이콘 보이기 -->
+			<!-- jscall( App.$children[0].$children[0].onClickStoryTown() ); -->
+			wait(0.5);
+			mul(newlookfov, view.fov, 0.25);
+            
+            lookinterrupt();
+			lookto(get(view.hlookat), get(view.vlookat), get(newlookfov));
+			loadscene(get(linkedscene), null, MERGE, COLORBLEND(2.0, 0x000000, easeOutSine) );
+		);
+	</action>
+	<action name='onClickCicleAtFront2'>
+		for(set(i,0), i LT layer.count, inc(i),
+			if(layer[get(i)].style == 'style_circle',
+				<!-- js(console.info(get(layer[get(i)].style), get(layer[get(i)].name))); -->
+				set(layer[get(i)].alpha, 0);
+			);
+		);
+
+		txtadd(fname,frame,get(currentframe));
+
+		<!-- 툴팁 안보이게 변경 -->
+		stoptween(layer[get(layer[get(name)].linkedtooltip)].alpha);
+		set(layer[get(layer[get(name)].linkedtooltip)].alpha, 0);
+		
+		<!-- 새로운 섬 이동 조절 위치 계산 -->
+		mul(newX, layer[get(name)].x, -1);
+		mul(newY, layer[get(name)].y, -1);
+		div(ratio, plugin[get(fname)].maxwidth, plugin[get(fname)].pixelwidth);
+		mul(newMaxX, newX, ratio);
+		mul(newMaxY, newY, ratio);
+		
+		<!-- js(console.info( get(newX), get(newY), get(ratio), get(newMaxX), get(newMaxY), get(stagewidth), get(plugin[get(fname)].pixelwidth), get(fname), get(currentframe) )); -->
+
+		<!-- 0.5초 후, 이동할 섬으로 줌인하고, 새로운 scene으로 전환 -->
+		wait(0.5);
+		stoptween(plugin[get(fname)].x);
+		stoptween(plugin[get(fname)].y);
+
+		set(plugin[get(fname)].x, 0);
+		set(plugin[get(fname)].y, 0);
+
+		tween(plugin[get(fname)].x, get(newMaxX), ,,
+		);
+		tween(plugin[get(fname)].y, get(newMaxY), ,,
+		);
+		tween(view.fov, 1, ,,
+			loadscene(get(linkedscene), null, MERGE, COLORBLEND(2.0, 0x000000, easeOutSine) );
+		);
+
+		
+	</action>
+
+	<circle name='main' count='7' />
+
+	<!-- scene 6 -->
+	<circle name='circle_1'>
+		<p name='p_0' x="136.22291021671828" y="375.6449948400413" scale="0.3" />
+		<p name='p_1' x="16.51186790505676" y="383.9009287925697" scale="0.3" />
+		<p name='p_2' x="-148.60681114551085" y="388.0288957688339" scale="0.3" />
+		<p name='p_3' x="-293.0856553147575" y="375.6449948400413" scale="0.3" />
+		<p name='p_4' x="-433.43653250773997" y="371.5170278637771" scale="0.3" />
+		<p name='p_5' x="-557.2755417956656" y="359.13312693498455" scale="0.3" />
+		<p name='p_6' x="-668.7306501547988" y="359.13312693498455" scale="0.3" />
+		<p name='p_7' x="-763.6738906088751" y="338.4932920536636" scale="0.3" />
+		
+		<p name='p_65' x="904.0247678018576" y="326.109391124871" scale="0.3" />
+		<p name='p_66' x="837.9772961816305" y="338.4932920536636" scale="0.3" />
+		<p name='p_67' x="759.545923632611" y="346.749226006192" scale="0.3" />
+		<p name='p_68' x="660.4747162022704" y="355.00515995872036" scale="0.3" />
+		<p name='p_69' x="549.0196078431372" y="367.3890608875129" scale="0.3" />
+		<p name='p_70' x="416.9246646026832" y="375.6449948400413" scale="0.3" />
+		<p name='p_71' x="288.9576883384933" y="383.9009287925697" scale="0.3" />
+	</circle>
+
+
+	<!-- scene 3 -->
+	<circle name='circle_2'>
+		<p name='p_21' x="1011.3519091847265" y="247.6780185758514" scale="0.3" />
+		<p name='p_22' x="1044.37564499484" y="264.18988648090817" scale="0.3" />
+		<p name='p_23' x="1036.1197110423118" y="268.31785345717236" scale="0.3" />
+		<p name='p_24' x="1052.6315789473686" y="276.57378740970074" scale="0.3" />
+		<p name='p_25' x="1048.5036119711042" y="293.0856553147575" scale="0.3" />
+		<p name='p_26' x="1036.1197110423118" y="297.2136222910217" scale="0.3" />
+		<p name='p_27' x="1015.4798761609908" y="309.59752321981426" scale="0.3" />
+		<p name='p_28' x="974.2002063983489" y="326.109391124871" scale="0.3" />
+		<p name='p_29' x="875.1289989680083" y="342.6212590299278" scale="0.3" />
+	</circle>
+
+	<!-- scene 4 -->
+	<circle name='circle_3'>
+		<p name='p_26' x="412.796697626419" y="305.4695562435501" scale="0.3" />
+		<p name='p_27' x="305.4695562435501" y="309.59752321981426" scale="0.3" />
+		<p name='p_28' x="231.16615067079465" y="309.59752321981426" scale="0.3" />
+		<p name='p_29' x="136.22291021671828" y="309.59752321981426" scale="0.3" />
+		<p name='p_30' x="41.2796697626419" y="313.72549019607845" scale="0.3" />
+		<p name='p_31' x="-49.53560371517028" y="305.4695562435501" scale="0.3" />
+		<p name='p_32' x="-111.45510835913313" y="309.59752321981426" scale="0.3" />
+		<p name='p_33' x="-165.1186790505676" y="317.85345717234264" scale="0.3" />
+	</circle>
+
+	<!-- scene 5 -->
+	<circle name='circle_4'>
+		<p name='p_0' x="454.0763673890609" y="284.8297213622291" scale="0.3" />
+		<p name='p_1' x="400.41279669762645" y="276.57378740970074" scale="0.3" />
+	</circle>
+	
+	<!-- scene 1 -->
+	<circle name='circle_5'>
+		<p name='p_0' x="-356.36389690355753" y="266.4703012882457" scale="0.3" />
+		<p name='p_1' x="-375.6449948400413" y="268.31785345717236" scale="0.3" />
+		<p name='p_2' x="-416.9246646026832" y="264.18988648090817" scale="0.3" />
+
+		<p name='p_69' x="-301.3415892672859" y="272.44582043343655" scale="0.3" />
+		<p name='p_70' x="-326.109391124871" y="268.31785345717236" scale="0.3" />
+		<p name='p_71' x="-334.3653250773994" y="276.57378740970074" scale="0.3" />
+	</circle>
+
+	<!-- video -->
+	<circle name='circle_0'>
+		<p name='p_0' x="586.6949238549417" y="40.68322464687552" scale="0.5" />
+		<p name='p_1' x="527.5541795665634" y="39.628482972136226" scale="0.5" />
+		<p name='p_2' x="443.34365325077397" y="39.628482972136226" scale="0.5" />
+		<p name='p_3' x="356.65634674922603" y="47.05882352941177" scale="0.5" />
+		<p name='p_4' x="255.10835913312692" y="47.05882352941177" scale="0.5" />
+		<p name='p_5' x="156.0371517027864" y="44.582043343653254" scale="0.5" />
+		<p name='p_6' x="52.012383900928796" y="49.53560371517028" scale="0.5" />
+		
+		<p name='p_64' x="1476.1609907120744" y="64.39628482972137" scale="0.25" />
+		<p name='p_65' x="1476.1609907120744" y="64.39628482972137" scale="0.25" />
+		
+		<p name='p_69' x="891.640866873065" y="34.05572755417957" scale="0.4" />
+		<p name='p_70' x="754.0419676642587" y="38.52769177846577" scale="0.45" />
+		<p name='p_71' x="641.4860681114551" y="34.6749226006192" scale="0.5" />
+	</circle>
+
+</krpano>

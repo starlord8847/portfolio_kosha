@@ -1,0 +1,195 @@
+<krpano>
+    <action name='onviewchange_following_flotting_btns'>
+        <!-- 사용자 시각이 일정 크기 아래를 볼 때만 나타남 -->
+        <!-- if(view.vlookat GT 35, -->
+            if(!isflottingbtnmoving,
+                set(isflottingbtnmoving, true);
+                stopdelayedcall(flottingbtnmovingdelayedcall);
+                delayedcall(flottingbtnmovingdelayedcall, 0.25,
+                    set(isflottingbtnmoving, false);
+
+                    tween(hotspot[flotting_bgmbtn].ath, get(view.hlookat) );
+                    tween(hotspot[flotting_bgmbtn].atv, get(view.vlookat),,,);
+                    tween(hotspot[flotting_homebtn].ath, get(view.hlookat) );
+                    tween(hotspot[flotting_homebtn].atv, get(view.vlookat),,,);
+
+                    if(hotspot[flotting_forwardbtn].linkedscene,
+                        tween(hotspot[flotting_forwardbtn].ath, get(view.hlookat) );
+                        tween(hotspot[flotting_forwardbtn].atv, get(view.vlookat),,,
+                        );
+
+                        stoptween(hotspot[flotting_forwardbtn].alpha);
+                        stoptween(hotspot[flotting_bgmbtn].alpha);
+                        stoptween(hotspot[flotting_homebtn].alpha);
+    
+                        tween(hotspot[flotting_forwardbtn].alpha, 1);
+                        tween(hotspot[flotting_bgmbtn].alpha, 1);
+                        tween(hotspot[flotting_homebtn].alpha, 1);
+                    ,
+
+                        stoptween(hotspot[flotting_forwardbtn].alpha);
+                        stoptween(hotspot[flotting_bgmbtn].alpha);
+                        stoptween(hotspot[flotting_homebtn].alpha);
+                        
+                        tween(hotspot[flotting_forwardbtn].alpha, 0);
+                        tween(hotspot[flotting_bgmbtn].alpha, 0);
+                        tween(hotspot[flotting_homebtn].alpha, 0);
+                    );
+                    if(hotspot[flotting_prvbtn].linkedscene,
+                        tween(hotspot[flotting_prvbtn].ath, get(view.hlookat) );
+                        tween(hotspot[flotting_prvbtn].atv, get(view.vlookat),,,
+                        );
+
+                        stoptween(hotspot[flotting_prvbtn].alpha);
+                        tween(hotspot[flotting_prvbtn].alpha, 1);
+                    ,
+                        stoptween(hotspot[flotting_prvbtn].alpha);
+                        tween(hotspot[flotting_prvbtn].alpha, 0);
+                    );
+                );
+            );
+        <!-- ,
+            stoptween(hotspot[flotting_forwardbtn].alpha);
+            stoptween(hotspot[flotting_bgmbtn].alpha);
+            stoptween(hotspot[flotting_homebtn].alpha);
+            stoptween(hotspot[flotting_prvbtn].alpha);
+
+            tween(hotspot[flotting_forwardbtn].alpha, 0);
+            tween(hotspot[flotting_bgmbtn].alpha, 0);
+            tween(hotspot[flotting_homebtn].alpha, 0);
+            tween(hotspot[flotting_prvbtn].alpha, 0);
+        ); -->
+    </action>
+    <hotspot name='flotting_forwardbtn' keep='true' style='style_backTo' ox='150' zorder='999'
+        url='%CURRENTXML%/assets/hotspot/0/btn_next.png'
+        orgurl='%CURRENTXML%/assets/hotspot/0/btn_next.png'
+        backurl='%CURRENTXML%/assets/hotspot/0/btn_back.png'
+        autoalpha='true'
+        capture='false'
+        enabled='true'
+        alpha='1'
+        edge='bottom'
+        align='bottom'
+        oy='200'
+        org_oy='200'
+        scale='0.3'
+        org_scale='0.3'
+        onover='mul(newScale, org_scale, 1.1); tween(scale, get(newScale));'
+        onout='tween(scale, get(org_scale));'
+        onclick='onclick_flotting_btns()'
+        linkedscene=''
+        linkedscene_lookat=''
+    />
+    <hotspot name='flotting_prvbtn' keep='true' style='style_backTo' ox='80' zorder='999'
+        url='%CURRENTXML%/assets/hotspot/0/btn_back.png'
+        orgurl='%CURRENTXML%/assets/hotspot/0/btn_back.png'
+        autoalpha='true'
+        capture='false'
+        enabled='true'
+        alpha='1'
+        edge='bottom'
+        align='bottom'
+        oy='200'
+        org_oy='200'
+        scale='0.3'
+        org_scale='0.3'
+        onover='mul(newScale, org_scale, 1.1); tween(scale, get(newScale));'
+        onout='tween(scale, get(org_scale));'
+        onclick='onclick_flotting_btns()'
+        linkedscene=''
+        linkedscene_lookat=''
+    />
+    <action name='set_flotting_forward_icon'>
+        if(%1 != null,
+            copy(hotspot[flotting_forwardbtn].url, hotspot[flotting_forwardbtn].backurl);
+        ,
+            copy(hotspot[flotting_forwardbtn].url, hotspot[flotting_forwardbtn].orgurl);
+        );
+    </action>
+    <action name='set_flotting_forward'>
+        set(hotspot[flotting_forwardbtn].linkedscene, %1);
+
+        txtadd(linkedscene_lookat, %2, ',', %3, ',', %4);
+        copy(hotspot[flotting_forwardbtn].linkedscene_lookat, linkedscene_lookat);
+    </action>
+    <action name='set_flotting_prev'>
+        set(hotspot[flotting_prvbtn].linkedscene, %1);
+
+        txtadd(linkedscene_lookat, %2, ',', %3, ',', %4);
+        copy(hotspot[flotting_prvbtn].linkedscene_lookat, linkedscene_lookat);
+    </action>
+    <action name='onclick_flotting_btns' scope='local'>
+        playsound(click, get(nuskin_sound[click].url), false, 1);
+
+		if(caller.linkedscene,
+			copy(hs_linkedscene, caller.linkedscene);
+			if(caller.linkedscene_lookat, txtsplit(caller.linkedscene_lookat, ',', hs_lookat_h, hs_lookat_v, hs_lookat_fov); );
+			if(caller.linkedscene_before_lookto, txtsplit(caller.linkedscene_before_lookto, ',', hs_lookto_h, hs_lookto_v, hs_lookto_fov); );
+			skin_hidetooltips();
+            if(hs_lookto_h !==null,
+                lookto(get(hs_lookto_h), get(hs_lookto_v), get(hs_lookto_fov));
+            );
+            skin_loadscene(get(hs_linkedscene), get(skin_settings.loadscene_blend));
+
+            set(caller.linkedscene, '');
+
+            if(hs_lookat_h !== null, skin_lookat(get(hs_lookat_h), get(hs_lookat_v), get(hs_lookat_fov)); );
+		);
+    </action>
+    
+    
+    <hotspot name='flotting_homebtn' keep='true' style='style_backTo' ox='-150' zorder='999'
+        url='%CURRENTXML%/assets/hotspot/0/btn_home.png'
+        orgurl='%CURRENTXML%/assets/hotspot/0/btn_home.png'
+        offurl='%CURRENTXML%/assets/hotspot/0/btn_home.png'
+        autoalpha='true'
+        capture='false'
+        enabled='true'
+        alpha='1'
+        edge='bottom'
+        align='bottom'
+        oy='200'
+        org_oy='200'
+        scale='0.3'
+        org_scale='0.3'
+        onover='mul(newScale, org_scale, 1.1); tween(scale, get(newScale));'
+        onout='tween(scale, get(org_scale));'
+        onclick='skin_loadscene(scene_44, get(skin_settings.loadscene_blend));'
+    />
+    <hotspot name='flotting_bgmbtn' keep='true' style='style_backTo' ox='-80' zorder='999'
+        url='%CURRENTXML%/assets/hotspot/0/btn_bgm.png'
+        orgurl='%CURRENTXML%/assets/hotspot/0/btn_bgm.png'
+        offurl='%CURRENTXML%/assets/hotspot/0/btn_bgm_off.png'
+        autoalpha='true'
+        capture='false'
+        enabled='true'
+        alpha='1'
+        edge='bottom'
+        align='bottom'
+        oy='200'
+        org_oy='200'
+        scale='0.3'
+        org_scale='0.3'
+        onover='mul(newScale, org_scale, 1.1); tween(scale, get(newScale));'
+        onout='tween(scale, get(org_scale));'
+        onclick='onclick_flotting_bgmbtn()'
+    />
+    <action name='set_flotting_bgmoff_icon'>
+        if(%1 != null,
+            copy(hotspot[flotting_bgmbtn].url, hotspot[flotting_bgmbtn].offurl);
+        ,
+            copy(hotspot[flotting_bgmbtn].url, hotspot[flotting_bgmbtn].orgurl);
+        );
+    </action>
+    <action name='onclick_flotting_bgmbtn' scope='local'>
+        mouse_click();
+
+		if(sound[bgm].paused,
+            sound[bgm].play();
+            set_flotting_bgmoff_icon();
+        ,
+            sound[bgm].pause();
+            set_flotting_bgmoff_icon(true);
+        );
+    </action>
+</krpano>

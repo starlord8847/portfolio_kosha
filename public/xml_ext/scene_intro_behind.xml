@@ -1,0 +1,322 @@
+<krpano>
+    <events name='scene_intro_behind_event'
+        onnewpano=''
+        onremovepano='stopdelayedcall(delay_jump); action_stoptween();'
+        onresize='set(hotspot[backdrop].width, get:stagewidth); set(hotspot[backdrop].height, get:stageheight);'
+    />
+
+    <hotspot name='main_video_table' url='%ROOT%/assets/intro/video_table_1.png'
+        scale='0.3'
+        alpha='1'
+        ath='180' atv='0'
+        enabled='false' capture='false' distorted='true'
+    />
+
+    <hotspot name='backdrop'
+        flying='1'
+        capture='false'
+        enabled='true'
+        handcursor='false'
+        url='%ROOT%/assets/etc/black_80_percent.png'
+        width='100%'
+        height='100%'
+        alpha='0'
+        org_alpha='0.8'
+        autoalpha='true'
+        scale='2'
+        blink_on=''
+        blink_off=''
+        stopblink='true'
+        zorder='98'
+        linkedhotspotopl1='opl_1'
+        linkedhotspotopl2='opl_2'
+        linkedhotspotopl3='opl_3'
+        linkedhotspot1='opl_right_page_btn'
+        linkedhotspot2='opl_left_page_btn'
+        linkedplaybtn='big_video_play_btn'
+        opened_hotspot=''
+        hide='stoptween(alpha); tween(alpha, 0);'
+        open='stoptween(alpha); tween(alpha, get(org_alpha));'
+        onclick='
+            if(!sound_setting.nosound,
+                playsound(narration);
+            );
+            set(hotspot[get(hotspot[get(opened_hotspot)].linkedhotspot_close)].alpha, 0);
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            );
+            stoptween(alpha); 
+            set(alpha, 0);
+            stoptween(hotspot[get(opened_hotspot)].alpha); 
+            set(hotspot[get(opened_hotspot)].alpha, 0); 
+            set(hotspot[get(linkedplaybtn)].alpha, 0);
+            set(hotspot[get(linkedhotspot1)].alpha, 0);
+            set(hotspot[get(linkedhotspot2)].alpha, 0);
+            set(hotspot[get(linkedhotspotopl1)].alpha, 0);
+            set(hotspot[get(linkedhotspotopl2)].alpha, 0);
+            set(hotspot[get(linkedhotspotopl3)].alpha, 0);
+            set(hotspot[img_hs_info_1_close].alpha, 0);
+            set(hotspot[img_hs_info_2_close].alpha, 0);
+            set(hotspot[img_hs_info_3_close].alpha, 0);
+            set(hotspot[get(linkedhotspotopl1)].crop, 0|0|850|1200);
+            set(hotspot[get(linkedhotspotopl3)].crop, 0|0|850|1200);
+            if(hotspot[get(opened_hotspot)].style == style_outro_video,
+                callwith(hotspot[get(opened_hotspot)], pause);
+                set(opened_hotspot, "");
+            )
+        '
+        onloaded='properBlackBackStage();'
+    />
+
+    <!-- 팝업 이미지 뒤에 검정 배경 : 화면을 뒤덮도록 크기 조절 -->
+    <action name='properBlackBackStage'>
+        mul(doubleStageW, stagewidth, 2);
+        mul(doubleStageH, stageheight, 2);
+        set(hotspot[backdrop], width=get(doubleStageW), height=get(doubleStageH));
+    </action>
+
+    <style name='style_with_backdrop'
+        onclick.addevent='
+            copy(hotspot[backdrop].opened_hotspot, linkedhotspot);
+            callwith(hotspot[backdrop], open);
+        '
+    />
+
+    <style name='st_outro_btn'
+        distorted='true'
+        scale='0.4'
+        alpha='1'
+        enabled='true'
+        capture='false'
+        ath='180' atv='0'
+        onover='tween(scale, 0.41, 0.2);'
+        onout='tween(scale, 0.4, 0.2);'
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+        '
+    />
+
+
+    <hotspot name='hs_video_1_preview'
+        style='style_with_backdrop'
+        url='%ROOT%/assets/video/outro_video.png'
+        isactive='false'
+        ath='180' atv='0'
+        ox='-110' oy='10'
+        width='330'
+        height='prop'
+        capture='false'
+        enabled='true'
+        distorted='true'
+        tooltip=''
+        alpha='0.7'
+        org_alpha='0.7'
+        onover='set(alpha, 1); set(hotspot[get(linkedhotspot2)].alpha, 1);'
+        onout='copy(alpha, org_alpha); copy(hotspot[get(linkedhotspot2)].alpha, org_alpha);'
+        linkedhotspot='hs_video_1_for_play'
+        linkedhotspot2='video_play_btn'
+        linkedhotspot_close='video_hs_info_1_close'
+        linkedplaybtn='video_play_btn'
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+            set(hotspot[get(linkedhotspot)].alpha, 1);
+            callwith(hotspot[get(linkedhotspot)], togglepause);
+            set(hotspot[get(linkedhotspot_close)].alpha, 1);
+        '
+        onloaded='
+            setTooltip();
+            if(pcmode,
+                getReadyPopupForPc();
+            ,
+                getReadyPopup();
+            );
+        '
+    />
+
+    <hotspot name='hs_video_1_for_play'
+        videourl="%ROOT%/assets/video/outro_video.mp4"
+        posterurl="%ROOT%/assets/video/outro_video.png"
+        style='style_outro_video'
+        zorder="99"
+        linkedhotspot_close='video_hs_info_1_close'
+        onloaded.addevent='delayedcall(0.5, setProperCloseBtn(get(linkedhotspot_close)));'
+    />
+
+    <hotspot name='video_hs_info_1_close' style='style_hs_close'
+        linkedhotspot='hs_video_1_for_play'
+    />
+
+    <hotspot name='big_video_play_btn' 
+        style='style_video_play_btn'
+        ath='180' atv='0'
+        scale='0.4'
+        alpha='0'
+        zorder="100"
+    />
+
+    <hotspot name='video_play_btn'
+        style='style_video_play_btn'
+        ath='180' atv='0'
+        ox='-110' oy='10'
+        scale='0.2'
+    />
+
+    <hotspot name='opl_btn_1' url='%ROOT%/assets/outro/opl_btn_1.png'
+        style='st_outro_btn|style_with_backdrop'
+        ox='183' oy='-50'
+        distorted='true'
+        linkedhotspot='opl_1'
+        linkedhotspot1='opl_right_page_btn'
+        linkedhotspot2='opl_left_page_btn'
+        linkedhotspot_close='img_hs_info_3_close'
+        onclick.addevent='
+            trace(hotspot[backdrop].opened_hotspot);
+            set(hotspot[get(linkedhotspot)].alpha, 1); 
+            set(hotspot[get(linkedhotspot1)].alpha, 1); 
+            set(hotspot[get(linkedhotspot2)].alpha, 1); 
+            set(hotspot[get(linkedhotspot_close)].alpha, 1);
+            set(hotspot[get(linkedhotspot1)].ox, calc(hotspot[get(linkedhotspot)].imagewidth / 4 + 20));
+            set(hotspot[get(linkedhotspot2)].ox, calc(hotspot[get(linkedhotspot)].imagewidth / -4 - 20));
+        '
+    />
+    <hotspot name='opl_btn_2' url='%ROOT%/assets/outro/opl_btn_2.png'
+        style='st_outro_btn|style_with_backdrop'
+        ox='183' oy='5'
+        distorted='true'
+        linkedhotspot='opl_2'
+        linkedhotspot_close='img_hs_info_2_close'
+        onclick.addevent='
+            set(hotspot[get(linkedhotspot)].alpha, 1);
+            set(hotspot[get(linkedhotspot_close)].alpha, 1); 
+        '
+    />
+    <hotspot name='opl_btn_3' url='%ROOT%/assets/outro/opl_btn_3.png'
+        style='st_outro_btn|style_with_backdrop'
+        ox='183' oy='60'
+        distorted='true'
+        linkedhotspot='opl_3'
+        linkedhotspot1='opl_right_page_btn'
+        linkedhotspot2='opl_left_page_btn'
+        linkedhotspot_close='img_hs_info_3_close'
+        onclick.addevent='
+            set(hotspot[get(linkedhotspot)].alpha, 1); 
+            set(hotspot[get(linkedhotspot1)].alpha, 1); 
+            set(hotspot[get(linkedhotspot2)].alpha, 1);
+            set(hotspot[get(linkedhotspot_close)].alpha, 1);
+            set(hotspot[get(linkedhotspot1)].ox, calc(hotspot[get(linkedhotspot)].imagewidth / 4 + 20));
+            set(hotspot[get(linkedhotspot2)].ox, calc(hotspot[get(linkedhotspot)].imagewidth / -4 - 20));
+        '
+    />
+
+    <hotspot name='opl_1'
+        url='%ROOT%/assets/opl/opl_1.png'
+        style='style_hotspot_info_popup'
+        zorder="99"
+        ath='180'
+        crop='0|0|850|1200'
+        org_crop='0|0|850|1200'
+        new_crop='850|0|850|1200'
+        linkedhotspot1='opl_right_page_btn'
+        linkedhotspot2='opl_left_page_btn'
+        linkedhotspot_close='img_hs_info_1_close'
+        onloaded='delayedcall(0.5, setProperCloseBtn(get(linkedhotspot_close)));'
+        onclick.addevent='callwith(hotspot[backdrop], hide); ); 
+            copy(hotspot[get(linkedhotspot2)].ox, calc(imagewidth/2 +10) );'
+    />
+    <hotspot name='img_hs_info_1_close' style='style_hs_close'
+        linkedhotspot='opl_1'
+    />
+
+    <hotspot name='opl_2'
+        url='%ROOT%/assets/opl/opl_2.png'
+        style='style_hotspot_info_popup'
+        zorder="99"
+        ath='180'
+        linkedhotspot_close='img_hs_info_2_close'
+        onloaded='delayedcall(0.5, setProperCloseBtn(get(linkedhotspot_close)));'
+        onclick.addevent='callwith(hotspot[backdrop], hide); ); '
+    />
+    <hotspot name='img_hs_info_2_close' style='style_hs_close'
+        linkedhotspot='opl_2'
+    />
+
+    <hotspot name='opl_3'
+        url='%ROOT%/assets/opl/opl_3.png'
+        style='style_hotspot_info_popup'
+        zorder="99"
+        ath='180'
+        crop='0|0|850|1200'
+        org_crop='0|0|850|1200'
+        new_crop='850|0|850|1200'
+        linkedhotspot1='opl_right_page_btn'
+        linkedhotspot2='opl_left_page_btn'
+        linkedhotspot_close='img_hs_info_3_close'
+        onloaded='delayedcall(0.5, setProperCloseBtn(get(linkedhotspot_close)));'
+        onclick.addevent='callwith(hotspot[backdrop], hide); ); 
+            copy(hotspot[get(linkedhotspot2)].ox, calc(imagewidth/2 +10) );'
+    />
+    <hotspot name='img_hs_info_3_close' style='style_hs_close'
+        linkedhotspot='opl_3'
+    />
+
+    <hotspot name='opl_right_page_btn' url='%ROOT%/assets/common/btn_nav_right.png'
+        style='style_with_backdrop'
+        ath='180' atv='0'
+        edge='left'
+        ox=''
+        alpha='0' autoalpha='1'
+        scale='0.5'
+        distorted='true'
+        zorder="99"
+        linkedhotspot1='opl_1'
+        linkedhotspot2='opl_3'
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+            set(hotspot[get(linkedhotspot1)].crop, 850|0|850|1200);
+            set(hotspot[get(linkedhotspot2)].crop, 850|0|850|1200);
+        '
+    />
+    <hotspot name='opl_left_page_btn' url='%ROOT%/assets/common/btn_nav_left.png'
+        style='style_with_backdrop'
+        ath='180' atv='0'
+        edge='right'
+        alpha='0' autoalpha='1'
+        scale='0.5'
+        distorted='true'
+        zorder="99"
+        linkedhotspot1='opl_1'
+        linkedhotspot2='opl_3'
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+            set(hotspot[get(linkedhotspot1)].crop, 0|0|850|1200);
+            set(hotspot[get(linkedhotspot2)].crop, 0|0|850|1200);
+        '
+    />
+
+    <style name='style_with_backdrop'
+        onclick.addevent='
+            copy(hotspot[backdrop].opened_hotspot, linkedhotspot);
+            callwith(hotspot[backdrop], open);
+        '
+    />
+
+    <!-- <hotspot name="logo" url="%ROOT%/assets/intro/vr_big_logo.png"
+        style="image_hotspot"  
+        ath="-180" atv="0" 
+        scale="0.30" 
+        onover.addevent="tween(scale, 0.38);" 
+        onout.addevent="tween(scale, 0.30);" 
+        onclick="openurl(https://360vr.kosha.or.kr/main);" 
+    /> -->
+
+
+
+</krpano>

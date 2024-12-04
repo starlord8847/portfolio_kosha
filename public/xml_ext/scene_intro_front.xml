@@ -1,0 +1,47 @@
+<krpano>
+    <events name='scene_intro_front_event'
+        onnewpano=''
+    />
+
+    <hotspot name='main' url='%ROOT%/assets/intro/main.png'
+        scale='0.3'
+        enabled='false'
+        distorted='true'
+        ox='50'
+    />
+
+    <hotspot name="listbtn_1"
+        style='style_drag_hotspot_distortion|image_hotspot'
+        url="%ROOT%/assets/intro/listbtn_1.png"
+        capture='false'
+        ath="0" atv="0"
+        scale="0.38"
+        ry="0"
+        rx="0"
+        rz="0"
+        oy="70"
+        ox="-290"
+        onclick="skin_nextscene_loop(1);"
+    />
+
+    <hotspot name="click_icon" url="%ROOT%/assets/intro/click_icon.png"
+        style='style_drag_hotspot_distortion|image_hotspot'
+        capture='false'
+        enabled='false'
+        ath="0" atv="0"
+        edge='left'
+        scale="0.38"
+        ry="0"
+        rx="0"
+        rz="0"
+        oy="70"
+        ox="-250"
+        onjump1='stoptween(oy);tween(oy, 70, 0.4, ,onstay1());'
+        onstay1='stoptween(oy);tween(oy, 78, 0.2, , onjump2());'
+        onjump2='stoptween(oy);tween(oy, 70, 0.4, ,onstay2());'
+        onstay2='stoptween(oy);tween(oy, 80, 0.2, , delayedcall(delay_jump,2,onjump1()));'
+        onloaded='onjump1();'
+    />
+
+    
+</krpano>

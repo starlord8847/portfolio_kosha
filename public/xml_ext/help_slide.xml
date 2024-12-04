@@ -1,0 +1,434 @@
+<krpano>
+    <events onnewpano='' onremovepano='tween(hotspot[help_slide_close].alpha, 0);'
+    />
+
+    <help_slide_settings
+        path='%ROOT%/assets/common/help_slide/'
+        slide_current_index='0'
+        slide_start_index='0'
+        slide_end_index='5'
+        slide_prev_button_file_name='btn_help_prev.png'
+        slide_next_button_file_name='btn_help_next.png'
+        slide_file_name='help_%d.png'
+        slide_hotspot_prefix='hs_slide_'
+        slide_show_index='0'
+        slide_scale='0.24'
+        init_done='false'
+        slide_hidden='true'
+        test_mode='true'
+    />
+    <!-- 슬라이드 스타일 -->
+    <style name='style_hs_slide'
+        distorted='true'
+        capture='false'
+        enabled='false'
+        zorder="100"
+        group='group_slide'
+        tag='slide'
+        autoalpha='true'
+        alpha='0'
+        keep='true'
+        oy='30'
+        linkedclose='help_slide_close'
+    />
+    <!-- 슬라이드 이전/다음 버튼 스타일 -->
+    <style name='style_hs_slide_btn'
+        distorted='true'
+        capture='false'
+        enabled='true'
+        zorder="101"
+        group='group_slide'
+        tag='slide_btn'
+        autoalpha='true'
+        alpha='0'
+        keep='true'
+    />
+
+    <style name='st_help_slide_close'
+        keep='true'
+        tag='close'
+        type='text'
+        html='X'
+        padding='3 8'
+        vcenter='true'
+        bg='true'
+        bgcolor='0x000000'
+        bgalpha='0.8'
+        css='font-size: 1.2rem;color:#fff'
+        capture='false'
+        roundedge='4'
+        edge='rightbottom'
+        alpha='0'
+        autoalpha='1'
+        distorted='true'
+        zorder='100'
+        onclick='
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            );
+            tween(alpha, 0);
+            callwith(hotspot[infomation_backdrop], onclick);
+        '
+    />
+
+    <hotspot name='help_slide_close'
+        style='st_help_slide_close'
+    />
+
+    <!-- Events onnewpano 에서 실행하는 액션  -->
+    <action name='onNewPanoHelpSlide'>
+        <!-- 테스트 모드 버튼 추가 -->
+        if(help_slide_settings.test_mode,
+            initTestMode();
+        );
+    </action>
+
+    <!--
+        슬라이드 관련 요소 핫스팟으로 추가, 추가 완료 후, 보여주기 
+        - args : 
+            - initIndex : 처음시작 슬라이드 index, 첫 슬라이드 노출에서 사용함
+    -->
+    <action name='help_slide_init' scope='local' args='initIndex, initAth, initAtv'>
+        <!-- if(help_slide_settings.init_done,
+            if(initIndex OR initAth OR initAtv,
+                help_slide_show(initIndex, initAth, initAtv);
+            );
+            break();
+        ); -->
+        
+        <!-- 모든 슬라이드 핫스팟 추가 -->
+        add(forMax, help_slide_settings.slide_end_index, 1);
+        for(set(i,0), i LT get(forMax), inc(i),
+            txtadd(hsName, get(help_slide_settings.slide_hotspot_prefix), get(i));
+            txtreplace( slideFileName, help_slide_settings.slide_file_name, "%d", get(i) );
+            addhotspot(get(hsName));
+            set(hotspot[get(hsName)],
+                scale=get(help_slide_settings.slide_scale),
+                url=calc( help_slide_settings.path + slideFileName ),
+            );
+            hotspot[get(hsName)].loadstyle(style_hs_slide);
+            if(initAth OR initAtv,
+                set(hotspot[get(hsName)],
+                    ath=get(initAth),
+                    atv=get(initAtv),
+                );
+            );
+            
+            <!-- 첫번째 슬라이드만 노출시키기 -->
+            if(initIndex !== null,
+                copy(help_slide_settings.slide_current_index, initIndex);
+            );
+            if(i === help_slide_settings.slide_current_index,
+                <!-- set(hotspot[get(hsName)].alpha, 1); -->
+            );
+        );
+
+        <!-- 왼쪽 (이전) 화살표 추가 및 위치설정 -->
+        txtadd(hsName, get(help_slide_settings.slide_hotspot_prefix), 'prev_btn');
+        addhotspot(get(hsName));
+        txtadd(hsUrl, get(help_slide_settings.path), get(help_slide_settings.slide_prev_button_file_name));
+        set(hotspot[get(hsName)],
+            scale=get(help_slide_settings.slide_scale),
+            url=get(hsUrl),
+            edge='right',
+            oy=calc(120 * help_slide_settings.slide_scale + 30),
+            ox=calc(-1900 * help_slide_settings.slide_scale),
+            onclick='help_slide_next(-1)',
+        );
+        hotspot[get(hsName)].loadstyle(style_hs_slide_btn);
+        if(initAth OR initAtv,
+            set(hotspot[get(hsName)],
+                ath=get(initAth),
+                atv=get(initAtv),
+            );
+        );
+
+        <!-- 오른쪽 (다음) 화살표 추가 및 위치설정 -->
+        txtadd(hsName, get(help_slide_settings.slide_hotspot_prefix), 'next_btn');
+        addhotspot(get(hsName));
+        txtadd(hsUrl, get(help_slide_settings.path), get(help_slide_settings.slide_next_button_file_name));
+        set(hotspot[get(hsName)],
+            scale=get(help_slide_settings.slide_scale),
+            url=get(hsUrl),
+            edge='left',
+            oy=calc(120 * help_slide_settings.slide_scale + 30),
+            ox=calc(1900 * help_slide_settings.slide_scale),
+            onclick='help_slide_next()'
+        );
+        hotspot[get(hsName)].loadstyle(style_hs_slide_btn);
+        if(initAth OR initAtv,
+            set(hotspot[get(hsName)],
+                ath=get(initAth),
+                atv=get(initAtv),
+            );
+        );
+        
+        <!-- 슬라이드 초기화 완료 -->
+        set(help_slide_settings.init_done, true);
+        set(help_slide_settings.slide_hidden, false);
+    </action>
+
+    <!-- 슬라이드 관련 보여주기 -->
+    <action name='help_slide_show' scope='local' args='slide_index, slide_ath, slide_atv, closeHsName'> 
+        <!-- 슬라이드 초기화 안되어있으면 작동 안함 -->
+        if(!help_slide_settings.init_done,
+            break();
+        );
+        
+        <!-- 슬라이드 보여줄 slide_index 를 전달하는 경우, 해당 슬라이드를 보여줌 -->
+        if(slide_index !== null,
+            copy(help_slide_settings.slide_current_index, slide_index);
+        );
+
+        txtadd(hsCurrentSlideName, get(help_slide_settings.slide_hotspot_prefix), get(help_slide_settings.slide_current_index));
+        txtadd(hsPrevBtnName, get(help_slide_settings.slide_hotspot_prefix), 'prev_btn');
+        txtadd(hsNextBtnName, get(help_slide_settings.slide_hotspot_prefix), 'next_btn');
+        for(set(i,0), i LT hotspot.count, inc(i),
+            if(hotspot[get(i)].group == 'group_slide',
+                <!-- slide_ath, slide_atv 값이 있을 경우, -->
+                if(slide_ath OR slide_atv,
+                    set(hotspot[get(i)],
+                        ath=get(slide_ath),
+                        atv=get(slide_atv),
+                    );
+                );
+            
+                <!-- 현재 슬라이드, 양쪽 버튼만 보여주기 -->
+                if(hotspot[get(i)].name === hsCurrentSlideName OR hotspot[get(i)].name === hsPrevBtnName OR hotspot[get(i)].name === hsNextBtnName,
+                    tween(hotspot[get(i)].alpha, 1);
+                    set(hotspot[get(i)].visible, 1);
+                ,
+                    tween(hotspot[get(i)].alpha, 0);
+                    set(hotspot[get(i)].visible, 0);
+                );
+                if(hotspot[get(i)].tag == 'slide',
+                    
+                    <!-- x버튼 추가 -->
+                    mul(actualWidth, hotspot[get(i)].imagewidth, hotspot[get(i)].scale);
+                    mul(actualWidth, 0.45);
+                    mul(actualHeight, hotspot[get(i)].imageheight, hotspot[get(i)].scale);
+                    mul(actualHeight, -0.35);
+
+                    set(hotspot[help_slide_close].ath, get(slide_ath));
+                    set(hotspot[help_slide_close].atv, get(slide_atv));
+                    copy(hotspot[help_slide_close].ox, actualWidth);
+                    copy(hotspot[help_slide_close].oy, actualHeight);
+                );
+
+
+                <!-- x버튼 보여줌 -->
+                tween(hotspot[help_slide_close].alpha, 1);
+            );
+        );
+
+        if(i === help_slide_settings.slide_current_index,
+            set(hotspot[get(hsName)].alpha, 1);
+        );
+
+        set(help_slide_settings.slide_hidden, false);
+    </action>
+
+    <!-- 슬라이드 관련 숨기기 -->
+    <action name='help_slide_hide'>
+        for(set(i,0), i LT hotspot.count, inc(i),
+            if(hotspot[get(i)].group == 'group_slide',
+                tween(hotspot[get(i)].alpha, 0);
+                set(hotspot[get(i)].visible, 0);
+            );
+        );
+        set(help_slide_settings.slide_hidden, true);
+    </action>
+
+    <!-- 슬라이드 다음 넘기기 -->
+    <action name='help_slide_next' scope='local' args='nextValue'>
+        <!-- 슬라이드 초기화 안되어있거나, 숨김 상태에선 작동 안함 -->
+        if(!help_slide_settings.init_done OR help_slide_settings.slide_hidden,
+            break();
+        );
+
+
+        txtadd(hsName, get(help_slide_settings.slide_hotspot_prefix), get(help_slide_settings.slide_current_index));
+        tween(hotspot[get(hsName)].alpha, 0);
+
+        if(nextValue !== null,
+            inc(help_slide_settings.slide_current_index, get(nextValue));
+        ,
+            inc(help_slide_settings.slide_current_index, 1);
+        );
+
+        if(help_slide_settings.slide_current_index LT help_slide_settings.slide_start_index,
+            copy(help_slide_settings.slide_current_index, help_slide_settings.slide_end_index);
+        );
+        if(help_slide_settings.slide_current_index GT help_slide_settings.slide_end_index,
+            copy(help_slide_settings.slide_current_index, help_slide_settings.slide_start_index);
+        );
+
+        txtadd(hsName, get(help_slide_settings.slide_hotspot_prefix), get(help_slide_settings.slide_current_index));
+        tween(hotspot[get(hsName)].alpha, 1);
+    </action>
+    
+    <action name='initTestMode'>
+        <!-- 테스트모드 글자 표기 -->
+        addlayer('ly_slide_test_mode');
+        set(layer[ly_slide_test_mode],
+            edge='leftbottom',
+            align='leftbottom',
+            y=10,
+            x=10,
+            type='text',
+            width=135,
+            html='TEST MODE ON',
+            css='padding: 0.5rem; color:#fff; text-align: center;',
+            bg=true,
+            bgcolor='0x000000',
+            bgalpha='0.2'
+        );
+        <!-- 테스트 버튼 : 이전 슬라이드 -->
+        addlayer('ly_slide_prev_btn');
+        set(layer[ly_slide_prev_btn],
+            edge='leftbottom',
+            align='leftbottom',
+            y=50,
+            x=10,
+            type='text',
+            width=65,
+            html='Prev',
+            css='padding: 1rem; color:#fff; text-align: center;',
+            bg=true,
+            bgcolor='0x000000',
+            bgalpha='0.8',
+            onclick='help_slide_next(-1)',
+        );
+        <!-- 테스트 버튼 : 다음 슬라이드 -->
+        addlayer('ly_slide_next_btn');
+        set(layer[ly_slide_next_btn],
+            edge='leftbottom',
+            align='leftbottom',
+            y=50,
+            x=80,
+            type='text',
+            width=65,
+            html='Next',
+            css='padding: 1rem; color:#fff; text-align: center;',
+            bg=true,
+            bgcolor='0x000000',
+            bgalpha='0.8',
+            onclick='help_slide_next()',
+        );
+        <!-- 테스트 버튼 : 특정 슬라이드 index 보이기 -->
+        addlayer('ly_slide_show_90_deg_with_init_btn');
+        set(layer[ly_slide_show_90_deg_with_init_btn],
+            edge='leftbottom',
+            align='leftbottom',
+            y=50,
+            x=150,
+            type='text',
+            html='Init (90,20)',
+            css='padding: 1rem; color:#fff; text-align: center;',
+            bg=true,
+            bgcolor='0x000000',
+            bgalpha='0.8',
+            onclick='help_slide_init(0, 90, 20)',
+        );
+        <!-- 테스트 버튼 : 슬라이드 숨기기 -->
+        addlayer('ly_slide_hide_btn');
+        set(layer[ly_slide_hide_btn],
+            edge='leftbottom',
+            align='leftbottom',
+            y=110,
+            x=10,
+            type='text',
+            width=65,
+            html='Hide',
+            css='padding: 1rem; color:#fff; text-align: center;',
+            bg=true,
+            bgcolor='0x000000',
+            bgalpha='0.8',
+            onclick='help_slide_hide()',
+        );
+        <!-- 테스트 버튼 : 슬라이드 보이기 -->
+        addlayer('ly_slide_show_btn');
+        set(layer[ly_slide_show_btn],
+            edge='leftbottom',
+            align='leftbottom',
+            y=110,
+            x=80,
+            type='text',
+            width=65,
+            html='Show',
+            css='padding: 1rem; color:#fff; text-align: center;',
+            bg=true,
+            bgcolor='0x000000',
+            bgalpha='0.8',
+            onclick='help_slide_show(get(help_slide_settings.slide_current_index), get(view.hlookat), get(view.vlookat));',
+        );
+        <!-- 테스트 버튼 : 특정 슬라이드 index 보이기 -->
+        addlayer('ly_slide_show_add_20_deg_btn');
+        set(layer[ly_slide_show_add_20_deg_btn],
+            edge='leftbottom',
+            align='leftbottom',
+            y=110,
+            x=150,
+            type='text',
+            html='Show (+20 ath)',
+            css='padding: 1rem; color:#fff; text-align: center;',
+            bg=true,
+            bgcolor='0x000000',
+            bgalpha='0.8',
+            onclick='help_slide_show(get(help_slide_settings.slide_current_index), calc(hotspot[hs_slide_0].ath+20), get(hotspot[hs_slide_0].atv))',
+        );
+        <!-- 테스트 버튼 : 특정 슬라이드 index 보이기 -->
+        addlayer('ly_slide_init_btn');
+        set(layer[ly_slide_init_btn],
+            edge='leftbottom',
+            align='leftbottom',
+            y=170,
+            x=10,
+            type='text',
+            html='Init Slide',
+            css='padding: 1rem; color:#fff; text-align: center;',
+            bg=true,
+            bgcolor='0x000000',
+            bgalpha='0.8',
+            onclick='help_slide_init()',
+        );
+        <!-- 테스트 버튼 : 특정 슬라이드 index 보이기 -->
+        addlayer('ly_slide_show_specific_index_btn');
+        set(layer[ly_slide_show_specific_index_btn],
+            edge='leftbottom',
+            align='leftbottom',
+            y=170,
+            x=100,
+            type='text',
+            html='Show Specific Index Slide',
+            css='padding: 1rem; color:#fff; text-align: center;',
+            bg=true,
+            bgcolor='0x000000',
+            bgalpha='0.8',
+            onclick='help_slide_show_specific_index()',
+        );
+    </action>
+
+    <!-- 슬라이드 특정 인덱스 보여주기 -->
+    <action name='help_slide_show_specific_index' type='Javascript'><![CDATA[ 
+        const startIdx = krpano.get('help_slide_settings.slide_start_index');
+        const endIdx = krpano.get('help_slide_settings.slide_end_index');
+        let slideIndex = prompt(`보여주길 원하는 슬라이드 index를 입력하세요 ${startIdx} ~ ${endIdx}`);
+        var regex = /^[0-9]+$/; // number only
+
+        if(slideIndex){
+            if(regex.test(slideIndex)){
+                
+                if( slideIndex >= startIdx && slideIndex <= endIdx ){
+                    krpano.call( `help_slide_show(${slideIndex})` );
+                }else{
+                    alert('범위내 숫자만 입력해주세요.');
+                    krpano.call('help_slide_show_specific_index()');
+                }
+            }else{
+                alert('숫자만 입력해주세요.');
+                krpano.call('help_slide_show_specific_index()');
+            }
+        }
+    ]]></action>
+</krpano>

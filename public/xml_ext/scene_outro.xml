@@ -1,0 +1,48 @@
+<krpano>
+    <events name='scene_event'
+        onnewpano='
+            insert_script(script_outro);
+            delayedcall(0.5,
+                narration_start();
+            );
+        '
+        onremovepano='action_stoptween(); stop_script(); pausesound(bgm);'
+        onviewchange='follow_script_2();'
+    />
+
+    <include url='%ROOT%/xml_ext/scene_layer_btn.xml' />
+    <include url='scene_center_navi.xml' />
+    <include url='scene_outro_front.xml' />
+    <include url='scene_outro_left.xml' />
+    <include url='scene_outro_right.xml' />
+    <include url='scene_outro_behind.xml' />
+
+    <array name='script_outro'>
+        <line name='line_0' text='작업이 끝났습니다. 위험성평가 결과표' />
+        <line name='line_1' text='확인버튼을 눌러 지금까지 체크한 위험성평가 결과를' />
+        <line name='line_2' text='확인해보세요.' />
+    </array>
+
+    <sound_setting nosound='true' />
+
+    <action name='follow_script_2'>
+        for(set(i, 0), i LT hotspot.count, inc(i),
+            if(hotspot[get(i)].tag == 'narration_script',
+                tween(hotspot[get(hotspot[get(i)].name)].ath, get(view.hlookat));
+                tween(hotspot[get(hotspot[get(i)].name)].atv, calc(view.vlookat+16));
+            );
+        );
+    </action>
+    
+    <action name='narration_start'>
+        play_script();
+        if(!sound[narration] OR (sound[narration] AND sound[narration].paused),
+            if(!layer_btn_settings.bgmpaused,
+                playsound(bgm, get(sound_source[bgm_scene_1].url), true, 0.1);
+                playsound(narration, get(sound_source[narration_outro].url), false, 1,
+                    bgm_volume_control();
+                );
+            );
+        );
+    </action>
+</krpano>

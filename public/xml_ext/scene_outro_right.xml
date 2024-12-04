@@ -1,0 +1,181 @@
+<krpano>
+    <events name='scene_outro_event'
+        onnewpano=''
+        onremovepano=''
+    />
+    <include url='scene_center_navi.xml' />
+
+    <hotspot name='main_risk_table' url='%ROOT%/assets/outro/risk_table.png'
+        scale='0.35'
+        alpha='1'
+        ath='90' atv='0'
+        enabled='false' capture='false' distorted='true'
+    />
+
+    <style name='st_risk_btn'
+        scale='0.3'
+        alpha='1'
+        ath='90' atv='0'
+        enabled='true' capture='false' distorted='true'
+        onover.addevent="tween(hotspot[get(name)].scale, 0.31, 0.2);" 
+        onout.addevent="tween(hotspot[get(name)].scale, 0.3, 0.2);"
+        tag='st_risk_btn'
+        flip='false'
+        clicked='true'
+        unenabled='false'
+        onclick='
+            if(clicked,
+                tween(hotspot[get(linkedhotspot1)].alpha, 1);
+                set(clicked, false);
+            ,
+                tween(hotspot[get(linkedhotspot1)].alpha, 0);
+                set(clicked, true);
+            );
+            if(!layer_btn_settings.bgmpaused,
+                playsound(click, get(sound_source[click].url), false, 1,);
+            ); 
+            flip_card();
+            disabled_other_card();
+        '
+    />
+    <action name='disabled_other_card' scope='local'>
+        for(set(i,0), i LT hotspot.count, inc(i),
+            if(hotspot[get(i)].tag == 'st_risk_btn',
+                if(caller.name != hotspot[get(i)].name AND hotspot[get(i)].flip,
+                    set(hotspot[get(i)].clicked, true);
+                    tween(hotspot[get(hotspot[get(i)].linkedhotspot1)].alpha, 0);
+                    set(hotspot[get(i)].flip, false);
+                    tween(hotspot[get(i)].ry, 0);
+                    
+                    changed_url(get(hotspot[get(i)].name));
+                );
+            );
+        );
+    </action>
+
+    <action name='changed_url' scope='local' args='get_i'>
+        set(new_get_i, get(get_i));
+        delayedcall(0.25,
+            copy(hotspot[get(new_get_i)].url, hotspot[get(new_get_i)].ourl);
+            trace("new_get_i :: ", new_get_i);
+        );
+    </action>
+
+    <action name='flip_card' scope='local'>
+        if(!caller.flip,
+            set(caller.flip, true);
+            set(caller.unenabled, true);
+            tween(hotspot[risk_opl].alpha, 0);
+            tween(caller.ry, 360);
+            delayedcall(0.25,
+                copy(caller.url, caller.curl);
+            );
+        ,
+            set(caller.flip, false);
+            set(caller.unenabled, false);
+            tween(hotspot[risk_opl].alpha, 1);
+            tween(caller.ry, 0);
+            delayedcall(0.25,
+                copy(caller.url, caller.ourl);
+            );
+        );
+    </action>
+
+    <hotspot name='risk_1_btn' 
+        url='%ROOT%/assets/outro/risk_1_btn.png'
+        ourl='%ROOT%/assets/outro/risk_1_btn.png'
+        curl='%ROOT%/assets/outro/risk_1_btn2.png'
+        style='st_risk_btn'
+        oy='-135' ox='-215'
+        linkedhotspot='risk_1'
+        linkedhotspot1='risk_opl_1'
+    />
+    <hotspot name='risk_2_btn' 
+        url='%ROOT%/assets/outro/risk_2_btn.png'
+        ourl='%ROOT%/assets/outro/risk_2_btn.png'
+        curl='%ROOT%/assets/outro/risk_2_btn2.png'
+        style='st_risk_btn'
+        oy='-135' ox='-107.5'
+        linkedhotspot='risk_2'
+        linkedhotspot1='risk_opl_2'
+    />
+    <hotspot name='risk_3_btn' 
+        url='%ROOT%/assets/outro/risk_3_btn.png'
+        ourl='%ROOT%/assets/outro/risk_3_btn.png'
+        curl='%ROOT%/assets/outro/risk_3_btn2.png'
+        style='st_risk_btn'
+        oy='-135' ox='0'
+        linkedhotspot='risk_3'
+        linkedhotspot1='risk_opl_3'
+    />
+
+    <hotspot name='risk_4_btn' 
+        url='%ROOT%/assets/outro/risk_4_btn.png'
+        ourl='%ROOT%/assets/outro/risk_4_btn.png'
+        curl='%ROOT%/assets/outro/risk_4_btn2.png'
+        style='st_risk_btn'
+        oy='-135' ox='107.5'
+        linkedhotspot='risk_4'
+        linkedhotspot1='risk_opl_4'
+    />
+    <hotspot name='risk_5_btn' 
+        url='%ROOT%/assets/outro/risk_5_btn.png'
+        ourl='%ROOT%/assets/outro/risk_5_btn.png'
+        curl='%ROOT%/assets/outro/risk_5_btn2.png'
+        style='st_risk_btn'
+        oy='-135' ox='215'
+        linkedhotspot='risk_5'
+        linkedhotspot1='risk_opl_5'
+    />
+
+    <hotspot name='risk_opl'
+        url='%ROOT%/assets/outro/risk_table_contents.png'
+        style='style_hotspot_info_popup'
+        enabled='false'
+        zorder="100"
+        ath='90' oy='55'
+        scale='0.35'
+        alpha='1'
+    />
+
+    <hotspot name='risk_opl_1'
+        url='%ROOT%/assets/outro/risk_1.png'
+        style='style_hotspot_info_popup'
+        enabled='false'
+        zorder="100"
+        ath='90'
+        scale='0.35' oy='55'
+    />
+    <hotspot name='risk_opl_2'
+        url='%ROOT%/assets/outro/risk_2.png'
+        style='style_hotspot_info_popup'
+        enabled='false'
+        zorder="100"
+        ath='90'
+        scale='0.35' oy='55'
+    />
+    <hotspot name='risk_opl_3'
+        url='%ROOT%/assets/outro/risk_3.png'
+        style='style_hotspot_info_popup'
+        enabled='false'
+        zorder="100"
+        ath='90'
+        scale='0.35' oy='55'
+    />
+    <hotspot name='risk_opl_4'
+        url='%ROOT%/assets/outro/risk_4.png'
+        style='style_hotspot_info_popup'
+        enabled='false'
+        zorder="100"
+        ath='90'
+        scale='0.35' oy='55'
+    />
+    <hotspot name='risk_opl_5'
+        url='%ROOT%/assets/outro/risk_5.png'
+        style='style_hotspot_info_popup'
+        enabled='false'
+        zorder="100"
+        ath='90'
+        scale='0.35' oy='55'
+    />
+</krpano>

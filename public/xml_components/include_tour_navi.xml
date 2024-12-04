@@ -1,0 +1,174 @@
+<krpano>
+    <!-- 투어 네비게이션 -->
+	<layer name="scene_view_right_roll_btn" url="%SWFPATH%/skin/arrow_right_high_res.png" 
+		align="right" x="20" org_y="-50" y="-50" zorder="100"
+        scale='0.3'
+		ondown="add(newY, y, 2); copy(y,newY);"
+		onup="copy(y,org_y)"
+		direction="-1"
+        autoalpha='true'
+        alpha='1'
+        keep='true'
+        onclick='do_rotate_90(1);'
+	>
+    <!-- do_camera_roll(1); -->
+		<layer name="scene_view_right_roll_tooltip_btn" type='text'
+			html='오른쪽으로 회전'
+			html_kr='오른쪽으로 회전'
+			html_en='Rotate Right'
+			edge='righttop' align='rightbottom' y='' x='10'
+			bg='true' bgcolor='0x000000' bgalpha='0.4'
+			bgroundedge='10'
+			css='color: #fff; padding: 0.25em; font-size: 1em;'
+			capture='false'
+			enabled='false'
+		/>
+        <layer name='scene_view_right_roll_tooltip_btn'
+            css='color: #fff; padding: 0.25em; font-size: 1em;'
+            y='0'
+            x='0'
+            devices='mobile|tablet'
+            />
+	</layer>
+	
+	<layer name="scene_view_left_roll_btn" url="%SWFPATH%/skin/arrow_left_high_res.png" 
+		align="left" x="20" org_y="-50" y="-50" zorder="100"
+        scale='0.3'
+		ondown="add(newY, y, 2); copy(y,newY);"
+		onup="copy(y,org_y)"
+		direction="1"
+        autoalpha='true'
+        alpha='1'
+        keep='true'
+        onclick='do_rotate_90(-1);'
+	>
+    <!-- do_camera_roll(-1); -->
+		<layer name="scene_view_left_roll_btn_tooltip" type='text'
+			html='왼쪽으로 회전'
+			html_kr='왼쪽으로 회전'
+			html_en='Rotate Left'
+			edge='lefttop' align='leftbottom' y='' x='10'
+			bg='true' bgcolor='0x000000' bgalpha='0.4'
+			bgroundedge='10'
+			css='color: #fff; padding: 0.25em; font-size: 1em;'
+			capture='false'
+			enabled='false'
+		/>
+        <layer name='scene_view_left_roll_btn_tooltip'
+            css='color: #fff; padding: 0.25em; font-size: 1em;'
+            y='0'
+            x='0'
+            devices='mobile|tablet'
+            />
+	</layer>
+    <layer name='scene_view_right_roll_btn' x='10' scale='0.2' devices='mobile|tablet' />
+	<layer name='scene_view_left_roll_btn' x='10' scale='0.2' devices='mobile|tablet' />
+    
+	
+    
+<!-- 
+    <layer name='scene_move_forward'
+        url='%SWFPATH%/skin/navi/forward.png'
+        scale='0.4'
+        edge='bottomright'
+        align='bottom'
+        y='10'
+        org_y='10'
+        x='-20'
+        autoalpha='true'
+        alpha='0'
+        keep='true'
+        ondown="sub(newY, y, 1); copy(y,newY);"
+        onup="copy(y,org_y)"
+        onclick='skin_nextscene_loop_wepm(1);'
+    />
+    <layer name='scene_move_backward'
+        url='%SWFPATH%/skin/navi/backward.png'
+        scale='0.4'
+        edge='bottomleft'
+        align='bottom'
+        y='10'
+        org_y='10'
+        x='20'
+        autoalpha='true'
+        alpha='0'
+        keep='true'
+        ondown="sub(newY, y, 1); copy(y,newY);"
+        onup="copy(y,org_y)"
+        onclick='skin_nextscene_loop_wepm(-1);'
+    />
+    <layer name='scene_move_forward' scale='0.2' x='-5' devices='mobile|tablet' />
+    <layer name='scene_move_backward' scale='0.2' x='5' devices='mobile|tablet' />
+ --> 
+
+    <action name='do_rotate_90'>
+        set(rotate_val, %1);
+        delayedcall(0,
+            if(rotate_val GT 0,
+                add(newHlookat, view.hlookat, 90);
+            ,
+                add(newHlookat, view.hlookat, -90);
+            );
+            tween(view.hlookat, get(newHlookat));
+        );
+    </action>
+
+    <action name='do_camera_roll'>
+        div(newH, %1, 2);
+        delayedcall(0,
+            add(view.hlookat, newH);
+
+            if(pressed,
+                do_camera_roll(%1);
+            );
+        );
+    </action>
+    <action name='showTourNavi'>
+        if(
+            xml.scene == 'scene_object' OR
+            xml.scene == 'scene_storytown_center' OR
+            xml.scene == 'scene_mediatown' OR
+            xml.scene == 'scene_mediatown_commemorate' OR
+            xml.scene == 'scene_mediatown_study' OR
+            xml.scene == 'scene_participanttown' OR
+            xml.scene == 'scene_relative_organtown'
+        ,
+            if(xml.scene == 'scene_object',
+                set(layer[scene_view_right_roll_btn].alpha, 0);
+                set(layer[scene_view_left_roll_btn].alpha, 0);
+            );
+            set(layer[scene_move_forward].alpha, 0);
+            set(layer[scene_move_backward].alpha, 0);
+        ,
+            set(layer[scene_view_right_roll_btn].alpha, 1);
+            set(layer[scene_view_left_roll_btn].alpha, 1);
+            set(layer[scene_move_forward].alpha, 1);
+            set(layer[scene_move_backward].alpha, 1);
+        );
+    </action>
+
+    <action name="skin_nextscene_loop_wepm" scope="local" args="indexadd">
+        add(newsceneindex, scene[get(xml.scene)].index, indexadd);
+        sub(lastsceneindex, scene.count, 1);
+        if(newsceneindex LT 0, copy(newsceneindex,lastsceneindex));
+        if(newsceneindex GT lastsceneindex, set(newsceneindex,0));
+
+        if(
+            scene[get(newsceneindex)].name == scene_storytown_subject_9 OR
+            scene[get(newsceneindex)].name == scene_relative_organtown_rda_6
+        ,
+            if(indexadd GT 0,
+                add(indexadd, 1);
+            ,
+                sub(indexadd, 1);
+            );
+            skin_nextscene_loop_wepm(get(indexadd));
+            break();
+        );
+
+        skin_loadscene(get(newsceneindex), calc(indexadd LT 0 ? skin_settings.loadscene_blend_prev : skin_settings.loadscene_blend_next));
+        
+        playsound(click, get(wepm_sound[click].url));
+	</action>
+
+</krpano>

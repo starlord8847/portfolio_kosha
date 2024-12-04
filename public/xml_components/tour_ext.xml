@@ -1,0 +1,347 @@
+<krpano>
+
+	<action name="postStickerOutOfScreenAtTheBorders" type="Javascript" autorun=""><![CDATA[
+		var hotspots = krpano.get('hotspot').getArray();
+		var stagewidth = krpano.get('stagewidth');
+		var stageheight = krpano.get('stageheight');
+		var rotate = -90;
+
+		function getNewValues(direct, hotspotHalfWidth, hsScreenPosition){
+			var resultData = {};
+			var newOx;
+
+			if(direct == 'left'){
+				newOx = hsScreenPosition.y - stageheight/2;
+				if(newOx >= stageheight/2){
+					newOx = Math.min(newOx, stageheight/2);
+					newOx -= hotspotHalfWidth;
+				}else if(newOx <= stageheight/2*-1){
+					newOx = Math.max(newOx, stageheight/2*-1);
+					newOx += hotspotHalfWidth;
+				}
+				resultData = {
+					direction: direct,
+					rotate: rotate* -1,
+					ox: newOx,
+					oy: stagewidth/2,
+				}
+			}else if(direct == 'right'){
+				newOx = stageheight/2 - hsScreenPosition.y;
+				if(newOx >= stageheight/2){
+					newOx = Math.min(newOx, stageheight/2);
+					newOx -= hotspotHalfWidth;
+				}else if(newOx <= stageheight/2*-1){
+					newOx = Math.max(newOx, stageheight/2*-1);
+					newOx += hotspotHalfWidth;
+				}else{
+			
+				}
+				resultData = {
+					direction: direct,
+					rotate: rotate,
+					ox: newOx,
+					oy: stagewidth/2,
+				}
+			}else if(direct == 'top'){
+				newOx = stagewidth/2 - hsScreenPosition.x;
+				if(newOx >= stagewidth/2){
+					newOx = Math.min(newOx, stagewidth/2);
+				}else if(newOx <= stagewidth/2*-1){
+					newOx = Math.max(newOx, stagewidth/2*-1);
+				}
+				resultData = {
+					direction: direct,
+					rotate: 180,
+					ox: newOx,
+					oy: stageheight/2,
+				}
+			}else if(direct == 'bottom'){
+				newOx = hsScreenPosition.x - stagewidth/2;
+				if(newOx >= stagewidth/2){
+					newOx = Math.min(newOx, stagewidth/2);
+				}else if(newOx <= stagewidth/2*-1){
+					newOx = Math.max(newOx, stagewidth/2*-1);
+				}
+				resultData = {
+					direction: direct,
+					rotate: 0,
+					ox: newOx,
+					oy: stageheight/2,
+				}
+			}
+			return resultData;
+		}
+		function checkIfOutOfViewRange(ath){
+			var viewH = krpano.get('view.hlookat');
+			viewH += 360180;
+			viewH %= 360;
+			viewH -= 180;
+
+			var diff;
+
+			if(viewH > ath){
+				diff = viewH - ath;
+			}else{
+				diff = ath - viewH;
+			}
+			<!-- console.info(viewH, ath, diff); -->
+			return diff > 80;
+		};
+
+		// pan값을 0~180도 사이의 값으로 변환
+		function adjust_pan(pan) {
+			pan=pan%360;
+			if(pan>180 && pan<360) {
+				return -(360-pan);
+			} else if (pan > -360 && pan < -180) {
+				return pan+360;
+			} else {
+				return pan % 180;
+			}	
+		}
+
+    	for(var i=0; i<hotspots.length; i++){
+    		if(hotspots[i].customtype == 'poststickerhotspot' || hotspots[i].customtype == 'customFloatIcon'){
+
+				var hsAth = hotspots[i].ath;
+				
+
+				var hlookat = krpano.get("view.hlookat");
+				var vlookat = krpano.get("view.vlookat");
+				var hsAtv = hotspots[i].atv;
+
+				var h_diff = hlookat-hsAth; // 값이 마이너스일 경우 핫스팟이 오른쪽에 있음
+				var v_diff = vlookat-hsAtv; // 값이 마이너스일 경우 핫스팟이 아래에 있음						
+				h_diff=adjust_pan(h_diff);
+
+				var hsScreenPosition = krpano.spheretoscreen(hsAth, hsAtv);
+				var newData;
+
+				if(
+					isNaN(hsScreenPosition.x) || isNaN(hsScreenPosition.y) || 
+					hsScreenPosition.x < 0 || hsScreenPosition.x > stagewidth || hsScreenPosition.y < 0 || hsScreenPosition.y > stageheight
+				){
+
+					var hotspotHalfWidth = krpano.get('hotspot['+hotspots[i].name+'].width')/2;
+					var outOfRange = false;
+
+					if(Math.abs(h_diff) > Math.abs(v_diff)){
+						if(h_diff>0){
+							newData = getNewValues('left', hotspotHalfWidth, hsScreenPosition);
+							if(checkIfOutOfViewRange(hsAth)){
+								if(v_diff>0){
+									newData.ox = stageheight/2*-1
+									newData.ox += hotspotHalfWidth;
+								}else{
+									newData.ox = stageheight/2
+									newData.ox -= hotspotHalfWidth;
+								}
+								outOfRange = true;
+							}else{
+								outOfRange = false;
+							}
+						}else{
+							newData = getNewValues('right', hotspotHalfWidth, hsScreenPosition);
+							if(checkIfOutOfViewRange(hsAth)){
+								if(v_diff>0){
+									newData.ox = stageheight/2
+									newData.ox -= hotspotHalfWidth;
+								}else{
+									newData.ox = stageheight/2*-1
+									newData.ox += hotspotHalfWidth;
+								}
+								outOfRange = true;
+							}else{
+								outOfRange = false;
+							}
+						}
+					}else{
+						if(v_diff > 0){
+							newData = getNewValues('top', hotspotHalfWidth, hsScreenPosition);
+						}else{
+							newData = getNewValues('bottom', hotspotHalfWidth, hsScreenPosition);
+						}
+					}
+
+					var lastDirection = krpano.get('hotspot['+hotspots[i].name+'].direction');
+					var sameDirection = lastDirection == newData.direction?true:false;
+					sameDirection = false;
+
+					var lastOurOfRange = krpano.get('hotspot['+hotspots[i].name+'].outofrange');
+
+
+					krpano.set('hotspot['+hotspots[i].name+'].flying', 1);
+					krpano.set('hotspot['+hotspots[i].name+'].distorted', false);
+					krpano.set('hotspot['+hotspots[i].name+'].rotate', newData.rotate);
+					krpano.set('hotspot['+hotspots[i].name+'].oy', newData.oy);
+					krpano.set('hotspot['+hotspots[i].name+'].direction', newData.direction);
+
+
+					if( (lastOurOfRange && !outOfRange) || (!lastOurOfRange && outOfRange)){
+						krpano.call('stoptween(hotspot['+hotspots[i].name+'].ox');
+						krpano.call('tween(hotspot['+hotspots[i].name+'].ox,'+ newData.ox +')');
+						krpano.set('hotspot['+hotspots[i].name+'].outofrange', !lastOurOfRange);
+					}else{
+						krpano.set('hotspot['+hotspots[i].name+'].ox', newData.ox);
+					}
+
+
+					krpano.set('hotspot['+hotspots[i].name+'_profile].flying', 1);
+					krpano.set('hotspot['+hotspots[i].name+'_profile].rotate', newData.rotate);
+					krpano.set('hotspot['+hotspots[i].name+'_profile].oy', newData.oy - 13.5);
+					
+					if( (lastOurOfRange && !outOfRange) || (!lastOurOfRange && outOfRange)){
+						krpano.call('stoptween(hotspot['+hotspots[i].name+'_profile].ox');
+						krpano.call('tween(hotspot['+hotspots[i].name+'_profile].ox,'+ newData.ox +')');
+					}else{
+						krpano.set('hotspot['+hotspots[i].name+'_profile].ox', newData.ox);
+					}
+				}else{
+					if( !(isNaN(hsScreenPosition.x) || isNaN(hsScreenPosition.y)) ){
+						krpano.set('hotspot['+hotspots[i].name+'].flying', 0);
+                        krpano.set('hotspot['+hotspots[i].name+'].distorted', true);
+                        krpano.set('hotspot['+hotspots[i].name+'].rotate', 0);
+						krpano.set('hotspot['+hotspots[i].name+'].oy', 0);
+						krpano.set('hotspot['+hotspots[i].name+'].ox', 0);
+						krpano.set('hotspot['+hotspots[i].name+'].direction', null);
+
+						krpano.set('hotspot['+hotspots[i].name+'_profile].flying', 0);
+						krpano.set('hotspot['+hotspots[i].name+'_profile].rotate', 0);
+						krpano.set('hotspot['+hotspots[i].name+'_profile].oy', -13.5);
+						krpano.set('hotspot['+hotspots[i].name+'_profile].ox', 0);
+					}else{
+						<!-- console.info('!!!hsScreenPosition', hsScreenPosition, krpano.get('view.hlookat')); -->
+					}
+				}
+    		}
+    	}
+	]]></action>
+
+
+    <style name='style_info' 
+        url='%CURRENTXML%/assets/img/icon/manager/ico_saftyrule.png'
+        clicked_url='%CURRENTXML%/assets/img/icon/manager/ico_clicked_saftyrul.png'
+        scale='0.8'
+        edge='bottom'
+        capture='false'
+        distorted='true'
+        onclick.addevent='
+            if(flying GT 0,
+                lookinterrupt();
+                lookto(get(ath), get(atv) );
+            ,
+                startCheckedAni();
+            );
+        '
+    />
+    <style name='style_info_video'
+        style='style_info'
+        url='%CURRENTXML%/assets/img/icon/manager/ico_movie.png'
+        clicked_url='%CURRENTXML%/assets/img/icon/manager/ico_clicked_movie.png'
+    />
+    <style name='style_info_law'
+        style='style_info'
+        url='%CURRENTXML%/assets/img/icon/manager/ico_law.png'
+        clicked_url='%CURRENTXML%/assets/img/icon/manager/ico_clicked_law.png'
+    />
+    <style name='style_info_excl'
+        style='style_info'
+        url='%CURRENTXML%/assets/img/icon/ico_excl.png'
+        clicked_url='%CURRENTXML%/assets/img/icon/ico_clicked_excl.png'
+    />
+
+    <action name='startCheckedAni' scope='local'>
+        if(!caller.checked,
+            set(caller.checked, true);
+            js(App.updateCheckedHotspot(get(caller.name)));
+
+            tween(caller.ry, 360,,,,
+                copy(caller.url, caller.clicked_url);
+            );
+        );
+    </action>
+    <events name="skin_events_hotspot_checked" keep="true"
+    />
+
+    <style name='style_popup'
+        scale='0.4'
+        align='center'
+        edge='center'
+        zoom='true'
+        distorted='false'
+        enabled='false'
+        capture='false'
+        alpha='0'
+        autoalpha='1'
+        onloaded='initPopup(); add_close_btn();'
+        close='set(alpha, 0); txtadd(closehs, get(name), "_close"); set(hotspot[get(closehs)].alpha, 0);'
+        open='set(alpha, 1); txtadd(closehs, get(name), "_close"); set(hotspot[get(closehs)].alpha, 1);'
+    />
+
+    <action name='open_popup' scope='local' type='javascript'><![CDATA[
+        if(caller.flying > 0){
+            krpano.call('lookinterrupt()');
+            actions.lookto(caller.ath, caller.atv);
+        }else{
+            if(caller.linkedhotspot){
+                let linkedhotspot = krpano.get(`hotspot[${caller.linkedhotspot}]`);
+                if(linkedhotspot.alpha > 0){
+                    krpano.call(`callwith(hotspot[${linkedhotspot.name}], close)`);
+                }else{
+                    krpano.call(`callwith(hotspot[${linkedhotspot.name}], open)`);
+                }
+            }
+        }
+    ]]></action>
+    <action name='initPopup' scope='local' type='javascript'><![CDATA[
+        let linkedhotspot = krpano.get(`hotspot[${caller.linkedhotspot}]`);
+        if(!caller.popup || caller.popup =='left'){
+            caller.ath = parseInt(linkedhotspot.ath) - 30;
+            caller.atv = parseInt(linkedhotspot.atv) - 10;
+        }else if(caller.popup =='right'){
+            caller.ath = parseInt(linkedhotspot.ath) + 30;
+            caller.atv = parseInt(linkedhotspot.atv) - 10;
+        }
+    ]]></action>
+    <action name='add_close_btn' scope='local' type='javascript'><![CDATA[
+        let imgWidth = krpano.hotspot.getItem(caller.linkedhotspot).width;
+        let imgHeight = krpano.hotspot.getItem(caller.linkedhotspot).height;
+        let newCloseHsName = caller.name + '_close';
+        actions.addhotspot(newCloseHsName);
+
+        let closeHs = krpano.get("hotspot["+newCloseHsName+"]");
+        closeHs.type = 'text';
+        closeHs.html = 'X';
+        closeHs.css = 'font-weight: bold; font-size: 1.5rem; color: #000;';
+        closeHs.padding = '20';
+        closeHs.capture = false;
+        closeHs.bg = false;
+        closeHs.zoom = true;
+        closeHs.align = 'center';
+        closeHs.edge = 'center';
+        closeHs.ath = caller.ath;
+        closeHs.alpha = caller.alpha;
+        closeHs.autoalpha = true;
+        closeHs.parent = caller.name;
+        closeHs.linkedhotspot = caller.linkedhotspot;
+        closeHs.atv = caller.atv;
+        closeHs.ox = parseInt(imgWidth) + 25;
+        closeHs.oy = imgHeight * -1 - 25;
+        closeHs.onclick = function(){
+            krpano.call(`callwith(hotspot[${caller.linkedhotspot}], onclick);`);
+            krpano.call(`mouse_click()`);
+        };
+    ]]></action>
+
+    <action name='open_video' scope='local' type='javascript'><![CDATA[
+        if(caller.flying > 0){
+            krpano.call('lookinterrupt()');
+            actions.lookto(caller.ath, caller.atv);
+        }else{
+            if(caller.linkedscene){
+                actions.loadscene(caller.linkedscene)
+            }
+        }
+    ]]></action>
+    
+</krpano>
