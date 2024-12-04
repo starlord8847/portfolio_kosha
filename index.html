@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>창호공사 작업</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta name="mobile-web-app-capable" content="yes" />
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<meta http-equiv="x-ua-compatible" content="IE=edge" />
+	<style>
+		@font-face {
+			font-family: 'VitroCore';
+			font-weight: normal;
+			font-style: normal;
+			src: url('assets/font/VITRO_CORE_OTF.otf') format('opentype');
+			font-display: swap;
+		}
+		@font-face {
+			font-family: 'NEXON Lv2 Gothic';
+			src: url('assets/font/NEXON_Lv2_Gothic_OTF.otf') format('opentype');
+			font-weight: normal;
+			font-style: normal;
+		}
+		html { height:100%; }
+		body { height:100%; overflow:hidden; margin:0; padding:0; font-family:Arial, Helvetica, sans-serif; font-size:16px; color:#FFFFFF; background-color:#000000; }
+	</style>
+    <style>
+        /* 스크롤바 설정*/
+        .box1::-webkit-scrollbar{
+            width: 6px;
+        }
+        /* 스크롤바 막대 설정*/
+        .box1::-webkit-scrollbar-thumb{
+            background-color: rgba(141, 141, 141, 0.904);
+            /* 스크롤바 둥글게 설정    */
+            border-radius: 10px;
+        }
+        .box1::-webkit-scrollbar-track{
+            background-color: #ebebeb;
+            border-radius: 10px;
+        }
+        #parent{
+            background-color: rgba( 255, 255, 255, 0.95 );
+        }
+        #child{
+            opacity: 1;
+        }
+        /*
+        진입/진출 애니메이션은 다른 지속 시간과
+        타이밍 함수를 사용할 수 있습니다.
+        */
+        .slide-right-fade-enter-active {
+        transition: all 0.2s ease-out;
+        }
+
+        .slide-right-fade-leave-active {
+        transition: all 0.2s cubic-bezier(0.25, 0.25, 0.75, 0.75);
+        }
+
+        .slide-right-fade-enter-from,
+        .slide-right-fade-leave-to {
+        transform: translateX(50px);
+        opacity: 0;
+        }
+
+        .slide-left-fade-enter-active {
+        transition: all 0.2s ease-out;
+        }
+
+        .slide-left-fade-leave-active {
+        transition: all 0.2s cubic-bezier(0.25, 0.25, 0.75, 0.75);
+        }
+
+        .slide-left-fade-enter-from,
+        .slide-left-fade-leave-to {
+        transform: translateX(-50px);
+        opacity: 0;
+        }
+        /* .popup-content {
+        word-break: keep-all;
+        } */
+    </style>
+    <link  href="js/viewerjs/viewer.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app"></div>
+
+    <script src="tour.js"></script>
+    <script src="js/exceljs.min.js"></script>
+    <script src="js/excelJsWrap.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/arrayDB.js"></script>
+    <script src="js/viewerjs/viewer.min.js"></script>
+    <script src="js/cdn.tailwindcss.com_3.3.3.js"></script>
+    <script src="js/threatList.js"></script>
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>    
