@@ -1,0 +1,918 @@
+﻿<krpano version="1.20.11" title="Virtual Tour">
+
+	<include url="%ROOT%/skin/vtourskin.xml" />
+    <include url="%ROOT%/ext/sound.xml" />
+    <include url="%ROOT%/ext/animation.xml" />
+    <include url="%ROOT%/xml_ext/common.xml" />
+    <!-- <include url="%ROOT%/xml_ext/map.xml" /> -->
+    <include url="%ROOT%/xml_components/style_tour.xml" />
+    <include url="%ROOT%/plugins/showtext.xml"/>
+    <include url="%ROOT%/xml_ext/help_slide.xml"/>
+	
+    <!-- <include url="%ROOT%/xml_components/tour_addon.xml" />
+    <include url="%ROOT%/xml_components/tour_ext.xml" />
+    <include url="%ROOT%/xml_components/viewcopy.xml" /> -->
+
+	<!-- customize skin settings: maps, gyro, webvr, thumbnails, tooltips, layout, design, ... -->
+	<skin_settings maps="false"
+		maps_type="google"
+		maps_bing_api_key=""
+		maps_google_api_key=""
+		maps_zoombuttons="false"
+		maps_loadonfirstuse="true"
+		gyro="true"
+		gyro_keeplookingdirection="false"
+		webvr="true"
+		webvr_keeplookingdirection="true"
+		webvr_prev_next_hotspots="true"
+		autotour="false"
+		littleplanetintro="false"
+		followmousecontrol="false"
+		title="true"
+		thumbs="true"
+		thumbs_width="120" thumbs_height="80" thumbs_padding="10" thumbs_crop="0|40|240|160"
+		thumbs_opened="false"
+		thumbs_text="true"
+		thumbs_dragging="true"
+		thumbs_onhoverscrolling="false"
+		thumbs_scrollbuttons="false"
+		thumbs_scrollindicator="false"
+		thumbs_loop="false"
+		tooltips_buttons="false"
+		tooltips_thumbs="true"
+		tooltips_hotspots="false"
+		tooltips_mapspots="false"
+		deeplinking="false"
+		loadscene_flags="MERGE"
+		loadscene_blend="COLORBLEND(0.5, 0x000000, linear)"
+		loadscene_blend_prev="COLORBLEND(0.5, 0x000000, linear)"
+		loadscene_blend_next="COLORBLEND(0.5, 0x000000, linear)"
+		loadingtext=""
+		layout_width="0"
+		layout_maxwidth="814"
+		controlbar_width="-24"
+		controlbar_height="40"
+		controlbar_offset="20"
+		controlbar_offset_closed="-40"
+		controlbar_overlap.no-fractionalscaling="10"
+		controlbar_overlap.fractionalscaling="0"
+		design_skin_images="vtourskin.png"
+		design_bgcolor="0x2D3E50"
+		design_bgalpha="0.8"
+		design_bgborder="0"
+		design_bgroundedge="1"
+		design_bgshadow="0 4 10 0x000000 0.3"
+		design_thumbborder_bgborder="3 0xFFFFFF 1.0"
+		design_thumbborder_padding="2"
+		design_thumbborder_bgroundedge="0"
+		design_text_css="color:#FFFFFF; font-family:Arial;"
+		design_text_shadow="1"
+		/>
+
+	<!--
+	    For an alternative skin design either change the <skin_settings> values 
+	    from above or optionally include one of the predefined designs from below.
+	-->
+	<!-- <include url="skin/vtourskin_design_flat_light.xml"  /> -->
+	<!-- <include url="skin/vtourskin_design_glass.xml"       /> -->
+	<!-- <include url="skin/vtourskin_design_ultra_light.xml" /> -->
+	<!-- <include url="skin/vtourskin_design_117.xml"         /> -->
+	<!-- <include url="skin/vtourskin_design_117round.xml"    /> -->
+	<!-- <include url="skin/vtourskin_design_black.xml"       /> -->
+
+	<!-- <events name='events_layer_btn' keep='true' onnewpano='
+		callwith(layer[page_text_1], onloaded);
+		callwith(layer[page_text_2], onloaded);
+		callwith(layer[page_text_3], onloaded);
+		callwith(layer[page_text_4], onloaded);
+		callwith(layer[page_text_5], onloaded);
+		callwith(layer[page_text_6], onloaded);
+		callwith(layer[page_text_7], onloaded);
+		callwith(layer[page_text_8], onloaded);
+		callwith(layer[page_text_9], onloaded);
+	' /> -->
+	<layer_btn_settings infomation='true' delay_autoplay='10' delay_autoplay_org='10' autoplay='false' bgmpaused='false' scriptpaused='false' />
+	<events name='events_layer_btn' keep='true' onnewpano='loadimgs(); help_slide_init();' 
+		onremovepano='
+			if(layer[settings_bg].alpha,
+                tween(layer[settings_bg].alpha, 0);
+            );
+			if(!layer_btn_settings.infomation, 
+				set(layer_btn_settings.infomation, true);
+			);
+		'
+	/>
+
+	<events name='events_main' keep='true' onnewpano='
+		callwith(layer[page_text], loadtxt);
+        if(scene[get(xml.scene)].index == 0 OR scene[get(xml.scene)].index == calc(scene.count -1),
+            set(layer[skin_layer].width, 0);
+        ,
+            copy(layer[skin_layer].width, skin_settings.layout_width);
+        );
+    '
+    />
+
+	<events name='keep_controller'
+		keep='true'
+		onnewpano='keep_controll_action(); keep_controll_action_3();'
+	/>
+
+	<action name='keep_controll_action'>
+		if(scene[get(xml.scene)].noautoplay, 
+			set(layer[autoplay_toggle_btn].enabled, false);
+		, 	
+			set(layer[autoplay_toggle_btn].enabled, true);
+		);
+		if(scene[get(xml.scene)].noshow == true,
+			set(layer[evaluation_btn].alpha, 0);
+			<!-- set(layer[setting_btn].alpha, 0); -->
+			set(layer[custom_skin_bg].alpha, 0);
+			set(layer[custom_skin_location].alpha, 0);
+			set(layer[map_btn].alpha, 0);
+			set(layer[radar].alpha, 0);
+			set(layer[page_text].alpha, 0);
+			set(layer[pano_name].alpha, 0);
+			set(layer[hit_box].alpha, 0);
+			set(layer[icon_count_bg].alpha, 0);
+			set(layer[icon_count_text].alpha, 0);
+		,
+			set(layer[evaluation_btn].alpha, 1);
+			set(layer[setting_btn].alpha, 1);
+			set(layer[custom_skin_bg].alpha, 1);
+			set(layer[custom_skin_location].alpha, 1);
+			set(layer[map_btn].alpha, 1);
+			set(layer[radar].alpha, 1);
+			set(layer[page_text].alpha, 1);
+			set(layer[pano_name].alpha, 1);
+			set(layer[hit_box].alpha, 1);
+		);
+		if(scene[get(xml.scene)].nonadir == true,
+			set(hotspot[nadir_logo].alpha, 0);
+		,
+			set(hotspot[nadir_logo].alpha, 1);
+		);
+	</action>
+
+	<!-- krpano 버전 동적으로 위험요인 없는 scene에서의 위험요인 표시 레이어 안보이게 하기 -->
+	<action name='keep_controll_action_3'>
+		set(isstyle, false);
+		
+		for(set(i,0), i LT hotspot.count, inc(i),
+			if(hotspot[get(i)].style == 'st_icon_ext',
+				set(isstyle, true);
+			);
+		);
+
+		if(!isstyle,
+			set(layer[icon_count_bg].alpha, 0);
+			set(layer[icon_count_text].alpha, 0);
+		,
+			set(layer[icon_count_bg].alpha, 1);
+			set(layer[icon_count_text].alpha, 1);
+		);
+	</action>
+
+	<!-- javascript 버전 동적으로 위험요인 없는 scene에서의 위험요인 표시 레이어 안보이게 하기 -->
+	<action name='keep_controll_action_2' type='Javascript'>
+		<![CDATA[
+			var hotspotCount = krpano.get('hotspot.count');
+			var hasStIconExtHotspot = false;
+
+			// 핫스팟을 확인하고 'st_icon_ext' 스타일을 가진 핫스팟이 존재할 경우 alpha 값을 변경
+			for (var i = 0; i < hotspotCount; i++) {
+				var style = krpano.get('hotspot[' + i + '].style');
+				if (style === 'st_icon_ext') {
+					hasStIconExtHotspot = true;
+					break; // 'st_icon_ext' 스타일을 가진 핫스팟이 있으면 루프를 종료합니다.
+				}
+			}
+
+			// 'st_icon_ext' 스타일을 가진 핫스팟이 없는 경우
+			if (!hasStIconExtHotspot) {
+				krpano.set('layer[icon_count_bg].alpha', 0);
+				krpano.set('layer[icon_count_text].alpha', 0);
+			} else {
+				// 'st_icon_ext' 스타일을 가진 핫스팟이 있으면 alpha 값을 1로 설정합니다.
+				krpano.set('layer[icon_count_bg].alpha', 1);
+				krpano.set('layer[icon_count_text].alpha', 1);
+			}
+		]]>
+	</action>
+
+	<hotspot name='nadir_logo' keep='true' capture='false' enabled='false' url='%ROOT%/assets/common/nadir_logo.png' distorted='true' atv='90' zorder='9' />
+
+	<scene name="scene_intro" noautoplay='true' noshow='true' nocount='true' title="메인 화면" keep_layer='true' onstart="" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="%ROOT%/assets/intro/intro_thumb.png" lat="" lng="" heading="">
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0" vlookat="0" fovtype="MFOV" fov="100" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/bg_new_white.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/bg_new_white.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/bg_new_white.tiles/vr/pano_%s.jpg" />
+		</image>
+
+        <include url='%ROOT%/xml_ext/scene_intro.xml' />
+
+	</scene>
+
+	<scene name="scene_1_1" nocount='true' title="현장 소개" onstart="" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/8.tiles/thumb.jpg" lat="" lng="" heading="">
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/8.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/8.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/8.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_1_1.xml' />
+
+	</scene>
+	
+	<scene name="scene_2_1" title="시공 현장 이동 1" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/8.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/8.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/8.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/8.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_2_1.xml' />
+
+	</scene>
+
+	<scene name="scene_2_2" title="시공 현장 이동 2" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/9.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="10" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/9.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/9.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/9.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_2_2.xml' />
+
+	</scene>
+
+	<scene name="scene_2_3" title="시공 현장 이동 3" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/10.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/10.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/10.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/10.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_2_3.xml' />
+
+	</scene>
+
+	<scene name="scene_2_4" title="시공 현장 이동 4" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/11.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/11.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/11.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/11.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_2_4.xml' />
+
+	</scene>
+
+	<scene name="scene_2_5" title="시공 현장 이동 5" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/15.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/15.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/15.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/15.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_2_8.xml' />
+
+	</scene>
+
+	<scene name="scene_3_1" title="안전난간 해체 1" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/16.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/16.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/16.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/16.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_3_1.xml' />
+
+	</scene>
+
+	<scene name="scene_3_2" title="임시난간 해체 2" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/17.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/17.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/17.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/17.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_3_2.xml' />
+
+	</scene>
+
+	<scene name="scene_4_1" title="발코니 난간 설치 1" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/18.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/18.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/18.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/18.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_4_1.xml' />
+
+	</scene>
+
+	<scene name="scene_4_2" title="발코니 난간 설치 2" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/19.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/19.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/19.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/19.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_4_2.xml' />
+
+	</scene>
+
+	<scene name="scene_5_1" title="창틀 설치 1" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/20.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/20.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/20.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/20.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_5_1.xml' />
+
+	</scene>
+
+	<scene name="scene_5_2" title="창틀 설치 2" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/21.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/21.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/21.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/21.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_5_2.xml' />
+
+	</scene>
+
+	<scene name="scene_5_3" title="창틀 설치 3" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/22.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/22.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/22.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/22.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_5_3.xml' />
+
+	</scene>
+
+	<scene name="scene_5_4" title="창틀 설치 4" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/24.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/24.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/24.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/24.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_5_4.xml' />
+
+	</scene>
+
+	<scene name="scene_5_5" title="창틀 설치 5" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/25.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/25.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/25.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/25.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_5_5.xml' />
+
+	</scene>
+
+	<scene name="scene_6_1" title="유리 설치" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/26.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="-30" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/26.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/26.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/26.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_6_1.xml' />
+
+	</scene>
+
+	<scene name="scene_7_1" title="현장 정리" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/27.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/27.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/27.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/27.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_7_1.xml' />
+
+	</scene>
+
+	<scene name="scene_outro" noautoplay='true' noshow='true' nocount='true' title="마무리 화면" onstart="" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="%ROOT%/assets/outro/outro_thumb.png" lat="" lng="" heading="">
+		
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="100" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/bg_new_white.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/bg_new_white.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/bg_new_white.tiles/vr/pano_%s.jpg" />
+		</image>
+
+        <include url='%ROOT%/xml_ext/scene_outro.xml' />
+
+	</scene>
+
+
+	<!-- ================================== -->
+
+	<!-- <scene name="scene_2_5" title="시공 현장 이동 5" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/12.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/12.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/12.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/12.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_2_5.xml' />
+
+	</scene>
+
+	<scene name="scene_2_6" title="시공 현장 이동 6" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/13.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/13.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/13.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/13.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_2_6.xml' />
+
+	</scene>
+
+	<scene name="scene_2_7" title="시공 현장 이동 7" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/14.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/14.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/14.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/14.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_2_7.xml' />
+
+	</scene> -->
+
+	<!-- <scene name="scene_6_1" title="20" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/20.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/20.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/20.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/20.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_6_1.xml' />
+
+	</scene>
+
+	<scene name="scene_6_2" title="21" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/21.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/21.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/21.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/21.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_6_2.xml' />
+
+	</scene>
+
+	<scene name="scene_6_3" title="22" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/22.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/22.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/22.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/22.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_6_3.xml' />
+
+	</scene>
+
+	<scene name="scene_6_4" title="24" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/24.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/24.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/24.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/24.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_6_4.xml' />
+
+	</scene>
+
+	<scene name="scene_7_1" title="25" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/25.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/25.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/25.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/25.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_7_1.xml' />
+
+	</scene>
+
+	<scene name="scene_8_1" title="26" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/26.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/26.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/26.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/26.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_8_1.xml' />
+
+	</scene>
+
+	<scene name="scene_9_1" title="27" onstart="updateradar();" havevrimage.mobilevr="false" havevrimage.no-mobilevr="true" thumburl="panos/27.tiles/thumb.jpg" lat="" lng="" heading="">
+		
+		<action name='updateradar'>
+			set(layer[radar].parent, map_spot_1);
+			set(layer[radar].heading, -20);
+		</action>
+		
+		<control bouncinglimits="calc:image.cube ? true : false" />
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto" />
+
+		<preview url="panos/27.tiles/preview.jpg" />
+
+		<image if="!(webvr.isenabled OR device.mobilevr)">
+			<cube url="panos/27.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024,2048,3840" />
+		</image>
+
+		<image if="webvr.isenabled OR device.mobilevr">
+			<cube url="panos/27.tiles/vr/pano_%s.jpg" />
+		</image>
+
+		<include url='%ROOT%/xml_ext/scene_9_1.xml' />
+
+	</scene> -->
+
+</krpano>

@@ -1,0 +1,13 @@
+** Copyright **
+
+Copyright Indyspot Inc. All Rights Reserved.
+
+This product may contain the following open source software :
+
+1. Viewer.js
+    - v1.11.6
+    - License : MIT © Chen Fengyuan
+    - Download Site : https://github.com/fengyuanchen/viewerjs
+
+
+    
